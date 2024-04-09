@@ -21,7 +21,7 @@ export class User extends Document {
   @Prop({ default: null })
   banDate: Date;
 
-  @Prop()
+  @Prop({ default: null })
   banReason: string;
 
   @Prop({ default: Date.now })

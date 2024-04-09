@@ -8,18 +8,21 @@ import {
 import { UserRegisterDto } from './dto/user-register.dto';
 import { ApiOperation } from '@nestjs/swagger';
 import { LoggerService } from 'logger/logger.service';
+import { UsersService } from './users.service';
 
 @Controller('/auth')
 export class UsersController {
-  constructor(private readonly loggerService: LoggerService) {}
+  constructor(
+    private readonly loggerService: LoggerService,
+    private readonly usersService: UsersService,
+  ) {}
 
   @ApiOperation({ summary: 'Creating a new user' })
   @Post('/register')
   async register(@Body() dto: UserRegisterDto) {
     try {
       if (dto) {
-        this.loggerService.log(`[UsersController] register - ok`);
-        return 'ok';
+        return this.usersService.register(dto);
       }
     } catch (e) {
       this.loggerService.error(`[UsersController] error: ${e.message}`);

@@ -9,7 +9,7 @@ export const UserSchema = new mongoose.Schema({
 
   banned: { type: Boolean, default: false },
   banDate: { type: Date, default: null },
-  banReason: String,
+  banReason: { type: String, default: null },
 
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
@@ -24,7 +24,7 @@ export interface User extends mongoose.Document {
 
   banned: boolean;
   banDate: Date | null;
-  banReason: string;
+  banReason: string | null;
 
   createdAt: Date;
   updatedAt: Date;
