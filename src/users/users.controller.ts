@@ -10,7 +10,7 @@ import { ApiOperation } from '@nestjs/swagger';
 import { LoggerService } from 'logger/logger.service';
 
 @Controller('/auth')
-export class AuthController {
+export class UsersController {
   constructor(private readonly loggerService: LoggerService) {}
 
   @ApiOperation({ summary: 'Creating a new user' })
@@ -18,11 +18,11 @@ export class AuthController {
   async register(@Body() dto: UserRegisterDto) {
     try {
       if (dto) {
-        this.loggerService.log(`[AuthController] register - ok`);
+        this.loggerService.log(`[UsersController] register - ok`);
         return 'ok';
       }
     } catch (e) {
-      this.loggerService.error(`[AuthController] error: ${e.message}`);
+      this.loggerService.error(`[UsersController] error: ${e.message}`);
       throw new HttpException(
         'Failed to create a new user',
         HttpStatus.BAD_REQUEST,
