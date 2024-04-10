@@ -1,9 +1,9 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { UserRegisterDto } from './dto/user-register.dto';
 import { UsersRepository } from './users.repository';
-import { hash } from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { LoggerService } from 'logger/logger.service';
+import { hash } from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -19,7 +19,7 @@ export class UsersService {
         dto.email,
       );
       if (existingUser) {
-        throw new Error('Such user already exists');
+        throw new ConflictException('User with such email already exists');
       }
 
       const salt = this.configService.get<string>('PASSWORD_SALT');
@@ -31,31 +31,18 @@ export class UsersService {
         password: hashedPassword,
       };
 
-      return await this.usersRepository.createNewUser(newUserDto);
-    } catch (e) {
-      if (e.message === 'Such user already exists') {
-        this.loggerService.error(
-          `[UsersService] Error registering user with email ${dto.email}: ${e.message}`,
+      const newUser = await this.usersRepository.createNewUser(newUserDto);
+      if (newUser) {
+        this.loggerService.log(
+          `[UsersService] New user registered (user: ${dto.email})`,
         );
-        throw new ConflictException('Such user already exists');
-      } else {
-        this.loggerService.error(
-          `[UsersService] Error registering user with email ${dto.email}: ${e}`,
-        );
-        throw e;
-      }
-    }
-  }
-
-  async login(email: string) {
-    try {
-      if (email) {
-        // ...
+        return newUser;
       }
     } catch (e) {
+      this.loggerService.error(
+        `[UsersService] Registration error (user: ${dto.email} / error: ${e.message})`,
+      );
       throw e;
     }
   }
-
-  async logout() {}
 }
