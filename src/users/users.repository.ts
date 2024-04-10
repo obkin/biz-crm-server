@@ -1,14 +1,29 @@
 import { Injectable } from '@nestjs/common';
+import { UserRegisterDto } from './dto/user-register.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { User } from './models/user.model';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class UsersRepository {
-  async createNewUser() {
+  constructor(
+    @InjectModel(User.name) private readonly userModel: Model<User>,
+  ) {}
+
+  async createNewUser(dto: UserRegisterDto) {
     try {
-      // ...
+      const createdUser = new this.userModel(dto);
+      return await createdUser.save();
     } catch (e) {
-      if (e instanceof Error) {
-        throw new Error(e.message);
-      }
+      throw e;
+    }
+  }
+
+  async findOneUserByEmail(email: string) {
+    try {
+      return await this.userModel.findOne({ email }).exec();
+    } catch (e) {
+      throw e;
     }
   }
 }
