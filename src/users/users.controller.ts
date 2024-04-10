@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   HttpException,
@@ -31,22 +30,16 @@ export class UsersController {
       }
     } catch (e) {
       this.loggerService.error(`[UsersController] error: ${e.message}`);
-      throw new BadRequestException(e);
-    }
-  }
-
-  @ApiOperation({ summary: 'User authorization' })
-  @Post('/login')
-  async login() {
-    try {
-      // ...
-    } catch (e) {
       throw new HttpException(
         'Failed to create a new user: such user already exists',
         HttpStatus.BAD_REQUEST,
       );
     }
   }
+
+  @ApiOperation({ summary: 'User authorization' })
+  @Post('/login')
+  async login() {}
 
   @ApiOperation({ summary: 'Logging out of the system' })
   @Post('/logout')
