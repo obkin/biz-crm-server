@@ -40,7 +40,7 @@ export class UsersService {
       }
     } catch (e) {
       this.loggerService.error(
-        `[UsersService] Registration error (user: ${dto.email} / error: ${e.message})`,
+        `[UsersService] Failed to create new user (user: ${dto.email} / error: ${e.message})`,
       );
       throw e;
     }
