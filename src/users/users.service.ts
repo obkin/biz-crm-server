@@ -13,7 +13,7 @@ export class UsersService {
     private readonly configService: ConfigService,
   ) {}
 
-  async register(dto: UserRegisterDto) {
+  async create(dto: UserRegisterDto) {
     try {
       const existingUser = await this.usersRepository.findOneUserByEmail(
         dto.email,

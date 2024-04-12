@@ -2,6 +2,7 @@ import {
   Body,
   ConflictException,
   Controller,
+  Get,
   HttpException,
   HttpStatus,
   Post,
@@ -15,12 +16,12 @@ import { User } from './models/user.model';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @ApiOperation({ summary: 'Creating a new user' })
+  @ApiOperation({ summary: 'Create a new user' })
   @ApiResponse({ status: 201, type: User })
-  @Post('/register')
-  async register(@Body() dto: UserRegisterDto) {
+  @Post('/create')
+  async create(@Body() dto: UserRegisterDto) {
     try {
-      return await this.usersService.register(dto);
+      return await this.usersService.create(dto);
     } catch (e) {
       if (e instanceof ConflictException) {
         throw new HttpException(
@@ -36,15 +37,47 @@ export class UsersController {
     }
   }
 
-  @ApiOperation({ summary: 'User authorization' })
-  @Post('/login')
-  async login() {
-    // this method should create inside of 'auth' module
+  @ApiOperation({ summary: 'Return a user (by email)' })
+  @ApiResponse({ status: 200, type: User })
+  @Get('/get-by-email')
+  async getUserByEmail() {
+    try {
+      // ..
+    } catch (e) {
+      // ..
+    }
   }
 
-  @ApiOperation({ summary: 'Logging out of the system' })
-  @Post('/logout')
-  async loguot() {
-    // this method should create inside of 'auth' module
+  @ApiOperation({ summary: 'Return a user (by id)' })
+  @ApiResponse({ status: 200, type: User })
+  @Get('/get-by-id')
+  async getUserById() {
+    try {
+      // ..
+    } catch (e) {
+      // ..
+    }
+  }
+
+  @ApiOperation({ summary: 'Return all existing users' })
+  @ApiResponse({ status: 200, type: [User] })
+  @Get('/get-all')
+  async getAllUsers() {
+    try {
+      // ..
+    } catch (e) {
+      // ..
+    }
+  }
+
+  @ApiOperation({ summary: 'Return all blocked users' })
+  @ApiResponse({ status: 200, type: [User] })
+  @Get('/get-all-blocked')
+  async getAllBlockedUsers() {
+    try {
+      // ..
+    } catch (e) {
+      // ..
+    }
   }
 }
