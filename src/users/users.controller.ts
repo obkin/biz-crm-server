@@ -7,14 +7,16 @@ import {
   Post,
 } from '@nestjs/common';
 import { UserRegisterDto } from './dto/user-register.dto';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { UsersService } from './users.service';
+import { User } from './models/user.model';
 
 @Controller('/users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @ApiOperation({ summary: 'Creating a new user' })
+  @ApiResponse({ status: 201, type: User })
   @Post('/register')
   async register(@Body() dto: UserRegisterDto) {
     try {
