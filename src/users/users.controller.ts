@@ -6,11 +6,14 @@ import {
   HttpException,
   HttpStatus,
   Post,
+  Query,
+  UsePipes,
 } from '@nestjs/common';
 import { UserRegisterDto } from './dto/user-register.dto';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { User } from './models/user.model';
+import { ValidateEmailPipe } from 'src/pipes/validate-email.pipe';
 
 @Controller('/users')
 export class UsersController {
@@ -19,13 +22,13 @@ export class UsersController {
   @ApiOperation({ summary: 'Create a new user' })
   @ApiResponse({ status: 201, type: User })
   @Post('/create')
-  async create(@Body() dto: UserRegisterDto) {
+  async createUser(@Body() dto: UserRegisterDto) {
     try {
       return await this.usersService.create(dto);
     } catch (e) {
       if (e instanceof ConflictException) {
         throw new HttpException(
-          `Failed to create new user. User with such email already exists`,
+          `Failed to create new user. ${e.message}`,
           HttpStatus.CONFLICT,
         );
       } else {
@@ -40,11 +43,22 @@ export class UsersController {
   @ApiOperation({ summary: 'Return a user (by email)' })
   @ApiResponse({ status: 200, type: User })
   @Get('/get-by-email')
-  async getUserByEmail() {
+  @UsePipes(new ValidateEmailPipe())
+  async getUserByEmail(@Query('email') email: string) {
     try {
-      // ..
+      return await this.usersService.findByEmail(email);
     } catch (e) {
-      // ..
+      if (e instanceof ConflictException) {
+        throw new HttpException(
+          `Failed to find user by email. ${e.message}`,
+          HttpStatus.NOT_FOUND,
+        );
+      } else {
+        throw new HttpException(
+          `Failed to find user by email`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
   }
 

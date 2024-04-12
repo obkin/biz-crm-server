@@ -45,4 +45,20 @@ export class UsersService {
       throw e;
     }
   }
+
+  async findByEmail(email: string) {
+    try {
+      const user = await this.usersRepository.findOneUserByEmail(email);
+      if (!user) {
+        throw new ConflictException('User with such email not found');
+      } else {
+        this.loggerService.log(
+          `[UsersService] Sent info about user (${email})`,
+        );
+        return user;
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
 }
