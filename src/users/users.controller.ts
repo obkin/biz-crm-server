@@ -27,10 +27,7 @@ export class UsersController {
       return await this.usersService.create(dto);
     } catch (e) {
       if (e instanceof ConflictException) {
-        throw new HttpException(
-          `Failed to create new user. ${e.message}`,
-          HttpStatus.CONFLICT,
-        );
+        throw new HttpException(`${e.message}`, HttpStatus.CONFLICT);
       } else {
         throw new HttpException(
           `Failed to create new user`,
@@ -49,10 +46,7 @@ export class UsersController {
       return await this.usersService.findByEmail(email);
     } catch (e) {
       if (e instanceof ConflictException) {
-        throw new HttpException(
-          `Failed to find user by email. ${e.message}`,
-          HttpStatus.NOT_FOUND,
-        );
+        throw new HttpException(`${e.message}`, HttpStatus.NOT_FOUND);
       } else {
         throw new HttpException(
           `Failed to find user by email`,
