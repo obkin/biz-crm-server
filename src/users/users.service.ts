@@ -83,4 +83,18 @@ export class UsersService {
       throw e;
     }
   }
+
+  async getAllUsers() {
+    try {
+      const users = await this.usersRepository.getAllExistingUsers();
+      if (!users || users.length === 0) {
+        this.loggerService.error(`[UsersService] No users found`);
+        throw new ConflictException('No users found');
+      } else {
+        return users;
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
 }

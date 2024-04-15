@@ -34,4 +34,12 @@ export class UsersRepository {
       throw e;
     }
   }
+
+  async getAllExistingUsers() {
+    try {
+      return await this.userModel.find().exec();
+    } catch (e) {
+      throw e;
+    }
+  }
 }

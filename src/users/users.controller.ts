@@ -38,7 +38,7 @@ export class UsersController {
     }
   }
 
-  @ApiOperation({ summary: 'Return exists user (by email)' })
+  @ApiOperation({ summary: 'Return an existing user (by email)' })
   @ApiResponse({ status: 200, type: User })
   @Get('/get-by-email')
   @UsePipes(new ValidateEmailPipe())
@@ -57,7 +57,7 @@ export class UsersController {
     }
   }
 
-  @ApiOperation({ summary: 'Return exists user (by id)' })
+  @ApiOperation({ summary: 'Return an existing user (by id)' })
   @ApiResponse({ status: 200, type: User })
   @Get('/get-by-id')
   @UsePipes(new ValidateIdPipe())
@@ -81,9 +81,16 @@ export class UsersController {
   @Get('/get-all')
   async getAllUsers() {
     try {
-      // ..
+      return await this.usersService.getAllUsers();
     } catch (e) {
-      // ..
+      if (e instanceof ConflictException) {
+        throw new HttpException(`${e.message}`, HttpStatus.NOT_FOUND);
+      } else {
+        throw new HttpException(
+          `Failed to get users`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
   }
 
