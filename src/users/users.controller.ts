@@ -19,7 +19,7 @@ import { ValidateEmailPipe } from 'src/pipes/validate-email.pipe';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @ApiOperation({ summary: 'Create a new user' })
+  @ApiOperation({ summary: 'Create new user' })
   @ApiResponse({ status: 201, type: User })
   @Post('/create')
   async createUser(@Body() dto: UserRegisterDto) {
@@ -37,7 +37,7 @@ export class UsersController {
     }
   }
 
-  @ApiOperation({ summary: 'Return a user (by email)' })
+  @ApiOperation({ summary: 'Return exists user (by email)' })
   @ApiResponse({ status: 200, type: User })
   @Get('/get-by-email')
   @UsePipes(new ValidateEmailPipe())
