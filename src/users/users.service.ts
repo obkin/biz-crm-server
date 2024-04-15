@@ -50,6 +50,9 @@ export class UsersService {
     try {
       const user = await this.usersRepository.findOneUserByEmail(email);
       if (!user) {
+        this.loggerService.error(
+          `[UsersService] User with such email not found (${email})`,
+        );
         throw new ConflictException('User with such email not found');
       } else {
         this.loggerService.log(
