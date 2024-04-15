@@ -64,4 +64,23 @@ export class UsersService {
       throw e;
     }
   }
+
+  async findById(id: string) {
+    try {
+      const user = await this.usersRepository.findOneUserById(id);
+      if (!user) {
+        this.loggerService.error(
+          `[UsersService] User with such id not found (id: ${id})`,
+        );
+        throw new ConflictException('User with such id not found');
+      } else {
+        this.loggerService.log(
+          `[UsersService] Sent info about user (id: ${id})`,
+        );
+        return user;
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
 }

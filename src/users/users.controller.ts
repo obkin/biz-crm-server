@@ -14,6 +14,7 @@ import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { User } from './models/user.model';
 import { ValidateEmailPipe } from 'src/pipes/validate-email.pipe';
+import { ValidateIdPipe } from 'src/pipes/validate-id.pipe';
 
 @Controller('/users')
 export class UsersController {
@@ -56,14 +57,22 @@ export class UsersController {
     }
   }
 
-  @ApiOperation({ summary: 'Return a user (by id)' })
+  @ApiOperation({ summary: 'Return exists user (by id)' })
   @ApiResponse({ status: 200, type: User })
   @Get('/get-by-id')
-  async getUserById() {
+  @UsePipes(new ValidateIdPipe())
+  async getUserById(@Query('id') id: string) {
     try {
-      // ..
+      return await this.usersService.findById(id);
     } catch (e) {
-      // ..
+      if (e instanceof ConflictException) {
+        throw new HttpException(`${e.message}`, HttpStatus.NOT_FOUND);
+      } else {
+        throw new HttpException(
+          `Failed to find user by id`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
   }
 

@@ -26,4 +26,12 @@ export class UsersRepository {
       throw e;
     }
   }
+
+  async findOneUserById(id: string) {
+    try {
+      return await this.userModel.findById(id).exec();
+    } catch (e) {
+      throw e;
+    }
+  }
 }
