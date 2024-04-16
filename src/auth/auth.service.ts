@@ -15,7 +15,7 @@ export class AuthService {
 
   async registerUser(dto: UserRegisterDto) {
     try {
-      const existingUser = await this.usersService.findByEmail(dto.email);
+      const existingUser = await this.usersService.checkUserExisting(dto.email);
       if (existingUser) {
         throw new ConflictException('User with such email already exists');
       }
@@ -32,7 +32,7 @@ export class AuthService {
       const newUser = await this.usersService.create(newUserDto);
       if (newUser) {
         this.loggerService.log(
-          `[UsersService] New user registered (user: ${dto.email})`,
+          `[AuthService] New user registered (user: ${dto.email})`,
         );
         return newUser;
       }

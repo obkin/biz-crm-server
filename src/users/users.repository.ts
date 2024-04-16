@@ -10,6 +10,7 @@ export class UsersRepository {
     @InjectModel(User.name) private readonly userModel: Model<User>,
   ) {}
 
+  // --- Service logic ---
   async createNewUser(dto: UserRegisterDto) {
     try {
       const createdUser = new this.userModel(dto);
@@ -38,6 +39,15 @@ export class UsersRepository {
   async getAllExistingUsers() {
     try {
       return await this.userModel.find().exec();
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  // --- Methods ---
+  async checkUserExisting(email: string) {
+    try {
+      return await this.userModel.findOne({ email }).exec();
     } catch (e) {
       throw e;
     }

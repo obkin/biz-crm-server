@@ -1,4 +1,11 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import {
+  Body,
+  ConflictException,
+  Controller,
+  HttpException,
+  HttpStatus,
+  Post,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { UserRegisterDto } from 'src/users/dto/user-register.dto';
@@ -13,7 +20,14 @@ export class AuthController {
     try {
       return await this.authService.registerUser(dto);
     } catch (e) {
-      // ..
+      if (e instanceof ConflictException) {
+        throw new HttpException(`${e.message}`, HttpStatus.CONFLICT);
+      } else {
+        throw new HttpException(
+          `Failed to create new user`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
   }
 

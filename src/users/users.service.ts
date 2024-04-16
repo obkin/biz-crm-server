@@ -1,42 +1,26 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { UserRegisterDto } from './dto/user-register.dto';
 import { UsersRepository } from './users.repository';
-import { ConfigService } from '@nestjs/config';
 import { LoggerService } from 'logger/logger.service';
-import { hash } from 'bcrypt';
 
 @Injectable()
 export class UsersService {
   constructor(
     private readonly loggerService: LoggerService,
     private readonly usersRepository: UsersRepository,
-    private readonly configService: ConfigService,
   ) {}
 
+  // --- Service logic ---
   async create(dto: UserRegisterDto) {
     try {
-      const existingUser = await this.usersRepository.findOneUserByEmail(
-        dto.email,
-      );
-      if (existingUser) {
-        throw new ConflictException('User with such email already exists');
-      }
-
-      const salt = this.configService.get<string>('PASSWORD_SALT');
-      const hashedPassword = await hash(dto.password, Number(salt));
-
-      const newUserDto: UserRegisterDto = {
-        username: dto.username,
-        email: dto.email,
-        password: hashedPassword,
-      };
-
-      const newUser = await this.usersRepository.createNewUser(newUserDto);
+      const newUser = await this.usersRepository.createNewUser(dto);
       if (newUser) {
         this.loggerService.log(
-          `[UsersService] New user registered (user: ${dto.email})`,
+          `[UsersService] New user created (user: ${dto.email})`,
         );
         return newUser;
+      } else {
+        throw new ConflictException('Failed to create new user');
       }
     } catch (e) {
       this.loggerService.error(
@@ -94,6 +78,16 @@ export class UsersService {
         this.loggerService.log(`[UsersService] Sent all existing users`);
         return users;
       }
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  // --- Methods ---
+  async checkUserExisting(email: string) {
+    try {
+      const user = await this.usersRepository.checkUserExisting(email);
+      return !!user;
     } catch (e) {
       throw e;
     }
