@@ -1,7 +1,10 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Post } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
-@Controller('auth')
+@ApiTags('auth')
+@Controller('/auth')
 export class AuthController {
+  @Post('/register')
   async register() {
     try {
       // ..
@@ -10,6 +13,7 @@ export class AuthController {
     }
   }
 
+  @Post('/login')
   async login() {
     try {
       // ..

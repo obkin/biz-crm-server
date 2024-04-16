@@ -91,6 +91,7 @@ export class UsersService {
         this.loggerService.error(`[UsersService] No users found`);
         throw new ConflictException('No users found');
       } else {
+        this.loggerService.log(`[UsersService] Sent all existing users`);
         return users;
       }
     } catch (e) {
