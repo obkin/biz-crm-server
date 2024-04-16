@@ -13,6 +13,13 @@ export class UsersService {
   // --- Service logic ---
   async create(dto: UserRegisterDto) {
     try {
+      const existingUser = await this.usersRepository.checkUserExisting(
+        dto.email,
+      );
+      if (existingUser) {
+        throw new ConflictException('User with such email already exists');
+      }
+
       const newUser = await this.usersRepository.createNewUser(dto);
       if (newUser) {
         this.loggerService.log(
