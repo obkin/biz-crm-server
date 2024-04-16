@@ -10,12 +10,13 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { UserRegisterDto } from './dto/user-register.dto';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { User } from './models/user.model';
 import { ValidateEmailPipe } from 'src/pipes/validate-email.pipe';
 import { ValidateIdPipe } from 'src/pipes/validate-id.pipe';
 
+@ApiTags('users')
 @Controller('/users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
