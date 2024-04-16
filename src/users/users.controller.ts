@@ -8,6 +8,7 @@ import {
   Post,
   Query,
   UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { UserRegisterDto } from './dto/user-register.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -23,6 +24,7 @@ export class UsersController {
 
   @ApiOperation({ summary: 'Create new user' })
   @ApiResponse({ status: 201, type: User })
+  @UsePipes(new ValidationPipe())
   @Post('/create')
   async createUser(@Body() dto: UserRegisterDto) {
     try {
@@ -41,8 +43,8 @@ export class UsersController {
 
   @ApiOperation({ summary: 'Return an existing user (by email)' })
   @ApiResponse({ status: 200, type: User })
-  @Get('/get-by-email')
   @UsePipes(new ValidateEmailPipe())
+  @Get('/get-by-email')
   async getUserByEmail(@Query('email') email: string) {
     try {
       return await this.usersService.findByEmail(email);
@@ -60,8 +62,8 @@ export class UsersController {
 
   @ApiOperation({ summary: 'Return an existing user (by id)' })
   @ApiResponse({ status: 200, type: User })
-  @Get('/get-by-id')
   @UsePipes(new ValidateIdPipe())
+  @Get('/get-by-id')
   async getUserById(@Query('id') id: string) {
     try {
       return await this.usersService.findById(id);

@@ -5,6 +5,8 @@ import {
   HttpException,
   HttpStatus,
   Post,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
@@ -15,6 +17,7 @@ import { UserRegisterDto } from 'src/users/dto/user-register.dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @UsePipes(new ValidationPipe())
   @Post('/register')
   async register(@Body() dto: UserRegisterDto) {
     try {
