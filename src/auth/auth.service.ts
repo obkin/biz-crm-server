@@ -1,19 +1,25 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { UserRegisterDto } from 'src/users/dto/user-register.dto';
 import { UsersService } from 'src/users/users.service';
 import { hash } from 'bcrypt';
 import { LoggerService } from 'logger/logger.service';
+import { JwtService } from '@nestjs/jwt';
+import { User } from 'src/users/models/user.model';
+import { UserLoginDto } from 'src/users/dto/user-login.dto';
+import { compare } from 'bcrypt';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly loggerService: LoggerService,
   ) {}
 
-  async registerUser(dto: UserRegisterDto) {
+  // --- Service logic ---
+  async userRegister(dto: UserRegisterDto) {
     try {
       const salt = this.configService.get<string>('PASSWORD_SALT');
       const hashedPassword = await hash(dto.password, Number(salt));
@@ -36,5 +42,64 @@ export class AuthService {
     }
   }
 
-  async validateUser() {}
+  async userLogin(dto: UserLoginDto) {
+    try {
+      const validatedUser = await this.validateUser(dto);
+      if (!validatedUser) {
+        throw new ConflictException('Wrong email or password');
+      }
+
+      const JWTtokens = await this.generateTokens(validatedUser);
+      return {
+        id: validatedUser.id,
+        email: validatedUser.email,
+        accessToken: JWTtokens.accessToken,
+        refreshToken: JWTtokens.refreshToken,
+      };
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  // --- Methods ---
+  async validateUser(dto: UserLoginDto) {
+    try {
+      const user = await this.usersService.findByEmail(dto.email);
+      if (user && (await this.verifyPassword(dto.password, user))) {
+        return user;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async verifyPassword(password: string, user: User) {
+    try {
+      return await compare(password, user.password);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  // --- JWT logic ---
+  async generateTokens(user: User) {
+    try {
+      const payload = {
+        id: user.id,
+        email: user.email,
+        iat: Math.floor(Date.now() / 1000),
+      };
+      const accessToken = this.jwtService.sign(payload);
+      const refreshToken = this.jwtService.sign({ sub: user.id });
+
+      return {
+        accessToken,
+        refreshToken,
+      };
+    } catch (e) {
+      throw e;
+    }
+  }
 }
