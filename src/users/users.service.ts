@@ -1,5 +1,5 @@
 import { ConflictException, Injectable } from '@nestjs/common';
-import { UserRegisterDto } from './dto/user-register.dto';
+import { UserRegisterDto } from '../auth/dto/user-register.dto';
 import { UsersRepository } from './users.repository';
 import { LoggerService } from 'logger/logger.service';
 

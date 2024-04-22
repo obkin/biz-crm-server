@@ -1,12 +1,12 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { UserRegisterDto } from 'src/users/dto/user-register.dto';
+import { UserRegisterDto } from 'src/auth/dto/user-register.dto';
 import { UsersService } from 'src/users/users.service';
 import { hash } from 'bcrypt';
 import { LoggerService } from 'logger/logger.service';
 import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/users/models/user.model';
-import { UserLoginDto } from 'src/users/dto/user-login.dto';
+import { UserLoginDto } from 'src/auth/dto/user-login.dto';
 import { compare } from 'bcrypt';
 
 @Injectable()

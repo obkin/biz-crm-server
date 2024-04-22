@@ -10,7 +10,7 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { UserRegisterDto } from './dto/user-register.dto';
+import { UserRegisterDto } from '../auth/dto/user-register.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { User } from './models/user.model';
