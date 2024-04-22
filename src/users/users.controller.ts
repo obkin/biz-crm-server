@@ -8,7 +8,6 @@ import {
   Post,
   Query,
   UsePipes,
-  ValidationPipe,
 } from '@nestjs/common';
 import { UserRegisterDto } from '../auth/dto/user-register.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -24,7 +23,6 @@ export class UsersController {
 
   @ApiOperation({ summary: 'Create new user' })
   @ApiResponse({ status: 201, type: User })
-  @UsePipes(new ValidationPipe())
   @Post('/create')
   async createUser(@Body() dto: UserRegisterDto) {
     try {
