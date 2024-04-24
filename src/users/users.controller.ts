@@ -39,7 +39,7 @@ export class UsersController {
     }
   }
 
-  @ApiOperation({ summary: 'Return an existing user (by email)' })
+  @ApiOperation({ summary: 'Return existing user (by email)' })
   @ApiResponse({ status: 200, type: User })
   @UsePipes(new ValidateEmailPipe())
   @Get('/get-by-email')
@@ -58,7 +58,7 @@ export class UsersController {
     }
   }
 
-  @ApiOperation({ summary: 'Return an existing user (by id)' })
+  @ApiOperation({ summary: 'Return existing user (by id)' })
   @ApiResponse({ status: 200, type: User })
   @UsePipes(new ValidateIdPipe())
   @Get('/get-by-id')
