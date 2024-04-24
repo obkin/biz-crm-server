@@ -22,9 +22,9 @@ export class UsersService {
 
       const newUser = await this.usersRepository.createNewUser(dto);
       if (newUser) {
-        this.loggerService.log(
-          `[UsersService] New user created (user: ${dto.email})`,
-        );
+        // this.loggerService.log(
+        //   `[UsersService] New user created (user: ${dto.email})`,
+        // );
         return newUser;
       } else {
         throw new ConflictException('Failed to create new user');
@@ -38,14 +38,14 @@ export class UsersService {
     try {
       const user = await this.usersRepository.findOneUserByEmail(email);
       if (!user) {
-        this.loggerService.error(
-          `[UsersService] User with such email not found (${email})`,
-        );
+        // this.loggerService.error(
+        //   `[UsersService] User with such email not found (${email})`,
+        // );
         throw new ConflictException('User with such email not found');
       } else {
-        this.loggerService.log(
-          `[UsersService] Sent info about user (${email})`,
-        );
+        // this.loggerService.log(
+        //   `[UsersService] Sent info about user (${email})`,
+        // );
         return user;
       }
     } catch (e) {
