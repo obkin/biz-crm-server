@@ -38,6 +38,9 @@ export class AuthService {
         return newUser;
       }
     } catch (e) {
+      this.loggerService.error(
+        `[AuthService] Failed to register new user (user: ${dto.email} / error: ${e.message})`,
+      );
       throw e;
     }
   }
@@ -50,6 +53,8 @@ export class AuthService {
       }
 
       const JWTtokens = await this.generateTokens(validatedUser);
+      this.loggerService.log(`[AuthService] Signed in as user (${dto.email})`);
+
       return {
         id: validatedUser.id,
         email: validatedUser.email,
@@ -57,6 +62,9 @@ export class AuthService {
         refreshToken: JWTtokens.refreshToken,
       };
     } catch (e) {
+      this.loggerService.error(
+        `[AuthService] Failed to sign in as user (user: ${dto.email} / error: ${e.message})`,
+      );
       throw e;
     }
   }

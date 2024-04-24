@@ -30,9 +30,6 @@ export class UsersService {
         throw new ConflictException('Failed to create new user');
       }
     } catch (e) {
-      this.loggerService.error(
-        `[UsersService] Failed to create new user (user: ${dto.email} / error: ${e.message})`,
-      );
       throw e;
     }
   }
