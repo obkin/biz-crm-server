@@ -88,7 +88,7 @@ export class UsersService {
   }
 
   // --- Methods ---
-  async checkUserExisting(email: string) {
+  private async checkUserExisting(email: string) {
     try {
       const user = await this.usersRepository.checkUserExisting(email);
       return !!user;

@@ -70,7 +70,7 @@ export class AuthService {
   }
 
   // --- Methods ---
-  async validateUser(dto: UserLoginDto) {
+  private async validateUser(dto: UserLoginDto) {
     try {
       const user = await this.usersService.findByEmail(dto.email);
       if (user && (await this.verifyPassword(dto.password, user))) {
@@ -83,7 +83,7 @@ export class AuthService {
     }
   }
 
-  async verifyPassword(password: string, user: User) {
+  private async verifyPassword(password: string, user: User) {
     try {
       return await compare(password, user.password);
     } catch (e) {
@@ -92,7 +92,7 @@ export class AuthService {
   }
 
   // --- JWT logic ---
-  async generateTokens(user: User) {
+  private async generateTokens(user: User) {
     try {
       const payload = {
         id: user.id,
