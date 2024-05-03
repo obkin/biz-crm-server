@@ -99,8 +99,13 @@ export class AuthService {
         email: user.email,
         iat: Math.floor(Date.now() / 1000),
       };
-      const accessToken = this.jwtService.sign(payload);
-      const refreshToken = this.jwtService.sign({ sub: user.id });
+      const accessToken = this.jwtService.sign(payload, {
+        expiresIn: '24h',
+      });
+      const refreshToken = this.jwtService.sign(
+        { sub: user.id },
+        { expiresIn: '7d' },
+      );
 
       return {
         accessToken,
