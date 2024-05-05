@@ -1,6 +1,6 @@
 import { IsEmail, IsNotEmpty } from 'class-validator';
 
-export class SendConfirmationCodeDto {
+export class EmailDto {
   @IsNotEmpty()
   @IsEmail()
   readonly email: string;

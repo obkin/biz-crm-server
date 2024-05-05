@@ -1,15 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
-import { SendConfirmationCodeDto } from './dto/send-confirmation-code.dto';
+import { EmailDto } from './dto/email.dto';
+import { EmailCodeGenerator } from 'utils/email-code-generator';
 
 @Injectable()
 export class EmailService {
-  constructor(private readonly mailerService: MailerService) {}
+  constructor(
+    private readonly mailerService: MailerService,
+    private readonly emailCodeGenerator: EmailCodeGenerator,
+  ) {}
 
   // --- Service logic ---
-  async sendConfirmationCode(dto: SendConfirmationCodeDto) {
+  async sendConfirmationCode(dto: EmailDto) {
     try {
-      const confirmationCode = this.generateConfirmationCode();
+      const confirmationCode =
+        this.emailCodeGenerator.generateConfirmationCode();
 
       return await this.mailerService.sendMail({
         to: dto.email,
@@ -30,10 +35,5 @@ export class EmailService {
     } catch (e) {
       throw e;
     }
-  }
-
-  // --- Methods ---
-  private generateConfirmationCode(): string {
-    return '123456';
   }
 }

@@ -8,7 +8,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { EmailService } from './email.service';
-import { SendConfirmationCodeDto } from './dto/send-confirmation-code.dto';
+import { EmailDto } from './dto/email.dto';
 
 @Controller('/email')
 export class EmailController {
@@ -16,10 +16,10 @@ export class EmailController {
 
   @HttpCode(200)
   @Post('/send-code')
-  async sendConfirmCode(@Body() dto: SendConfirmationCodeDto) {
+  async sendCode(@Body() dto: EmailDto) {
     try {
       await this.emailService.sendConfirmationCode(dto);
-      return { message: 'Confirmation code sent successfully' };
+      return { code: '1', message: 'Confirmation code sent successfully' };
     } catch (e) {
       if (e instanceof ConflictException) {
         throw new HttpException(`${e.message}`, HttpStatus.CONFLICT);
