@@ -30,7 +30,7 @@ export class AuthController {
         throw new HttpException(`${e.message}`, HttpStatus.CONFLICT);
       } else {
         throw new HttpException(
-          `Failed to create new user`,
+          `Failed to create new user: ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
@@ -49,7 +49,7 @@ export class AuthController {
         throw new HttpException(`${e.message}`, HttpStatus.CONFLICT);
       } else {
         throw new HttpException(
-          `Failed to login`,
+          `Failed to login: ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }

@@ -11,12 +11,12 @@ export class EmailService {
   ) {}
 
   // --- Service logic ---
-  async sendConfirmationCode(dto: EmailDto) {
+  async sendConfirmationCode(dto: EmailDto): Promise<string> {
     try {
       const confirmationCode =
         this.emailCodeGenerator.generateConfirmationCode();
 
-      return await this.mailerService.sendMail({
+      await this.mailerService.sendMail({
         to: dto.email,
         subject: 'BizCRM Confirmation Code',
         template: 'confirmation',
@@ -32,8 +32,14 @@ export class EmailService {
           code: confirmationCode,
         },
       });
+
+      return confirmationCode;
     } catch (e) {
       throw e;
     }
+  }
+
+  verifyConfirmationCode(enteredCode: string, generatedCode: string): boolean {
+    return enteredCode === generatedCode;
   }
 }

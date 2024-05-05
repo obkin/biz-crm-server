@@ -32,7 +32,7 @@ export class UsersController {
         throw new HttpException(`${e.message}`, HttpStatus.CONFLICT);
       } else {
         throw new HttpException(
-          `Failed to create new user`,
+          `Failed to create new user: ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
@@ -51,7 +51,7 @@ export class UsersController {
         throw new HttpException(`${e.message}`, HttpStatus.NOT_FOUND);
       } else {
         throw new HttpException(
-          `Failed to find user by email`,
+          `Failed to find user by email: ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
@@ -70,7 +70,7 @@ export class UsersController {
         throw new HttpException(`${e.message}`, HttpStatus.NOT_FOUND);
       } else {
         throw new HttpException(
-          `Failed to find user by id`,
+          `Failed to find user by id: ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
@@ -88,7 +88,7 @@ export class UsersController {
         throw new HttpException(`${e.message}`, HttpStatus.NOT_FOUND);
       } else {
         throw new HttpException(
-          `Failed to get users`,
+          `Failed to get all users: ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
