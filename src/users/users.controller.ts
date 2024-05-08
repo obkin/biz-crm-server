@@ -12,9 +12,9 @@ import {
 import { UserRegisterDto } from '../auth/dto/user-register.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
-import { User } from './models/user.model';
 import { ValidateEmailPipe } from 'src/pipes/validate-email.pipe';
 import { ValidateIdPipe } from 'src/pipes/validate-id.pipe';
+import { User } from 'src/entities/user.entity';
 
 @ApiTags('users')
 @Controller('/users')
@@ -62,7 +62,7 @@ export class UsersController {
   @ApiResponse({ status: 200, type: User })
   @UsePipes(new ValidateIdPipe())
   @Get('/get-by-id')
-  async getUserById(@Query('id') id: string) {
+  async getUserById(@Query('id') id: number) {
     try {
       return await this.usersService.findById(id);
     } catch (e) {

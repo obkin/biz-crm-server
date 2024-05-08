@@ -4,16 +4,15 @@ import { EmailController } from './email.controller';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EmailCodeGenerator } from 'utils/email-code-generator';
-import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
   providers: [EmailService, EmailCodeGenerator],
   controllers: [EmailController],
   imports: [
     ConfigModule.forRoot(),
-    MongooseModule.forFeature([
-      // { name: EmailModule.name, schema: EmailSchema },
-    ]),
+    // MongooseModule.forFeature([
+    //   // { name: EmailModule.name, schema: EmailSchema },
+    // ]),
     MailerModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
