@@ -12,7 +12,7 @@ import { AuthService } from './auth.service';
 import { UserRegisterDto } from 'src/auth/dto/user-register.dto';
 import { UserLoginDto } from 'src/auth/dto/user-login.dto';
 import { UserLoginResponseDto } from './dto/user-login-response.dto';
-import { User } from 'src/entities/user.entity';
+import { UserEntity } from 'src/entities/user.entity';
 
 @ApiTags('auth')
 @Controller('/auth')
@@ -20,7 +20,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @ApiOperation({ summary: 'Register new user' })
-  @ApiResponse({ status: 201, type: User })
+  @ApiResponse({ status: 201, type: UserEntity })
   @Post('/register')
   async register(@Body() dto: UserRegisterDto) {
     try {

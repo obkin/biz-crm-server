@@ -7,7 +7,7 @@ import { LoggerService } from 'logger/logger.service';
 import { JwtService } from '@nestjs/jwt';
 import { UserLoginDto } from 'src/auth/dto/user-login.dto';
 import { compare } from 'bcrypt';
-import { User } from 'src/entities/user.entity';
+import { UserEntity } from 'src/entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -83,7 +83,7 @@ export class AuthService {
     }
   }
 
-  private async verifyPassword(password: string, user: User) {
+  private async verifyPassword(password: string, user: UserEntity) {
     try {
       return await compare(password, user.password);
     } catch (e) {
@@ -92,7 +92,7 @@ export class AuthService {
   }
 
   // --- JWT logic ---
-  private async generateTokens(user: User) {
+  private async generateTokens(user: UserEntity) {
     try {
       const payload = {
         id: user.id,
