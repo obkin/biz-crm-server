@@ -5,15 +5,15 @@ import { AuthRepository } from './auth.repository';
 import { LoggerService } from 'logger/logger.service';
 import { UsersModule } from 'src/users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { DatabaseModule } from 'src/database/database.module';
 import { JwtModule } from '@nestjs/jwt';
+import { TokenEntity } from 'src/entities/token.entity';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   controllers: [AuthController],
   providers: [AuthService, AuthRepository, ConfigService, LoggerService],
   imports: [
-    DatabaseModule,
-    UsersModule,
+    TypeOrmModule.forFeature([TokenEntity]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -21,6 +21,7 @@ import { JwtModule } from '@nestjs/jwt';
       }),
       inject: [ConfigService],
     }),
+    UsersModule,
   ],
 })
 export class AuthModule {}

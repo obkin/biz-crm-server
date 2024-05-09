@@ -4,13 +4,11 @@ import { EmailController } from './email.controller';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EmailCodeGenerator } from 'utils/email-code-generator';
-import { DatabaseModule } from 'src/database/database.module';
 
 @Module({
   providers: [EmailService, EmailCodeGenerator],
   controllers: [EmailController],
   imports: [
-    DatabaseModule,
     ConfigModule.forRoot(),
     MailerModule.forRootAsync({
       imports: [ConfigModule],
