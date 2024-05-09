@@ -13,8 +13,8 @@ import { EmailModule } from './email/email.module';
     ConfigModule.forRoot({
       envFilePath: `.${process.env.NODE_ENV}.env`,
     }),
-    UsersModule,
     DatabaseModule,
+    UsersModule,
     AuthModule,
     EmailModule,
   ],

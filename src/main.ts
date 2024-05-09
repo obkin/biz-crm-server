@@ -25,7 +25,7 @@ function configureSwagger(app) {
     )
     .setVersion('1.0.0')
     .addTag(
-      'Node.js (nestjs + express), MongoDB (mongoose), RestAPI, MySQL, Redis, Docker',
+      'Node.js (nestjs + express), PostgreSQL (Typeorm), RestAPI, MySQL, Redis, Docker',
     )
     .build();
 

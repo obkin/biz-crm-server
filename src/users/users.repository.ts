@@ -11,6 +11,7 @@ export class UsersRepository {
     private readonly userRepository: Repository<User>,
   ) {}
 
+  // --- Service logic ---
   async createNewUser(dto: UserRegisterDto): Promise<User> {
     try {
       const createdUser = this.userRepository.create(dto);
@@ -44,6 +45,7 @@ export class UsersRepository {
     }
   }
 
+  // --- Methods ---
   async checkUserExisting(email: string): Promise<User | undefined> {
     try {
       return await this.userRepository.findOne({ where: { email } });
