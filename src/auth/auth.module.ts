@@ -5,12 +5,14 @@ import { AuthRepository } from './auth.repository';
 import { LoggerService } from 'logger/logger.service';
 import { UsersModule } from 'src/users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { DatabaseModule } from 'src/database/database.module';
 import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   controllers: [AuthController],
   providers: [AuthService, AuthRepository, ConfigService, LoggerService],
   imports: [
+    DatabaseModule,
     UsersModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
