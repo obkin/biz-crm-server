@@ -1,18 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { UserRegisterDto } from '../auth/dto/user-register.dto';
-import { User } from 'src/entities/user.entity';
+import { UserEntity } from 'src/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 @Injectable()
 export class UsersRepository {
   constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
   ) {}
 
   // --- Service logic ---
-  async createNewUser(dto: UserRegisterDto): Promise<User> {
+  async createNewUser(dto: UserRegisterDto): Promise<UserEntity> {
     try {
       const createdUser = this.userRepository.create(dto);
       return await this.userRepository.save(createdUser);
@@ -21,7 +21,7 @@ export class UsersRepository {
     }
   }
 
-  async findOneUserByEmail(email: string): Promise<User | undefined> {
+  async findOneUserByEmail(email: string): Promise<UserEntity | undefined> {
     try {
       return await this.userRepository.findOne({ where: { email } });
     } catch (e) {
@@ -29,7 +29,7 @@ export class UsersRepository {
     }
   }
 
-  async findOneUserById(id: number): Promise<User | undefined> {
+  async findOneUserById(id: number): Promise<UserEntity | undefined> {
     try {
       return await this.userRepository.findOne({ where: { id } });
     } catch (e) {
@@ -37,7 +37,7 @@ export class UsersRepository {
     }
   }
 
-  async getAllExistingUsers(): Promise<User[]> {
+  async getAllExistingUsers(): Promise<UserEntity[]> {
     try {
       return await this.userRepository.find();
     } catch (e) {
@@ -46,7 +46,7 @@ export class UsersRepository {
   }
 
   // --- Methods ---
-  async checkUserExisting(email: string): Promise<User | undefined> {
+  async checkUserExisting(email: string): Promise<UserEntity | undefined> {
     try {
       return await this.userRepository.findOne({ where: { email } });
     } catch (e) {

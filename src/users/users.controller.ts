@@ -14,7 +14,7 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { ValidateEmailPipe } from 'src/pipes/validate-email.pipe';
 import { ValidateIdPipe } from 'src/pipes/validate-id.pipe';
-import { User } from 'src/entities/user.entity';
+import { UserEntity } from 'src/entities/user.entity';
 
 @ApiTags('users')
 @Controller('/users')
@@ -22,7 +22,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @ApiOperation({ summary: 'Create new user' })
-  @ApiResponse({ status: 201, type: User })
+  @ApiResponse({ status: 201, type: UserEntity })
   @Post('/create')
   async createUser(@Body() dto: UserRegisterDto) {
     try {
@@ -40,7 +40,7 @@ export class UsersController {
   }
 
   @ApiOperation({ summary: 'Return existing user (by email)' })
-  @ApiResponse({ status: 200, type: User })
+  @ApiResponse({ status: 200, type: UserEntity })
   @UsePipes(new ValidateEmailPipe())
   @Get('/get-by-email')
   async getUserByEmail(@Query('email') email: string) {
@@ -59,7 +59,7 @@ export class UsersController {
   }
 
   @ApiOperation({ summary: 'Return existing user (by id)' })
-  @ApiResponse({ status: 200, type: User })
+  @ApiResponse({ status: 200, type: UserEntity })
   @UsePipes(new ValidateIdPipe())
   @Get('/get-by-id')
   async getUserById(@Query('id') id: number) {
@@ -78,7 +78,7 @@ export class UsersController {
   }
 
   @ApiOperation({ summary: 'Return all existing users' })
-  @ApiResponse({ status: 200, type: [User] })
+  @ApiResponse({ status: 200, type: [UserEntity] })
   @Get('/get-all')
   async getAllUsers() {
     try {
@@ -96,7 +96,7 @@ export class UsersController {
   }
 
   @ApiOperation({ summary: 'Return all blocked users' })
-  @ApiResponse({ status: 200, type: [User] })
+  @ApiResponse({ status: 200, type: [UserEntity] })
   @Get('/get-all-blocked')
   async getAllBlockedUsers() {
     try {
