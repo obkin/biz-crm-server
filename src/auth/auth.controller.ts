@@ -77,9 +77,18 @@ export class AuthController {
   }
 
   @Get('/get-token')
-  async getRefreshToken(@Body() userId: number) {
+  async getOneRefreshToken(@Body() userId: number) {
     try {
-      return await this.authService.getRefreshToken(Number(userId));
+      return await this.authService.getOneRefreshToken(Number(userId));
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  @Get('/get-all-tokens')
+  async getAllRefreshTokens() {
+    try {
+      return await this.authService.getAllRefreshTokens();
     } catch (e) {
       throw e;
     }

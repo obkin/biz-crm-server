@@ -12,8 +12,8 @@ export class RefreshTokenEntity {
   @Column()
   userId: number;
 
-  // @Column()
-  // expiresIn: Date;
+  @Column({ type: 'timestamp' })
+  expiresIn: Date;
 
   @Column({ nullable: true })
   ipAddress: string; // IP-адреса користувача

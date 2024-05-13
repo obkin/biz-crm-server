@@ -9,9 +9,8 @@ export class RefreshTokenDto {
   @IsNumber()
   userId: number;
 
-  //   @IsNotEmpty()
-  //   @IsDate()
-  //   expiresIn: Date;
+  @IsNotEmpty()
+  expiresIn: Date;
 
   ipAddress: string;
 

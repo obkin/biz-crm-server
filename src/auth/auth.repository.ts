@@ -29,4 +29,12 @@ export class AuthRepository {
       throw e;
     }
   }
+
+  async getAllTokens() {
+    try {
+      return await this.userRepository.find();
+    } catch (e) {
+      throw e;
+    }
+  }
 }

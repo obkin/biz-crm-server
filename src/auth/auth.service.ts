@@ -119,6 +119,7 @@ export class AuthService {
     }
   }
 
+  // --- Token logic ---
   async saveRefreshToken(dto: RefreshTokenDto) {
     try {
       const existingToken = await this.authRepository.findTokenByUserId(
@@ -126,18 +127,26 @@ export class AuthService {
       );
 
       if (existingToken) {
-        return existingToken.refreshToken;
+        return existingToken;
       }
       const token = await this.authRepository.createToken(dto);
-      return token.refreshToken;
+      return token;
     } catch (e) {
       throw e;
     }
   }
 
-  async getRefreshToken(userId: number) {
+  async getOneRefreshToken(userId: number) {
     try {
       return await this.authRepository.findTokenByUserId(userId);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async getAllRefreshTokens() {
+    try {
+      return await this.authRepository.getAllTokens();
     } catch (e) {
       throw e;
     }
