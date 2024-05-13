@@ -2,11 +2,13 @@ import {
   Body,
   ConflictException,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpException,
   HttpStatus,
   Post,
+  Query,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
@@ -14,7 +16,7 @@ import { UserRegisterDto } from 'src/auth/dto/user-register.dto';
 import { UserLoginDto } from 'src/auth/dto/user-login.dto';
 import { UserLoginResponseDto } from './dto/user-login-response.dto';
 import { UserEntity } from 'src/users/entities/user.entity';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { TokensDto } from './dto/tokens.dto';
 
 @ApiTags('auth')
 @Controller('/auth')
@@ -67,26 +69,44 @@ export class AuthController {
   }
 
   // --- Temporary ---
-  @Post('/save-token')
-  async saveRefreshToken(@Body() dto: RefreshTokenDto) {
+  @Post('/save-tokens')
+  async saveTokens(@Body() dto: TokensDto) {
     try {
-      return await this.authService.saveRefreshToken(dto);
+      return await this.authService.saveTokens(dto);
     } catch (e) {
       if (e instanceof ConflictException) {
         throw new HttpException(`${e.message}`, HttpStatus.BAD_REQUEST);
       } else {
         throw new HttpException(
-          `Failed to save refresh token: ${e}`,
+          `Failed to save tokens: ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
     }
   }
 
-  @Get('/get-token')
-  async getOneRefreshToken(@Body() userId: number) {
+  @Delete('/delete-tokens')
+  async deleteTokens(@Query('userId') userId: number) {
     try {
-      return await this.authService.getOneRefreshToken(Number(userId));
+      await this.authService.deleteTokens(Number(userId));
+      return { userId, message: 'Tokens deleted successfully' };
+    } catch (e) {
+      if (e instanceof ConflictException) {
+        throw new HttpException(`${e.message}`, HttpStatus.BAD_REQUEST);
+      } else {
+        throw new HttpException(
+          `Failed to delete tokens: ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  @Get('/get-tokens')
+  async getTokens(@Body() userId: number) {
+    try {
+      console.log(userId);
+      return await this.authService.getTokens(Number(userId));
     } catch (e) {
       throw e;
     }

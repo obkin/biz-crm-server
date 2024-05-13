@@ -1,7 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, Index } from 'typeorm';
 
 @Entity()
-export class RefreshTokenEntity {
+export class TokensEntity {
   @PrimaryGeneratedColumn()
   id: number;
 

@@ -8,7 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UserLoginDto } from 'src/auth/dto/user-login.dto';
 import { compare } from 'bcrypt';
 import { UserEntity } from 'src/users/entities/user.entity';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { TokensDto } from './dto/tokens.dto';
 import { AuthRepository } from './auth.repository';
 
 @Injectable()
@@ -119,20 +119,20 @@ export class AuthService {
     }
   }
 
-  // --- Token logic ---
-  async saveRefreshToken(dto: RefreshTokenDto) {
+  // --- Tokens logic ---
+  async saveTokens(dto: TokensDto) {
     try {
-      const existingToken = await this.authRepository.findTokenByUserId(
+      const existingTokens = await this.authRepository.findTokensByUserId(
         dto.userId,
       );
-      if (existingToken) {
-        return existingToken;
+      if (existingTokens) {
+        throw new ConflictException('Such tokens already saved');
       } else {
-        return await this.authRepository.createToken(dto);
+        return await this.authRepository.createTokens(dto);
       }
     } catch (e) {
       if (e.code === '23505') {
-        throw new ConflictException('Such refresh token already exists');
+        throw new ConflictException('Such tokens already exist');
       } else {
         throw e;
       }
@@ -140,17 +140,17 @@ export class AuthService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async deleteRefreshToken(userId: number) {
+  async deleteTokens(userId: number) {
     try {
-      // ...
+      return await this.authRepository.deleteTokens(userId);
     } catch (e) {
       throw e;
     }
   }
 
-  async getOneRefreshToken(userId: number) {
+  async getTokens(userId: number) {
     try {
-      return await this.authRepository.findTokenByUserId(userId);
+      return await this.authRepository.findTokensByUserId(userId);
     } catch (e) {
       throw e;
     }
