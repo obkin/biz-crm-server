@@ -72,7 +72,14 @@ export class AuthController {
     try {
       return await this.authService.saveRefreshToken(dto);
     } catch (e) {
-      throw e;
+      if (e instanceof ConflictException) {
+        throw new HttpException(`${e.message}`, HttpStatus.BAD_REQUEST);
+      } else {
+        throw new HttpException(
+          `Failed to save refresh token: ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
   }
 

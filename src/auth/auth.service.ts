@@ -125,12 +125,24 @@ export class AuthService {
       const existingToken = await this.authRepository.findTokenByUserId(
         dto.userId,
       );
-
       if (existingToken) {
         return existingToken;
+      } else {
+        return await this.authRepository.createToken(dto);
       }
-      const token = await this.authRepository.createToken(dto);
-      return token;
+    } catch (e) {
+      if (e.code === '23505') {
+        throw new ConflictException('Such refresh token already exists');
+      } else {
+        throw e;
+      }
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async deleteRefreshToken(userId: number) {
+    try {
+      // ...
     } catch (e) {
       throw e;
     }
