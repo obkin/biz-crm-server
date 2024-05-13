@@ -14,7 +14,7 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { ValidateEmailPipe } from 'src/pipes/validate-email.pipe';
 import { ValidateIdPipe } from 'src/pipes/validate-id.pipe';
-import { UserEntity } from 'src/entities/user.entity';
+import { UserEntity } from 'src/users/entities/user.entity';
 
 @ApiTags('users')
 @Controller('/users')

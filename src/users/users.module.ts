@@ -5,7 +5,7 @@ import { UsersController } from './users.controller';
 import { UsersRepository } from './users.repository';
 import { LoggerService } from 'logger/logger.service';
 import { ConfigModule } from '@nestjs/config';
-import { UserEntity } from 'src/entities/user.entity';
+import { UserEntity } from 'src/users/entities/user.entity';
 
 @Module({
   controllers: [UsersController],

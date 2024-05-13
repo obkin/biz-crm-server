@@ -7,7 +7,9 @@ import { LoggerService } from 'logger/logger.service';
 import { JwtService } from '@nestjs/jwt';
 import { UserLoginDto } from 'src/auth/dto/user-login.dto';
 import { compare } from 'bcrypt';
-import { UserEntity } from 'src/entities/user.entity';
+import { UserEntity } from 'src/users/entities/user.entity';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { AuthRepository } from './auth.repository';
 
 @Injectable()
 export class AuthService {
@@ -15,6 +17,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly authRepository: AuthRepository,
     private readonly loggerService: LoggerService,
   ) {}
 
@@ -111,6 +114,30 @@ export class AuthService {
         accessToken,
         refreshToken,
       };
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async saveRefreshToken(dto: RefreshTokenDto) {
+    try {
+      const existingToken = await this.authRepository.findTokenByUserId(
+        dto.userId,
+      );
+
+      if (existingToken) {
+        return existingToken.refreshToken;
+      }
+      const token = await this.authRepository.createToken(dto);
+      return token.refreshToken;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async getRefreshToken(userId: number) {
+    try {
+      return await this.authRepository.findTokenByUserId(userId);
     } catch (e) {
       throw e;
     }

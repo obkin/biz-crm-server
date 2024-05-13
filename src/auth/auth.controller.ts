@@ -2,6 +2,7 @@ import {
   Body,
   ConflictException,
   Controller,
+  Get,
   HttpCode,
   HttpException,
   HttpStatus,
@@ -12,7 +13,8 @@ import { AuthService } from './auth.service';
 import { UserRegisterDto } from 'src/auth/dto/user-register.dto';
 import { UserLoginDto } from 'src/auth/dto/user-login.dto';
 import { UserLoginResponseDto } from './dto/user-login-response.dto';
-import { UserEntity } from 'src/entities/user.entity';
+import { UserEntity } from 'src/users/entities/user.entity';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @ApiTags('auth')
 @Controller('/auth')
@@ -61,6 +63,25 @@ export class AuthController {
       // ..
     } catch (e) {
       // ..
+    }
+  }
+
+  // --- Temporary ---
+  @Post('/save-token')
+  async saveRefreshToken(@Body() dto: RefreshTokenDto) {
+    try {
+      return await this.authService.saveRefreshToken(dto);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  @Get('/get-token')
+  async getRefreshToken(@Body() userId: number) {
+    try {
+      return await this.authService.getRefreshToken(Number(userId));
+    } catch (e) {
+      throw e;
     }
   }
 }
