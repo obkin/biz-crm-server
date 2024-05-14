@@ -130,10 +130,9 @@ export class AuthService {
       const existingRefreshToken =
         await this.refreshTokenRepository.findRefreshTokenByUserId(dto.userId);
       if (existingRefreshToken) {
-        throw new ConflictException('Such refresh token already saved');
-      } else {
-        return await this.refreshTokenRepository.saveRefreshToken(dto);
+        await this.deleteRefreshToken(dto.userId);
       }
+      return await this.refreshTokenRepository.saveRefreshToken(dto);
     } catch (e) {
       if (e.code === '23505') {
         throw new ConflictException('Such refresh token already exists');
@@ -180,10 +179,9 @@ export class AuthService {
       const existingAccessToken =
         await this.accessTokenRepository.findAccessTokenByUserId(dto.userId);
       if (existingAccessToken) {
-        throw new ConflictException('Such access token already saved');
-      } else {
-        return await this.accessTokenRepository.saveAccessToken(dto);
+        await this.deleteAccessToken(dto.userId);
       }
+      return await this.accessTokenRepository.saveAccessToken(dto);
     } catch (e) {
       if (e.code === '23505') {
         throw new ConflictException('Such access token already exists');

@@ -52,8 +52,6 @@ export class RefreshTokenRepository {
   }
 }
 
-// --- Test ---
-
 @Injectable()
 export class AccessTokenRepository {
   constructor(
