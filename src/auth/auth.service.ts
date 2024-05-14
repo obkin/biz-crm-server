@@ -154,7 +154,13 @@ export class AuthService {
 
   async getRefreshToken(userId: number) {
     try {
-      return await this.refreshTokenRepository.findRefreshTokenByUserId(userId);
+      const refreshToken =
+        await this.refreshTokenRepository.findRefreshTokenByUserId(userId);
+      if (!refreshToken) {
+        throw new ConflictException('Such refresh token not found');
+      } else {
+        return refreshToken;
+      }
     } catch (e) {
       throw e;
     }
@@ -197,7 +203,13 @@ export class AuthService {
 
   async getAccessToken(userId: number) {
     try {
-      return await this.accessTokenRepository.findAccessTokenByUserId(userId);
+      const accessToken =
+        await this.accessTokenRepository.findAccessTokenByUserId(userId);
+      if (!accessToken) {
+        throw new ConflictException('Such access token not found');
+      } else {
+        return accessToken;
+      }
     } catch (e) {
       throw e;
     }

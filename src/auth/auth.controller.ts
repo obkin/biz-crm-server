@@ -108,7 +108,14 @@ export class AuthController {
       console.log(userId);
       return await this.authService.getRefreshToken(Number(userId));
     } catch (e) {
-      throw e;
+      if (e instanceof ConflictException) {
+        throw new HttpException(`${e.message}`, HttpStatus.NOT_FOUND);
+      } else {
+        throw new HttpException(
+          `Failed to find refresh token: ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
   }
 

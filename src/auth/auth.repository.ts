@@ -35,7 +35,7 @@ export class RefreshTokenRepository {
 
   async findRefreshTokenByUserId(
     userId: number,
-  ): Promise<RefreshTokenEntity | undefined> {
+  ): Promise<RefreshTokenEntity | void> {
     try {
       return await this.refreshTokenRepository.findOne({ where: { userId } });
     } catch (e) {
@@ -83,7 +83,7 @@ export class AccessTokenRepository {
 
   async findAccessTokenByUserId(
     userId: number,
-  ): Promise<AccessTokenEntity | undefined> {
+  ): Promise<AccessTokenEntity | void> {
     try {
       return await this.accessTokenRepository.findOne({ where: { userId } });
     } catch (e) {
