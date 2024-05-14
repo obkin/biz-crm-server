@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { TokensEntity } from 'src/auth/entities/tokens.entity';
+import { AccessTokenEntity } from 'src/auth/entities/access-token.entity';
+import { RefreshTokenEntity } from 'src/auth/entities/refresh-token.entity.dto';
 import { UserEntity } from 'src/users/entities/user.entity';
 
 @Module({
@@ -16,7 +17,7 @@ import { UserEntity } from 'src/users/entities/user.entity';
         username: configService.get<string>('POSTGRES_USER'),
         password: configService.get<string>('POSTGRES_PASSWORD'),
         database: configService.get<string>('POSTGRES_DATABASE'),
-        entities: [UserEntity, TokensEntity],
+        entities: [UserEntity, RefreshTokenEntity, AccessTokenEntity],
         synchronize: true, // Enable synchronization (auto-create tables) in development mode
       }),
       inject: [ConfigService],

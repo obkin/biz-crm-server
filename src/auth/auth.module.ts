@@ -1,19 +1,29 @@
 import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { AuthRepository } from './auth.repository';
 import { LoggerService } from 'logger/logger.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { TokensEntity } from 'src/auth/entities/tokens.entity';
 import { UsersModule } from 'src/users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
+import { AccessTokenEntity } from './entities/access-token.entity';
+import { RefreshTokenEntity } from './entities/refresh-token.entity.dto';
+import {
+  AccessTokenRepository,
+  RefreshTokenRepository,
+} from './auth.repository';
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService, AuthRepository, ConfigService, LoggerService],
+  providers: [
+    AuthService,
+    RefreshTokenRepository,
+    AccessTokenRepository,
+    ConfigService,
+    LoggerService,
+  ],
   imports: [
-    TypeOrmModule.forFeature([TokensEntity]),
+    TypeOrmModule.forFeature([RefreshTokenEntity, AccessTokenEntity]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({

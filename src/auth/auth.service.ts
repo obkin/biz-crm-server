@@ -8,8 +8,12 @@ import { JwtService } from '@nestjs/jwt';
 import { UserLoginDto } from 'src/auth/dto/user-login.dto';
 import { compare } from 'bcrypt';
 import { UserEntity } from 'src/users/entities/user.entity';
-import { TokensDto } from './dto/tokens.dto';
-import { AuthRepository } from './auth.repository';
+import {
+  AccessTokenRepository,
+  RefreshTokenRepository,
+} from './auth.repository';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { AccessTokenDto } from './dto/access-token.dto';
 
 @Injectable()
 export class AuthService {
@@ -17,7 +21,8 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-    private readonly authRepository: AuthRepository,
+    private readonly refreshTokenRepository: RefreshTokenRepository,
+    private readonly accessTokenRepository: AccessTokenRepository,
     private readonly loggerService: LoggerService,
   ) {}
 
@@ -119,20 +124,19 @@ export class AuthService {
     }
   }
 
-  // --- Tokens logic ---
-  async saveTokens(dto: TokensDto) {
+  // --- Refresh tokens' logic ---
+  async saveRefreshToken(dto: RefreshTokenDto) {
     try {
-      const existingTokens = await this.authRepository.findTokensByUserId(
-        dto.userId,
-      );
-      if (existingTokens) {
-        throw new ConflictException('Such tokens already saved');
+      const existingRefreshToken =
+        await this.refreshTokenRepository.findRefreshTokenByUserId(dto.userId);
+      if (existingRefreshToken) {
+        throw new ConflictException('Such refresh token already saved');
       } else {
-        return await this.authRepository.createTokens(dto);
+        return await this.refreshTokenRepository.saveRefreshToken(dto);
       }
     } catch (e) {
       if (e.code === '23505') {
-        throw new ConflictException('Such tokens already exist');
+        throw new ConflictException('Such refresh token already exists');
       } else {
         throw e;
       }
@@ -140,17 +144,17 @@ export class AuthService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async deleteTokens(userId: number) {
+  async deleteRefreshToken(userId: number) {
     try {
-      return await this.authRepository.deleteTokens(userId);
+      return await this.refreshTokenRepository.deleteRefreshToken(userId);
     } catch (e) {
       throw e;
     }
   }
 
-  async getTokens(userId: number) {
+  async getRefreshToken(userId: number) {
     try {
-      return await this.authRepository.findTokensByUserId(userId);
+      return await this.refreshTokenRepository.findRefreshTokenByUserId(userId);
     } catch (e) {
       throw e;
     }
@@ -158,7 +162,50 @@ export class AuthService {
 
   async getAllRefreshTokens() {
     try {
-      return await this.authRepository.getAllTokens();
+      return await this.refreshTokenRepository.getAllRefreshTokens();
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  // --- Access tokens' logic ---
+  async saveAccessToken(dto: AccessTokenDto) {
+    try {
+      const existingAccessToken =
+        await this.accessTokenRepository.findAccessTokenByUserId(dto.userId);
+      if (existingAccessToken) {
+        throw new ConflictException('Such access token already saved');
+      } else {
+        return await this.accessTokenRepository.saveAccessToken(dto);
+      }
+    } catch (e) {
+      if (e.code === '23505') {
+        throw new ConflictException('Such access token already exists');
+      } else {
+        throw e;
+      }
+    }
+  }
+
+  async deleteAccessToken(userId: number) {
+    try {
+      return await this.accessTokenRepository.deleteAccessToken(userId);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async getAccessToken(userId: number) {
+    try {
+      return await this.accessTokenRepository.findAccessTokenByUserId(userId);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async getAllAccessTokens() {
+    try {
+      return await this.accessTokenRepository.getAllAccessTokens();
     } catch (e) {
       throw e;
     }

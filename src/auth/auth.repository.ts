@@ -1,47 +1,99 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { TokensEntity } from 'src/auth/entities/tokens.entity';
 import { Repository } from 'typeorm';
-import { TokensDto } from './dto/tokens.dto';
+import { RefreshTokenEntity } from './entities/refresh-token.entity.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { AccessTokenEntity } from './entities/access-token.entity';
+import { AccessTokenDto } from './dto/access-token.dto';
 
 @Injectable()
-export class AuthRepository {
+export class RefreshTokenRepository {
   constructor(
-    @InjectRepository(TokensEntity)
-    private readonly userRepository: Repository<TokensEntity>,
+    @InjectRepository(RefreshTokenEntity)
+    private readonly refreshTokenRepository: Repository<RefreshTokenEntity>,
   ) {}
 
-  async createTokens(dto: TokensDto): Promise<TokensEntity> {
+  async saveRefreshToken(dto: RefreshTokenDto): Promise<RefreshTokenEntity> {
     try {
-      const tokens = this.userRepository.create(dto);
-      return await this.userRepository.save(tokens);
+      const token = this.refreshTokenRepository.create(dto);
+      return await this.refreshTokenRepository.save(token);
     } catch (e) {
       throw e;
     }
   }
 
-  async deleteTokens(userId: number): Promise<void> {
+  async deleteRefreshToken(userId: number): Promise<void> {
     try {
-      const result = await this.userRepository.delete({ userId });
+      const result = await this.refreshTokenRepository.delete({ userId });
       if (result.affected === 0) {
-        throw new ConflictException('Tokens not found');
+        throw new ConflictException('Token not found');
       }
     } catch (e) {
       throw e;
     }
   }
 
-  async findTokensByUserId(userId: number): Promise<TokensEntity | undefined> {
+  async findRefreshTokenByUserId(
+    userId: number,
+  ): Promise<RefreshTokenEntity | undefined> {
     try {
-      return await this.userRepository.findOne({ where: { userId } });
+      return await this.refreshTokenRepository.findOne({ where: { userId } });
     } catch (e) {
       throw e;
     }
   }
 
-  async getAllTokens() {
+  async getAllRefreshTokens() {
     try {
-      return await this.userRepository.find();
+      return await this.refreshTokenRepository.find();
+    } catch (e) {
+      throw e;
+    }
+  }
+}
+
+// --- Test ---
+
+@Injectable()
+export class AccessTokenRepository {
+  constructor(
+    @InjectRepository(AccessTokenEntity)
+    private readonly accessTokenRepository: Repository<AccessTokenEntity>,
+  ) {}
+
+  async saveAccessToken(dto: AccessTokenDto): Promise<AccessTokenEntity> {
+    try {
+      const token = this.accessTokenRepository.create(dto);
+      return await this.accessTokenRepository.save(token);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async deleteAccessToken(userId: number): Promise<void> {
+    try {
+      const result = await this.accessTokenRepository.delete({ userId });
+      if (result.affected === 0) {
+        throw new ConflictException('Token not found');
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async findAccessTokenByUserId(
+    userId: number,
+  ): Promise<AccessTokenEntity | undefined> {
+    try {
+      return await this.accessTokenRepository.findOne({ where: { userId } });
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async getAllAccessTokens() {
+    try {
+      return await this.accessTokenRepository.find();
     } catch (e) {
       throw e;
     }

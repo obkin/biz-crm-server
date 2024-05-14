@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
-export class TokensDto {
+export class RefreshTokenDto {
   @IsNotEmpty()
   @IsString()
   refreshToken: string;
@@ -12,7 +12,7 @@ export class TokensDto {
   @IsNotEmpty()
   expiresIn: Date;
 
-  ipAddress: string;
+  ipAddress: string; // need to add
 
-  userAgent: string;
+  userAgent: string; // need to add
 }

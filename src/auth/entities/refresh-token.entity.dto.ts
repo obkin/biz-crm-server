@@ -1,7 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, Index } from 'typeorm';
 
 @Entity()
-export class TokensEntity {
+export class RefreshTokenEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -16,8 +16,8 @@ export class TokensEntity {
   expiresIn: Date;
 
   @Column({ nullable: true })
-  ipAddress: string; // IP-адреса користувача
+  ipAddress: string; // need to add
 
   @Column({ nullable: true })
-  userAgent: string; // Інформація про браузер користувача
+  userAgent: string; // need to add
 }
