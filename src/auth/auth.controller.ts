@@ -17,6 +17,7 @@ import { UserLoginDto } from 'src/auth/dto/user-login.dto';
 import { UserLoginResponseDto } from './dto/user-login-response.dto';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { AccessTokenDto } from './dto/access-token.dto';
 
 @ApiTags('auth')
 @Controller('/auth')
@@ -68,7 +69,7 @@ export class AuthController {
     }
   }
 
-  // --- Temporary ---
+  // --- Refresh tokens (temporary) ---
   @Post('/save-refresh-token')
   async saveRefreshToken(@Body() dto: RefreshTokenDto) {
     try {
@@ -105,7 +106,6 @@ export class AuthController {
   @Get('/get-refresh-token')
   async getRefreshToken(@Query('userId') userId: number) {
     try {
-      console.log(userId);
       return await this.authService.getRefreshToken(Number(userId));
     } catch (e) {
       if (e instanceof ConflictException) {
@@ -123,6 +123,65 @@ export class AuthController {
   async getAllRefreshTokens() {
     try {
       return await this.authService.getAllRefreshTokens();
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  // --- Access tokens (temporary) ---
+  @Post('/save-access-token')
+  async saveAccessToken(@Body() dto: AccessTokenDto) {
+    try {
+      return await this.authService.saveAccessToken(dto);
+    } catch (e) {
+      if (e instanceof ConflictException) {
+        throw new HttpException(`${e.message}`, HttpStatus.BAD_REQUEST);
+      } else {
+        throw new HttpException(
+          `Failed to save access token: ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  @Delete('/delete-access-token')
+  async deleteAccessToken(@Query('userId') userId: number) {
+    try {
+      await this.authService.deleteAccessToken(Number(userId));
+      return { userId, message: 'Access token deleted successfully' };
+    } catch (e) {
+      if (e instanceof ConflictException) {
+        throw new HttpException(`${e.message}`, HttpStatus.BAD_REQUEST);
+      } else {
+        throw new HttpException(
+          `Failed to delete access token: ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  @Get('/get-access-token')
+  async getAccessToken(@Query('userId') userId: number) {
+    try {
+      return await this.authService.getAccessToken(Number(userId));
+    } catch (e) {
+      if (e instanceof ConflictException) {
+        throw new HttpException(`${e.message}`, HttpStatus.NOT_FOUND);
+      } else {
+        throw new HttpException(
+          `Failed to find access token: ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  @Get('/get-all-access-tokens')
+  async getAllAccessTokens() {
+    try {
+      return await this.authService.getAllAccessTokens();
     } catch (e) {
       throw e;
     }
