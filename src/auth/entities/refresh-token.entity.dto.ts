@@ -20,5 +20,4 @@ export class RefreshTokenEntity {
 
   @Column({ nullable: true })
   userAgent: string; // need to add
-  affected: number;
 }

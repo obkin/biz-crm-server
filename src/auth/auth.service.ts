@@ -14,6 +14,7 @@ import {
 } from './auth.repository';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { AccessTokenDto } from './dto/access-token.dto';
+import { addDays } from 'date-fns';
 
 @Injectable()
 export class AuthService {
@@ -62,6 +63,26 @@ export class AuthService {
 
       const JWTtokens = await this.generateTokens(validatedUser);
       this.loggerService.log(`[AuthService] Signed in as user (${dto.email})`);
+
+      // --- need review & tests ---
+
+      const user = await this.usersService.findByEmail(dto.email);
+
+      await this.saveAccessToken({
+        userId: user.id,
+        accessToken: JWTtokens.accessToken,
+        expiresIn: addDays(new Date(), 1),
+      });
+
+      await this.saveRefreshToken({
+        userId: user.id,
+        refreshToken: JWTtokens.refreshToken,
+        expiresIn: addDays(new Date(), 30),
+        ipAddress: null, // add it
+        userAgent: null, // add it
+      });
+
+      // ----------------------------
 
       return {
         id: validatedUser.id,
