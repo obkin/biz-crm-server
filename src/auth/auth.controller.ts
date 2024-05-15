@@ -124,7 +124,14 @@ export class AuthController {
     try {
       return await this.authService.getAllRefreshTokens();
     } catch (e) {
-      throw e;
+      if (e instanceof ConflictException) {
+        throw new HttpException(`${e.message}`, HttpStatus.NOT_FOUND);
+      } else {
+        throw new HttpException(
+          `Failed to find all refresh tokens: ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
   }
 
@@ -183,7 +190,14 @@ export class AuthController {
     try {
       return await this.authService.getAllAccessTokens();
     } catch (e) {
-      throw e;
+      if (e instanceof ConflictException) {
+        throw new HttpException(`${e.message}`, HttpStatus.NOT_FOUND);
+      } else {
+        throw new HttpException(
+          `Failed to find all access tokens: ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
   }
 }

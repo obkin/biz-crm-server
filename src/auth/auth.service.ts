@@ -167,7 +167,12 @@ export class AuthService {
 
   async getAllRefreshTokens() {
     try {
-      return await this.refreshTokenRepository.getAllRefreshTokens();
+      const tokensArray =
+        await this.refreshTokenRepository.getAllRefreshTokens();
+      if (tokensArray.length === 0) {
+        throw new ConflictException('There are no refresh tokens');
+      }
+      return tokensArray;
     } catch (e) {
       throw e;
     }
@@ -215,7 +220,11 @@ export class AuthService {
 
   async getAllAccessTokens() {
     try {
-      return await this.accessTokenRepository.getAllAccessTokens();
+      const tokensArray = await this.accessTokenRepository.getAllAccessTokens();
+      if (tokensArray.length === 0) {
+        throw new ConflictException('There are no access tokens');
+      }
+      return tokensArray;
     } catch (e) {
       throw e;
     }
