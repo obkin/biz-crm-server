@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AccessTokenEntity } from 'src/auth/entities/access-token.entity';
-import { RefreshTokenEntity } from 'src/auth/entities/refresh-token.entity.dto';
+import { RefreshTokenEntity } from 'src/auth/entities/refresh-token.entity';
 import { UserEntity } from 'src/users/entities/user.entity';
 
 @Module({

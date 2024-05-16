@@ -7,7 +7,7 @@ import { UsersModule } from 'src/users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { AccessTokenEntity } from './entities/access-token.entity';
-import { RefreshTokenEntity } from './entities/refresh-token.entity.dto';
+import { RefreshTokenEntity } from './entities/refresh-token.entity';
 import {
   AccessTokenRepository,
   RefreshTokenRepository,

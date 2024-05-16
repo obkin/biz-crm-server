@@ -1,7 +1,7 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { RefreshTokenEntity } from './entities/refresh-token.entity.dto';
+import { RefreshTokenEntity } from './entities/refresh-token.entity';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { AccessTokenEntity } from './entities/access-token.entity';
 import { AccessTokenDto } from './dto/access-token.dto';
