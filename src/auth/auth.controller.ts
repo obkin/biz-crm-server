@@ -35,10 +35,6 @@ export class AuthController {
     try {
       return await this.authService.userRegister(dto);
     } catch (e) {
-      this.loggerService.error(
-        `[AuthController] Failed to register new user: ${e.message}`,
-        e.stack,
-      );
       if (e instanceof ConflictException) {
         throw new HttpException(`${e.message}`, HttpStatus.CONFLICT);
       } else {
@@ -58,12 +54,8 @@ export class AuthController {
     try {
       return await this.authService.userLogin(dto);
     } catch (e) {
-      this.loggerService.error(
-        `[AuthController] Failed to login: ${e.message}`,
-        e.stack,
-      );
       if (e instanceof ConflictException) {
-        throw new HttpException(`${e.message}`, HttpStatus.CONFLICT);
+        throw new HttpException(`${e.message}`, HttpStatus.BAD_REQUEST);
       } else {
         throw new HttpException(
           `Failed to login: ${e}`,
