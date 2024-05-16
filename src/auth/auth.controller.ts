@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
+import { LoggerService } from 'logger/logger.service';
 import { UserRegisterDto } from 'src/auth/dto/user-register.dto';
 import { UserLoginDto } from 'src/auth/dto/user-login.dto';
 import { UserLoginResponseDto } from './dto/user-login-response.dto';
@@ -22,7 +23,10 @@ import { AccessTokenDto } from './dto/access-token.dto';
 @ApiTags('auth')
 @Controller('/auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly loggerService: LoggerService,
+  ) {}
 
   @ApiOperation({ summary: 'Register new user' })
   @ApiResponse({ status: 201, type: UserEntity })
@@ -31,6 +35,10 @@ export class AuthController {
     try {
       return await this.authService.userRegister(dto);
     } catch (e) {
+      this.loggerService.error(
+        `[AuthController] Failed to register new user: ${e.message}`,
+        e.stack,
+      );
       if (e instanceof ConflictException) {
         throw new HttpException(`${e.message}`, HttpStatus.CONFLICT);
       } else {
@@ -50,6 +58,10 @@ export class AuthController {
     try {
       return await this.authService.userLogin(dto);
     } catch (e) {
+      this.loggerService.error(
+        `[AuthController] Failed to login: ${e.message}`,
+        e.stack,
+      );
       if (e instanceof ConflictException) {
         throw new HttpException(`${e.message}`, HttpStatus.CONFLICT);
       } else {
@@ -61,20 +73,37 @@ export class AuthController {
     }
   }
 
+  @Post('/logout')
   async logout() {
     try {
-      // ..
+      // user's tokens deleting logic (need to add)
+      return { message: 'User logged out successfully' };
     } catch (e) {
-      // ..
+      this.loggerService.error(
+        `[AuthController] Failed to logout: ${e.message}`,
+        e.stack,
+      );
+      if (e instanceof ConflictException) {
+        throw new HttpException(`${e.message}`, HttpStatus.BAD_REQUEST);
+      } else {
+        throw new HttpException(
+          `Failed to logout: ${e.message}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
   }
 
-  // --- Refresh tokens (temporary) ---
+  // --- Refresh tokens logic (for Admins only) ---
   @Post('/save-refresh-token')
   async saveRefreshToken(@Body() dto: RefreshTokenDto) {
     try {
       return await this.authService.saveRefreshToken(dto);
     } catch (e) {
+      this.loggerService.error(
+        `[AuthController] Failed to save refresh token: ${e.message}`,
+        e.stack,
+      );
       if (e instanceof ConflictException) {
         throw new HttpException(`${e.message}`, HttpStatus.BAD_REQUEST);
       } else {
@@ -92,6 +121,10 @@ export class AuthController {
       await this.authService.deleteRefreshToken(Number(userId));
       return { userId, message: 'Refresh token deleted successfully' };
     } catch (e) {
+      this.loggerService.error(
+        `[AuthController] Failed to delete refresh token: ${e.message}`,
+        e.stack,
+      );
       if (e instanceof ConflictException) {
         throw new HttpException(`${e.message}`, HttpStatus.BAD_REQUEST);
       } else {
@@ -108,6 +141,10 @@ export class AuthController {
     try {
       return await this.authService.getRefreshToken(Number(userId));
     } catch (e) {
+      this.loggerService.error(
+        `[AuthController] Failed to get refresh token: ${e.message}`,
+        e.stack,
+      );
       if (e instanceof ConflictException) {
         throw new HttpException(`${e.message}`, HttpStatus.NOT_FOUND);
       } else {
@@ -124,6 +161,10 @@ export class AuthController {
     try {
       return await this.authService.getAllRefreshTokens();
     } catch (e) {
+      this.loggerService.error(
+        `[AuthController] Failed to get all refresh tokens: ${e.message}`,
+        e.stack,
+      );
       if (e instanceof ConflictException) {
         throw new HttpException(`${e.message}`, HttpStatus.NOT_FOUND);
       } else {
@@ -135,12 +176,16 @@ export class AuthController {
     }
   }
 
-  // --- Access tokens (temporary) ---
+  // --- Access tokens logic (for Admins only) ---
   @Post('/save-access-token')
   async saveAccessToken(@Body() dto: AccessTokenDto) {
     try {
       return await this.authService.saveAccessToken(dto);
     } catch (e) {
+      this.loggerService.error(
+        `[AuthController] Failed to save access token: ${e.message}`,
+        e.stack,
+      );
       if (e instanceof ConflictException) {
         throw new HttpException(`${e.message}`, HttpStatus.BAD_REQUEST);
       } else {
@@ -158,6 +203,10 @@ export class AuthController {
       await this.authService.deleteAccessToken(Number(userId));
       return { userId, message: 'Access token deleted successfully' };
     } catch (e) {
+      this.loggerService.error(
+        `[AuthController] Failed to delete access token: ${e.message}`,
+        e.stack,
+      );
       if (e instanceof ConflictException) {
         throw new HttpException(`${e.message}`, HttpStatus.BAD_REQUEST);
       } else {
@@ -174,6 +223,10 @@ export class AuthController {
     try {
       return await this.authService.getAccessToken(Number(userId));
     } catch (e) {
+      this.loggerService.error(
+        `[AuthController] Failed to get access token: ${e.message}`,
+        e.stack,
+      );
       if (e instanceof ConflictException) {
         throw new HttpException(`${e.message}`, HttpStatus.NOT_FOUND);
       } else {
@@ -190,6 +243,10 @@ export class AuthController {
     try {
       return await this.authService.getAllAccessTokens();
     } catch (e) {
+      this.loggerService.error(
+        `[AuthController] Failed to get all access tokens: ${e.message}`,
+        e.stack,
+      );
       if (e instanceof ConflictException) {
         throw new HttpException(`${e.message}`, HttpStatus.NOT_FOUND);
       } else {
