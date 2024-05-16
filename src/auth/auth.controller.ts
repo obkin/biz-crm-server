@@ -65,18 +65,18 @@ export class AuthController {
     }
   }
 
-  @Post('/logout')
-  async logout() {
+  @Delete('/logout')
+  async logout(@Query('userId') userId: number) {
     try {
-      // user's tokens deleting logic (need to add)
-      return { message: 'User logged out successfully' };
+      await this.authService.userLogout(userId);
+      return { userId, message: 'User logged out successfully' };
     } catch (e) {
       this.loggerService.error(
         `[AuthController] Failed to logout: ${e.message}`,
         e.stack,
       );
       if (e instanceof ConflictException) {
-        throw new HttpException(`${e.message}`, HttpStatus.BAD_REQUEST);
+        throw new HttpException(`${e.message}`, HttpStatus.NOT_FOUND);
       } else {
         throw new HttpException(
           `Failed to logout: ${e.message}`,

@@ -98,6 +98,22 @@ export class AuthService {
     }
   }
 
+  async userLogout(userId: number) {
+    try {
+      await this.deleteAccessToken(userId);
+      await this.deleteRefreshToken(userId);
+    } catch (e) {
+      if (e.status === 409) {
+        throw new ConflictException('This user is not logged in');
+      } else {
+        this.loggerService.error(
+          `[AuthService] Failed to logout (userId: ${userId} / error: ${e.message})`,
+        );
+        throw e;
+      }
+    }
+  }
+
   // --- Methods ---
   private async validateUser(dto: UserLoginDto) {
     try {
