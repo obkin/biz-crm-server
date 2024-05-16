@@ -153,7 +153,12 @@ export class AuthService {
       if (existingRefreshToken) {
         await this.deleteRefreshToken(dto.userId);
       }
-      return await this.refreshTokenRepository.saveRefreshToken(dto);
+      const savedRefreshToken =
+        await this.refreshTokenRepository.saveRefreshToken(dto);
+      if (savedRefreshToken) {
+        this.loggerService.log('[AuthService] Refresh token saved');
+        return savedRefreshToken;
+      }
     } catch (e) {
       if (e.code === '23505') {
         throw new ConflictException('Such refresh token already exists');
@@ -166,7 +171,8 @@ export class AuthService {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async deleteRefreshToken(userId: number) {
     try {
-      return await this.refreshTokenRepository.deleteRefreshToken(userId);
+      await this.refreshTokenRepository.deleteRefreshToken(userId);
+      this.loggerService.log('[AuthService] Refresh token deleted');
     } catch (e) {
       throw e;
     }
@@ -207,7 +213,12 @@ export class AuthService {
       if (existingAccessToken) {
         await this.deleteAccessToken(dto.userId);
       }
-      return await this.accessTokenRepository.saveAccessToken(dto);
+      const savedAccessToken =
+        await this.accessTokenRepository.saveAccessToken(dto);
+      if (savedAccessToken) {
+        this.loggerService.log('[AuthService] Access token saved');
+        return savedAccessToken;
+      }
     } catch (e) {
       if (e.code === '23505') {
         throw new ConflictException('Such access token already exists');
@@ -219,7 +230,8 @@ export class AuthService {
 
   async deleteAccessToken(userId: number) {
     try {
-      return await this.accessTokenRepository.deleteAccessToken(userId);
+      await this.accessTokenRepository.deleteAccessToken(userId);
+      this.loggerService.log('[AuthService] Access token deleted');
     } catch (e) {
       throw e;
     }
