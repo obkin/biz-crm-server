@@ -10,7 +10,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoggerService } from 'logger/logger.service';
 import { UserRegisterDto } from 'src/auth/dto/user-register.dto';
@@ -29,7 +29,13 @@ export class AuthController {
   ) {}
 
   @ApiOperation({ summary: 'Register new user' })
-  @ApiResponse({ status: 201, type: UserEntity })
+  @ApiResponse({
+    status: 201,
+    description: 'New user registered',
+    type: UserEntity,
+  })
+  @ApiResponse({ status: 409, description: 'Conflict' })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
   @Post('/register')
   async register(@Body() dto: UserRegisterDto) {
     try {
@@ -47,7 +53,13 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: 'Login as user' })
-  @ApiResponse({ status: 200, type: UserLoginResponseDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Signed in as user',
+    type: UserLoginResponseDto,
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
   @HttpCode(200)
   @Post('/login')
   async login(@Body() dto: UserLoginDto) {
@@ -71,10 +83,6 @@ export class AuthController {
       await this.authService.userLogout(userId);
       return { userId, message: 'User logged out successfully' };
     } catch (e) {
-      this.loggerService.error(
-        `[AuthController] Failed to logout: ${e.message}`,
-        e.stack,
-      );
       if (e instanceof ConflictException) {
         throw new HttpException(`${e.message}`, HttpStatus.NOT_FOUND);
       } else {
@@ -87,15 +95,15 @@ export class AuthController {
   }
 
   // --- Refresh tokens logic (for Admins only) ---
+  @ApiOperation({ summary: 'Save refresh token' })
+  @ApiResponse({ status: 201, description: 'Refresh token saved' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
   @Post('/save-refresh-token')
   async saveRefreshToken(@Body() dto: RefreshTokenDto) {
     try {
       return await this.authService.saveRefreshToken(dto);
     } catch (e) {
-      this.loggerService.error(
-        `[AuthController] Failed to save refresh token: ${e.message}`,
-        e.stack,
-      );
       if (e instanceof ConflictException) {
         throw new HttpException(`${e.message}`, HttpStatus.BAD_REQUEST);
       } else {
@@ -107,11 +115,16 @@ export class AuthController {
     }
   }
 
+  @ApiOperation({ summary: 'Delete refresh token' })
+  @ApiResponse({ status: 200, description: 'Refresh token deleted' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
+  @ApiQuery({ name: 'userId', required: true, description: 'ID of the user' })
   @Delete('/delete-refresh-token')
   async deleteRefreshToken(@Query('userId') userId: number) {
     try {
       await this.authService.deleteRefreshToken(Number(userId));
-      return { userId, message: 'Refresh token deleted successfully' };
+      return { userId, message: 'Refresh token deleted' };
     } catch (e) {
       this.loggerService.error(
         `[AuthController] Failed to delete refresh token: ${e.message}`,
