@@ -19,6 +19,7 @@ import { UserLoginResponseDto } from './dto/user-login-response.dto';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { AccessTokenDto } from './dto/access-token.dto';
+import { RefreshTokenEntity } from './entities/refresh-token.entity';
 
 @ApiTags('auth')
 @Controller('/auth')
@@ -138,7 +139,7 @@ export class AuthController {
 
   @ApiOperation({ summary: 'Delete refresh token' })
   @ApiResponse({
-    status: 200,
+    status: 204,
     description: 'Refresh token deleted',
   })
   @ApiResponse({
@@ -150,6 +151,7 @@ export class AuthController {
     description: 'Internal Server Error',
   })
   @ApiQuery({ name: 'userId', required: true, description: 'ID of the user' })
+  @HttpCode(204)
   @Delete('/delete-refresh-token')
   async deleteRefreshToken(@Query('userId') userId: number) {
     try {
@@ -171,15 +173,30 @@ export class AuthController {
     }
   }
 
+  @ApiOperation({ summary: 'Get refresh token' })
+  @ApiResponse({
+    status: 200,
+    description: 'Refresh token retrieved',
+    type: RefreshTokenEntity,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Such refresh token not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @ApiQuery({
+    name: 'userId',
+    required: true,
+    description: 'ID of the user',
+  })
   @Get('/get-refresh-token')
   async getRefreshToken(@Query('userId') userId: number) {
     try {
       return await this.authService.getRefreshToken(Number(userId));
     } catch (e) {
-      this.loggerService.error(
-        `[AuthController] Failed to get refresh token: ${e.message}`,
-        e.stack,
-      );
       if (e instanceof ConflictException) {
         throw new HttpException(`${e.message}`, HttpStatus.NOT_FOUND);
       } else {
