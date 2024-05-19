@@ -34,8 +34,14 @@ export class AuthController {
     description: 'New user registered',
     type: UserEntity,
   })
-  @ApiResponse({ status: 409, description: 'Conflict' })
-  @ApiResponse({ status: 500, description: 'Internal Server Error' })
+  @ApiResponse({
+    status: 409,
+    description: 'User with such email already exists',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
   @Post('/register')
   async register(@Body() dto: UserRegisterDto) {
     try {
@@ -58,8 +64,14 @@ export class AuthController {
     description: 'Signed in as user',
     type: UserLoginResponseDto,
   })
-  @ApiResponse({ status: 400, description: 'Bad Request' })
-  @ApiResponse({ status: 500, description: 'Internal Server Error' })
+  @ApiResponse({
+    status: 400,
+    description: 'Wrong email or password',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
   @HttpCode(200)
   @Post('/login')
   async login(@Body() dto: UserLoginDto) {
@@ -96,9 +108,18 @@ export class AuthController {
 
   // --- Refresh tokens logic (for Admins only) ---
   @ApiOperation({ summary: 'Save refresh token' })
-  @ApiResponse({ status: 201, description: 'Refresh token saved' })
-  @ApiResponse({ status: 400, description: 'Bad Request' })
-  @ApiResponse({ status: 500, description: 'Internal Server Error' })
+  @ApiResponse({
+    status: 201,
+    description: 'Refresh token saved',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Such refresh token already exists',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
   @Post('/save-refresh-token')
   async saveRefreshToken(@Body() dto: RefreshTokenDto) {
     try {
@@ -116,9 +137,18 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: 'Delete refresh token' })
-  @ApiResponse({ status: 200, description: 'Refresh token deleted' })
-  @ApiResponse({ status: 400, description: 'Bad Request' })
-  @ApiResponse({ status: 500, description: 'Internal Server Error' })
+  @ApiResponse({
+    status: 200,
+    description: 'Refresh token deleted',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Token not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
   @ApiQuery({ name: 'userId', required: true, description: 'ID of the user' })
   @Delete('/delete-refresh-token')
   async deleteRefreshToken(@Query('userId') userId: number) {
