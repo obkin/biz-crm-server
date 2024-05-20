@@ -239,15 +239,24 @@ export class AuthController {
   }
 
   // --- Access tokens logic (for Admins only) ---
+  @ApiOperation({ summary: 'Save access token' })
+  @ApiResponse({
+    status: 201,
+    description: 'Access token saved',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Such access token already exists',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
   @Post('/save-access-token')
   async saveAccessToken(@Body() dto: AccessTokenDto) {
     try {
       return await this.authService.saveAccessToken(dto);
     } catch (e) {
-      this.loggerService.error(
-        `[AuthController] Failed to save access token: ${e.message}`,
-        e.stack,
-      );
       if (e instanceof ConflictException) {
         throw new HttpException(`${e.message}`, HttpStatus.BAD_REQUEST);
       } else {
