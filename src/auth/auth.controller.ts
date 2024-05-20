@@ -158,10 +158,6 @@ export class AuthController {
       await this.authService.deleteRefreshToken(Number(userId));
       return { userId, message: 'Refresh token deleted' };
     } catch (e) {
-      this.loggerService.error(
-        `[AuthController] Failed to delete refresh token: ${e.message}`,
-        e.stack,
-      );
       if (e instanceof ConflictException) {
         throw new HttpException(`${e.message}`, HttpStatus.BAD_REQUEST);
       } else {
@@ -268,16 +264,27 @@ export class AuthController {
     }
   }
 
+  @ApiOperation({ summary: 'Delete access token' })
+  @ApiResponse({
+    status: 204,
+    description: 'Access token deleted',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Token not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @ApiQuery({ name: 'userId', required: true, description: 'ID of the user' })
+  @HttpCode(204)
   @Delete('/delete-access-token')
   async deleteAccessToken(@Query('userId') userId: number) {
     try {
       await this.authService.deleteAccessToken(Number(userId));
-      return { userId, message: 'Access token deleted successfully' };
+      return { userId, message: 'Access token deleted' };
     } catch (e) {
-      this.loggerService.error(
-        `[AuthController] Failed to delete access token: ${e.message}`,
-        e.stack,
-      );
       if (e instanceof ConflictException) {
         throw new HttpException(`${e.message}`, HttpStatus.BAD_REQUEST);
       } else {
