@@ -324,15 +324,25 @@ export class AuthController {
     }
   }
 
+  @ApiOperation({ summary: 'Get all access tokens' })
+  @ApiResponse({
+    status: 200,
+    description: 'Retrieved all access tokens',
+    type: [AccessTokenEntity],
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'There are no access tokens',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
   @Get('/get-all-access-tokens')
   async getAllAccessTokens() {
     try {
       return await this.authService.getAllAccessTokens();
     } catch (e) {
-      this.loggerService.error(
-        `[AuthController] Failed to get all access tokens: ${e.message}`,
-        e.stack,
-      );
       if (e instanceof ConflictException) {
         throw new HttpException(`${e.message}`, HttpStatus.NOT_FOUND);
       } else {
