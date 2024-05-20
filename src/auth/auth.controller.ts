@@ -208,15 +208,25 @@ export class AuthController {
     }
   }
 
+  @ApiOperation({ summary: 'Get all refresh tokens' })
+  @ApiResponse({
+    status: 200,
+    description: 'Retrieved all refresh tokens',
+    type: [RefreshTokenEntity],
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'There are no refresh tokens',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
   @Get('/get-all-refresh-tokens')
   async getAllRefreshTokens() {
     try {
       return await this.authService.getAllRefreshTokens();
     } catch (e) {
-      this.loggerService.error(
-        `[AuthController] Failed to get all refresh tokens: ${e.message}`,
-        e.stack,
-      );
       if (e instanceof ConflictException) {
         throw new HttpException(`${e.message}`, HttpStatus.NOT_FOUND);
       } else {
