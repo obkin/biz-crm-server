@@ -170,6 +170,7 @@ export class AuthController {
   })
   @ApiQuery({ name: 'userId', required: true, description: 'ID of the user' })
   @HttpCode(204)
+  @UsePipes(new UserIdValidationPipe())
   @Delete('/delete-refresh-token')
   async deleteRefreshToken(@Query('userId') userId: number) {
     try {
@@ -202,6 +203,7 @@ export class AuthController {
     description: 'Internal Server Error',
   })
   @ApiQuery({ name: 'userId', required: true, description: 'ID of the user' })
+  @UsePipes(new UserIdValidationPipe())
   @Get('/get-refresh-token')
   async getRefreshToken(@Query('userId') userId: number) {
     try {
@@ -293,6 +295,7 @@ export class AuthController {
   })
   @ApiQuery({ name: 'userId', required: true, description: 'ID of the user' })
   @HttpCode(204)
+  @UsePipes(new UserIdValidationPipe())
   @Delete('/delete-access-token')
   async deleteAccessToken(@Query('userId') userId: number) {
     try {
@@ -325,6 +328,7 @@ export class AuthController {
     description: 'Internal Server Error',
   })
   @ApiQuery({ name: 'userId', required: true, description: 'ID of the user' })
+  @UsePipes(new UserIdValidationPipe())
   @Get('/get-access-token')
   async getAccessToken(@Query('userId') userId: number) {
     try {
