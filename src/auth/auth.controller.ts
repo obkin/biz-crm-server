@@ -20,6 +20,7 @@ import { UserEntity } from 'src/users/entities/user.entity';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { AccessTokenDto } from './dto/access-token.dto';
 import { RefreshTokenEntity } from './entities/refresh-token.entity';
+import { AccessTokenEntity } from './entities/access-token.entity';
 
 @ApiTags('auth')
 @Controller('/auth')
@@ -183,11 +184,7 @@ export class AuthController {
     status: 500,
     description: 'Internal Server Error',
   })
-  @ApiQuery({
-    name: 'userId',
-    required: true,
-    description: 'ID of the user',
-  })
+  @ApiQuery({ name: 'userId', required: true, description: 'ID of the user' })
   @Get('/get-refresh-token')
   async getRefreshToken(@Query('userId') userId: number) {
     try {
@@ -296,15 +293,26 @@ export class AuthController {
     }
   }
 
+  @ApiOperation({ summary: 'Get access token' })
+  @ApiResponse({
+    status: 200,
+    description: 'Access token retrieved',
+    type: AccessTokenEntity,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Such access token not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @ApiQuery({ name: 'userId', required: true, description: 'ID of the user' })
   @Get('/get-access-token')
   async getAccessToken(@Query('userId') userId: number) {
     try {
       return await this.authService.getAccessToken(Number(userId));
     } catch (e) {
-      this.loggerService.error(
-        `[AuthController] Failed to get access token: ${e.message}`,
-        e.stack,
-      );
       if (e instanceof ConflictException) {
         throw new HttpException(`${e.message}`, HttpStatus.NOT_FOUND);
       } else {
