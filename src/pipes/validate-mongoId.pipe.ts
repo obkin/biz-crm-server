@@ -2,7 +2,7 @@ import { PipeTransform, Injectable, BadRequestException } from '@nestjs/common';
 import { ObjectId } from 'mongodb';
 
 @Injectable()
-export class ValidateIdPipe implements PipeTransform<string, string> {
+export class ValidateMongoIdPipe implements PipeTransform<string, string> {
   transform(value: string): string {
     const id = value;
     if (!id) {

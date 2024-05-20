@@ -9,6 +9,7 @@ import {
   HttpStatus,
   Post,
   Query,
+  UsePipes,
 } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
@@ -21,6 +22,7 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { AccessTokenDto } from './dto/access-token.dto';
 import { RefreshTokenEntity } from './entities/refresh-token.entity';
 import { AccessTokenEntity } from './entities/access-token.entity';
+import { UserIdValidationPipe } from 'src/pipes/validate-userId.pipe';
 
 @ApiTags('auth')
 @Controller('/auth')
@@ -91,14 +93,29 @@ export class AuthController {
     }
   }
 
+  @ApiOperation({ summary: 'Logout user' })
+  @ApiResponse({
+    status: 200,
+    description: 'User logged out',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'This user is not logged in',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @ApiQuery({ name: 'userId', required: true, description: 'ID of the user' })
+  @UsePipes(new UserIdValidationPipe())
   @Delete('/logout')
   async logout(@Query('userId') userId: number) {
     try {
-      await this.authService.userLogout(userId);
-      return { userId, message: 'User logged out successfully' };
+      await this.authService.userLogout(Number(userId));
+      return { userId, message: 'User logged out' };
     } catch (e) {
       if (e instanceof ConflictException) {
-        throw new HttpException(`${e.message}`, HttpStatus.NOT_FOUND);
+        throw new HttpException(`${e.message}`, HttpStatus.BAD_REQUEST);
       } else {
         throw new HttpException(
           `Failed to logout: ${e.message}`,
