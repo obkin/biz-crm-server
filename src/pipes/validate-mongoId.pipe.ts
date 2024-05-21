@@ -1,8 +1,9 @@
 import { PipeTransform, Injectable, BadRequestException } from '@nestjs/common';
 import { ObjectId } from 'mongodb';
 
+// Pipe for validation autocreated ids in MongoDB
 @Injectable()
-export class ValidateMongoIdPipe implements PipeTransform<string, string> {
+export class MongoIdValidationPipe implements PipeTransform<string, string> {
   transform(value: string): string {
     const id = value;
     if (!id) {

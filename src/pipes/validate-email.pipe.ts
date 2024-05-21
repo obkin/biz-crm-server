@@ -1,7 +1,7 @@
 import { PipeTransform, Injectable, BadRequestException } from '@nestjs/common';
 
 @Injectable()
-export class ValidateEmailPipe
+export class EmailValidationPipe
   implements PipeTransform<string, Promise<string>>
 {
   async transform(value: string): Promise<string> {
