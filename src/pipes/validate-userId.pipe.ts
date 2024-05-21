@@ -6,6 +6,13 @@ export class UserIdValidationPipe implements PipeTransform {
     if (!value) {
       throw new BadRequestException('User ID is required');
     }
-    return value;
+
+    const parsedValue = parseInt(value, 10);
+
+    if (isNaN(parsedValue)) {
+      throw new BadRequestException('User ID must be a valid number');
+    }
+
+    return parsedValue;
   }
 }
