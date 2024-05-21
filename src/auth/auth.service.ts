@@ -58,7 +58,7 @@ export class AuthService {
     try {
       const validatedUser = await this.validateUser(dto);
       if (!validatedUser) {
-        throw new ConflictException('Wrong email or password');
+        throw new ConflictException('Wrong password');
       }
 
       const JWTtokens = await this.generateTokens(validatedUser);
