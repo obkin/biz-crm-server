@@ -13,7 +13,6 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { LoggerService } from 'logger/logger.service';
 import { UserRegisterDto } from 'src/auth/dto/user-register.dto';
 import { UserLoginDto } from 'src/auth/dto/user-login.dto';
 import { UserLoginResponseDto } from './dto/user-login-response.dto';
@@ -27,10 +26,7 @@ import { UserIdValidationPipe } from 'src/pipes/validate-userId.pipe';
 @ApiTags('auth')
 @Controller('/auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly loggerService: LoggerService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   @ApiOperation({ summary: 'Register new user' })
   @ApiResponse({
