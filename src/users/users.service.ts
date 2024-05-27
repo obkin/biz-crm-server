@@ -1,17 +1,14 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { UserRegisterDto } from '../auth/dto/user-register.dto';
 import { UsersRepository } from './users.repository';
-import { LoggerService } from 'logger/logger.service';
+import { UserEntity } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
-  constructor(
-    private readonly loggerService: LoggerService,
-    private readonly usersRepository: UsersRepository,
-  ) {}
+  constructor(private readonly usersRepository: UsersRepository) {}
 
   // --- Service logic ---
-  async create(dto: UserRegisterDto) {
+  async create(dto: UserRegisterDto): Promise<UserEntity | void> {
     try {
       const existingUser = await this.usersRepository.checkUserExisting(
         dto.email,
@@ -26,18 +23,12 @@ export class UsersService {
     }
   }
 
-  async findByEmail(email: string) {
+  async findByEmail(email: string): Promise<UserEntity | void> {
     try {
       const user = await this.usersRepository.findOneUserByEmail(email);
       if (!user) {
-        // this.loggerService.error(
-        //   `[UsersService] User with such email not found (${email})`,
-        // );
         throw new ConflictException('User with such email not found');
       } else {
-        // this.loggerService.log(
-        //   `[UsersService] Sent info about user (${email})`,
-        // );
         return user;
       }
     } catch (e) {
@@ -45,18 +36,12 @@ export class UsersService {
     }
   }
 
-  async findById(id: number) {
+  async findById(id: number): Promise<UserEntity | void> {
     try {
       const user = await this.usersRepository.findOneUserById(id);
       if (!user) {
-        this.loggerService.error(
-          `[UsersService] User with such id not found (id: ${id})`,
-        );
         throw new ConflictException('User with such id not found');
       } else {
-        this.loggerService.log(
-          `[UsersService] Sent info about user (id: ${id})`,
-        );
         return user;
       }
     } catch (e) {
@@ -64,14 +49,12 @@ export class UsersService {
     }
   }
 
-  async getAllUsers() {
+  async getAllUsers(): Promise<UserEntity[] | void> {
     try {
       const users = await this.usersRepository.getAllExistingUsers();
       if (!users || users.length === 0) {
-        this.loggerService.error(`[UsersService] No users found`);
         throw new ConflictException('No users found');
       } else {
-        this.loggerService.log(`[UsersService] Sent all existing users`);
         return users;
       }
     } catch (e) {
@@ -80,7 +63,7 @@ export class UsersService {
   }
 
   // --- Methods ---
-  private async checkUserExisting(email: string) {
+  private async checkUserExisting(email: string): Promise<boolean> {
     try {
       const user = await this.usersRepository.checkUserExisting(email);
       return !!user;

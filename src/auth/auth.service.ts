@@ -134,7 +134,7 @@ export class AuthService {
   }
 
   // --- Methods ---
-  private async validateUser(dto: UserLoginDto) {
+  private async validateUser(dto: UserLoginDto): Promise<UserEntity | null> {
     try {
       const user = await this.usersService.findByEmail(dto.email);
       if (user && (await this.verifyPassword(dto.password, user))) {
@@ -147,7 +147,10 @@ export class AuthService {
     }
   }
 
-  private async verifyPassword(password: string, user: UserEntity) {
+  private async verifyPassword(
+    password: string,
+    user: UserEntity,
+  ): Promise<boolean> {
     try {
       return await compare(password, user.password);
     } catch (e) {
