@@ -181,9 +181,6 @@ export class AuthService {
         refreshToken,
       };
     } catch (e) {
-      this.loggerService.error(
-        `[AuthService] Failed to generate tokens (user: ${user.email} / error: ${e})`,
-      );
       throw e;
     }
   }
