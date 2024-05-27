@@ -18,16 +18,8 @@ export class UsersService {
       );
       if (existingUser) {
         throw new ConflictException('User with such email already exists');
-      }
-
-      const newUser = await this.usersRepository.createNewUser(dto);
-      if (newUser) {
-        // this.loggerService.log(
-        //   `[UsersService] New user created (user: ${dto.email})`,
-        // );
-        return newUser;
       } else {
-        throw new ConflictException('Failed to create new user');
+        return await this.usersRepository.createNewUser(dto);
       }
     } catch (e) {
       throw e;

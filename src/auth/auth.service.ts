@@ -1,12 +1,15 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { UserRegisterDto } from 'src/auth/dto/user-register.dto';
 import { UsersService } from 'src/users/users.service';
-import { hash } from 'bcrypt';
+import { genSalt, hash, compare } from 'bcrypt';
 import { LoggerService } from 'logger/logger.service';
 import { JwtService } from '@nestjs/jwt';
 import { UserLoginDto } from 'src/auth/dto/user-login.dto';
-import { compare } from 'bcrypt';
 import { UserEntity } from 'src/users/entities/user.entity';
 import {
   AccessTokenRepository,
@@ -28,23 +31,39 @@ export class AuthService {
   ) {}
 
   // --- Service logic ---
-  async userRegister(dto: UserRegisterDto) {
+  async userRegister(dto: UserRegisterDto): Promise<UserEntity> {
     try {
-      const salt = this.configService.get<string>('PASSWORD_SALT');
-      const hashedPassword = await hash(dto.password, Number(salt));
+      const saltRoundsString = this.configService.get<string>(
+        'PASSWORD_SALT_ROUNDS',
+      );
+      if (!saltRoundsString) {
+        throw new InternalServerErrorException(
+          '[.env] PASSWORD_SALT_ROUNDS not configured',
+        );
+      }
 
-      const newUserDto: UserRegisterDto = {
-        username: dto.username,
-        email: dto.email,
+      const saltRounds = Number(saltRoundsString);
+      if (isNaN(saltRounds)) {
+        throw new InternalServerErrorException(
+          '[.env] PASSWORD_SALT_ROUNDS must be a valid number',
+        );
+      }
+
+      const salt = await genSalt(saltRounds);
+      const hashedPassword = await hash(dto.password, salt);
+      const newUser = await this.usersService.create({
+        ...dto,
         password: hashedPassword,
-      };
-
-      const newUser = await this.usersService.create(newUserDto);
+      });
       if (newUser) {
         this.loggerService.log(
           `[AuthService] New user registered (user: ${dto.email})`,
         );
         return newUser;
+      } else {
+        throw new InternalServerErrorException(
+          'UsersService did not return User',
+        );
       }
     } catch (e) {
       this.loggerService.error(
