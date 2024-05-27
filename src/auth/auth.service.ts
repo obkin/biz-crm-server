@@ -18,6 +18,8 @@ import {
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { AccessTokenDto } from './dto/access-token.dto';
 import { addDays } from 'date-fns';
+import { UserLoginResponseDto } from './dto/user-login-response.dto';
+import { IUserTokens } from './interfaces';
 
 @Injectable()
 export class AuthService {
@@ -62,7 +64,7 @@ export class AuthService {
         return newUser;
       } else {
         throw new InternalServerErrorException(
-          'UsersService did not return User. User was not crated',
+          '[AuthService] User was not created. UsersService did not return User',
         );
       }
     } catch (e) {
@@ -73,7 +75,7 @@ export class AuthService {
     }
   }
 
-  async userLogin(dto: UserLoginDto) {
+  async userLogin(dto: UserLoginDto): Promise<UserLoginResponseDto> {
     try {
       const validatedUser = await this.validateUser(dto);
       if (!validatedUser) {
@@ -83,9 +85,12 @@ export class AuthService {
       const JWTtokens = await this.generateTokens(validatedUser);
       this.loggerService.log(`[AuthService] Signed in as user (${dto.email})`);
 
-      // --- need review & tests ---
-
       const user = await this.usersService.findByEmail(dto.email);
+      if (!user) {
+        throw new InternalServerErrorException(
+          `[AuthService] Such user does not exist (${dto.email})`,
+        );
+      }
 
       await this.saveAccessToken({
         userId: user.id,
@@ -100,8 +105,6 @@ export class AuthService {
         ipAddress: null, // add it
         userAgent: null, // add it
       });
-
-      // ----------------------------
 
       return {
         id: validatedUser.id,
@@ -159,7 +162,7 @@ export class AuthService {
   }
 
   // --- JWT logic ---
-  private async generateTokens(user: UserEntity) {
+  private async generateTokens(user: UserEntity): Promise<IUserTokens> {
     try {
       const payload = {
         id: user.id,
@@ -173,12 +176,14 @@ export class AuthService {
         { sub: user.id },
         { expiresIn: '7d' },
       );
-
       return {
         accessToken,
         refreshToken,
       };
     } catch (e) {
+      this.loggerService.error(
+        `[AuthService] Failed to generate tokens (user: ${user.email} / error: ${e})`,
+      );
       throw e;
     }
   }
