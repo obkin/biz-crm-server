@@ -62,7 +62,7 @@ export class AuthService {
         return newUser;
       } else {
         throw new InternalServerErrorException(
-          'UsersService did not return User',
+          'UsersService did not return User. User was not crated',
         );
       }
     } catch (e) {
