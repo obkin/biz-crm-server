@@ -59,7 +59,7 @@ export class AuthService {
       });
       if (newUser) {
         this.loggerService.log(
-          `[AuthService] New user registered (user: ${dto.email})`,
+          `[AuthService] New user registered (user: ${newUser.email} / userId: ${newUser.id})`,
         );
         return newUser;
       } else {
@@ -99,7 +99,9 @@ export class AuthService {
         userAgent: null, // add it
       });
 
-      this.loggerService.log(`[AuthService] Signed in as user (${dto.email})`);
+      this.loggerService.log(
+        `[AuthService] Signed in as user (user: ${user.email} / userId: ${user.id})`,
+      );
       return {
         id: validatedUser.id,
         email: validatedUser.email,
@@ -190,7 +192,9 @@ export class AuthService {
       const savedRefreshToken =
         await this.refreshTokenRepository.saveRefreshToken(dto);
       if (savedRefreshToken) {
-        this.loggerService.log('[AuthService] Refresh token saved');
+        this.loggerService.log(
+          `[AuthService] Refresh token saved (userId: ${dto.userId})`,
+        );
         return savedRefreshToken;
       }
     } catch (e) {
@@ -206,7 +210,9 @@ export class AuthService {
   async deleteRefreshToken(userId: number) {
     try {
       await this.refreshTokenRepository.deleteRefreshToken(userId);
-      this.loggerService.log('[AuthService] Refresh token deleted');
+      this.loggerService.log(
+        `[AuthService] Refresh token deleted (userId: ${userId})`,
+      );
     } catch (e) {
       throw e;
     }
@@ -250,7 +256,9 @@ export class AuthService {
       const savedAccessToken =
         await this.accessTokenRepository.saveAccessToken(dto);
       if (savedAccessToken) {
-        this.loggerService.log('[AuthService] Access token saved');
+        this.loggerService.log(
+          `[AuthService] Access token saved (userId: ${dto.userId})`,
+        );
         return savedAccessToken;
       }
     } catch (e) {
@@ -265,7 +273,9 @@ export class AuthService {
   async deleteAccessToken(userId: number) {
     try {
       await this.accessTokenRepository.deleteAccessToken(userId);
-      this.loggerService.log('[AuthService] Access token deleted');
+      this.loggerService.log(
+        `[AuthService] Access token deleted (userId: ${userId})`,
+      );
     } catch (e) {
       throw e;
     }
