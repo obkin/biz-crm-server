@@ -8,7 +8,7 @@ export class UsersService {
   constructor(private readonly usersRepository: UsersRepository) {}
 
   // --- Service logic ---
-  async create(dto: UserRegisterDto): Promise<UserEntity | void> {
+  async create(dto: UserRegisterDto): Promise<UserEntity> {
     try {
       const existingUser = await this.usersRepository.checkUserExisting(
         dto.email,
@@ -23,7 +23,7 @@ export class UsersService {
     }
   }
 
-  async findByEmail(email: string): Promise<UserEntity | void> {
+  async findByEmail(email: string): Promise<UserEntity> {
     try {
       const user = await this.usersRepository.findOneUserByEmail(email);
       if (!user) {
@@ -36,7 +36,7 @@ export class UsersService {
     }
   }
 
-  async findById(id: number): Promise<UserEntity | void> {
+  async findById(id: number): Promise<UserEntity> {
     try {
       const user = await this.usersRepository.findOneUserById(id);
       if (!user) {
@@ -49,7 +49,7 @@ export class UsersService {
     }
   }
 
-  async getAllUsers(): Promise<UserEntity[] | void> {
+  async getAllUsers(): Promise<UserEntity[]> {
     try {
       const users = await this.usersRepository.getAllExistingUsers();
       if (!users || users.length === 0) {
@@ -63,7 +63,7 @@ export class UsersService {
   }
 
   // --- Methods ---
-  private async checkUserExisting(email: string): Promise<boolean> {
+  public async checkUserExisting(email: string): Promise<boolean> {
     try {
       const user = await this.usersRepository.checkUserExisting(email);
       return !!user;

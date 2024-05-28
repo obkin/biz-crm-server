@@ -83,14 +83,7 @@ export class AuthService {
       }
 
       const JWTtokens = await this.generateTokens(validatedUser);
-      this.loggerService.log(`[AuthService] Signed in as user (${dto.email})`);
-
-      const user = await this.usersService.findByEmail(dto.email);
-      if (!user) {
-        throw new InternalServerErrorException(
-          `[AuthService] Such user does not exist (${dto.email})`,
-        );
-      }
+      const user = await this.usersService.findByEmail(validatedUser.email);
 
       await this.saveAccessToken({
         userId: user.id,
@@ -106,6 +99,7 @@ export class AuthService {
         userAgent: null, // add it
       });
 
+      this.loggerService.log(`[AuthService] Signed in as user (${dto.email})`);
       return {
         id: validatedUser.id,
         email: validatedUser.email,
@@ -174,7 +168,7 @@ export class AuthService {
       });
       const refreshToken = this.jwtService.sign(
         { sub: user.id },
-        { expiresIn: '7d' },
+        { expiresIn: '30d' },
       );
       return {
         accessToken,
