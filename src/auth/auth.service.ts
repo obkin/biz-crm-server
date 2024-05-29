@@ -118,12 +118,15 @@ export class AuthService {
     }
   }
 
-  async userLogout(userId: number) {
+  async userLogout(userId: number): Promise<void> {
     try {
       await this.deleteAccessToken(userId);
       await this.deleteRefreshToken(userId);
+      this.loggerService.log(
+        `[AuthService] User logged out (userId: ${userId})`,
+      );
     } catch (e) {
-      if (e.status === 409) {
+      if (e?.status === 404) {
         throw new ConflictException('This user is not logged in');
       } else {
         this.loggerService.error(

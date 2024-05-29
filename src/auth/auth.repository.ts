@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { RefreshTokenEntity } from './entities/refresh-token.entity';
@@ -26,7 +26,7 @@ export class RefreshTokenRepository {
     try {
       const result = await this.refreshTokenRepository.delete({ userId });
       if (result.affected === 0) {
-        throw new ConflictException('Token not found');
+        throw new NotFoundException('Token not found');
       }
     } catch (e) {
       throw e;
@@ -72,7 +72,7 @@ export class AccessTokenRepository {
     try {
       const result = await this.accessTokenRepository.delete({ userId });
       if (result.affected === 0) {
-        throw new ConflictException('Token not found');
+        throw new NotFoundException('Token not found');
       }
     } catch (e) {
       throw e;
