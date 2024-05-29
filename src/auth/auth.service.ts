@@ -95,8 +95,8 @@ export class AuthService {
         userId: user.id,
         refreshToken: JWTtokens.refreshToken,
         expiresIn: addDays(new Date(), 30),
-        ipAddress: null, // add it
-        userAgent: null, // add it
+        ipAddress: dto.ipAddress || null,
+        userAgent: dto.userAgent || null,
       });
 
       this.loggerService.log(
@@ -107,6 +107,8 @@ export class AuthService {
         email: validatedUser.email,
         accessToken: JWTtokens.accessToken,
         refreshToken: JWTtokens.refreshToken,
+        ipAddress: dto.ipAddress || null,
+        userAgent: dto.userAgent || null,
       };
     } catch (e) {
       this.loggerService.error(
