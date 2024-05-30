@@ -9,6 +9,7 @@ import {
   HttpStatus,
   Post,
   Query,
+  UseFilters,
   UsePipes,
 } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -22,6 +23,7 @@ import { AccessTokenDto } from './dto/access-token.dto';
 import { RefreshTokenEntity } from './entities/refresh-token.entity';
 import { AccessTokenEntity } from './entities/access-token.entity';
 import { UserIdValidationPipe } from 'src/pipes/validate-userId.pipe';
+import { HttpErrorFilter } from './filters/http-error.filter';
 
 @ApiTags('auth')
 @Controller('/auth')
@@ -42,16 +44,17 @@ export class AuthController {
     status: 500,
     description: 'Internal Server Error',
   })
+  @UseFilters(new HttpErrorFilter())
   @Post('/register')
   async register(@Body() dto: UserRegisterDto) {
     try {
       return await this.authService.userRegister(dto);
     } catch (e) {
-      if (e instanceof ConflictException) {
-        throw new HttpException(`${e.message}`, HttpStatus.CONFLICT);
+      if (e instanceof HttpException) {
+        throw e;
       } else {
         throw new HttpException(
-          `Failed to create new user: ${e}`,
+          `Failed to create new user. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }

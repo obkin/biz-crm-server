@@ -68,9 +68,6 @@ export class AuthService {
         );
       }
     } catch (e) {
-      this.loggerService.error(
-        `[AuthService] Failed to register new user (user: ${dto.email} / error: ${e.message})`,
-      );
       throw e;
     }
   }
