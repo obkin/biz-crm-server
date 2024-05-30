@@ -3,6 +3,7 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { UserRegisterDto } from 'src/auth/dto/user-register.dto';
@@ -128,7 +129,10 @@ export class AuthService {
       );
     } catch (e) {
       if (e?.status === 404) {
-        throw new ConflictException('This user is not logged in');
+        this.loggerService.error(
+          `[AuthService] Failed to logout (userId: ${userId} / error: This user is not logged in)`,
+        );
+        throw new UnauthorizedException('This user is not logged in');
       } else {
         this.loggerService.error(
           `[AuthService] Failed to logout (userId: ${userId} / error: ${e.message})`,

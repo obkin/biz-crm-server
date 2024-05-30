@@ -108,17 +108,18 @@ export class AuthController {
   })
   @ApiQuery({ name: 'userId', required: true, description: 'ID of the user' })
   @UsePipes(new UserIdValidationPipe())
+  @UseFilters(new HttpErrorFilter())
   @Delete('/logout')
   async logout(@Query('userId') userId: number) {
     try {
       await this.authService.userLogout(Number(userId));
       return { userId, message: 'User logged out' };
     } catch (e) {
-      if (e instanceof ConflictException) {
-        throw new HttpException(`${e.message}`, HttpStatus.BAD_REQUEST);
+      if (e instanceof HttpException) {
+        throw e;
       } else {
         throw new HttpException(
-          `Failed to logout: ${e.message}`,
+          `Failed to logout. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
