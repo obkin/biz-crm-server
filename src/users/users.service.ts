@@ -1,4 +1,8 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { UserRegisterDto } from '../auth/dto/user-register.dto';
 import { UsersRepository } from './users.repository';
 import { UserEntity } from './entities/user.entity';
@@ -27,7 +31,7 @@ export class UsersService {
     try {
       const user = await this.usersRepository.findOneUserByEmail(email);
       if (!user) {
-        throw new ConflictException('User with such email not found');
+        throw new NotFoundException('User with such email not found');
       } else {
         return user;
       }
@@ -40,7 +44,7 @@ export class UsersService {
     try {
       const user = await this.usersRepository.findOneUserById(id);
       if (!user) {
-        throw new ConflictException('User with such id not found');
+        throw new ConflictException('User with such id not found'); // need to change on NotFoundException
       } else {
         return user;
       }
@@ -53,7 +57,7 @@ export class UsersService {
     try {
       const users = await this.usersRepository.getAllExistingUsers();
       if (!users || users.length === 0) {
-        throw new ConflictException('No users found');
+        throw new ConflictException('No users found'); // need to change on NotFoundException
       } else {
         return users;
       }

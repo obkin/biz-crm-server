@@ -24,11 +24,9 @@ export class HttpErrorFilter implements ExceptionFilter {
       message: exception.message || null,
     };
 
-    this.loggerService.error(
-      `[ExceptionFilter] "method: ${request.method}", "path: ${request.url}", "statusCode: ${status}". Error: ${exception.message}`,
-      // `[ExceptionFilter] "method: ${request.method}", "path: ${request.url}", "statusCode: ${status}", "error: ${exception.message}"`,
-      // `[ExceptionFilter] error: ${exception.message}. "method: ${request.method}", "path: ${request.url}", "statusCode: ${status}"`,
-    );
+    // this.loggerService.error(
+    //   `[ExceptionFilter] "method: ${request.method}", "path: ${request.url}", "statusCode: ${status}". Error: ${exception.message}`,
+    // );
 
     response.status(status).json(errorResponse);
   }

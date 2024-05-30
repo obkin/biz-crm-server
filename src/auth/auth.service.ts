@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   InternalServerErrorException,
@@ -68,6 +69,9 @@ export class AuthService {
         );
       }
     } catch (e) {
+      this.loggerService.error(
+        `[AuthService] Failed to register new user (user: ${dto.email} / error: ${e.message})`,
+      );
       throw e;
     }
   }
@@ -76,7 +80,7 @@ export class AuthService {
     try {
       const validatedUser = await this.validateUser(dto);
       if (!validatedUser) {
-        throw new ConflictException('Wrong password');
+        throw new BadRequestException('Wrong password');
       }
 
       const JWTtokens = await this.generateTokens(validatedUser);

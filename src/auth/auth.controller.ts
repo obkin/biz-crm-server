@@ -75,17 +75,18 @@ export class AuthController {
     status: 500,
     description: 'Internal Server Error',
   })
+  @UseFilters(new HttpErrorFilter())
   @HttpCode(200)
   @Post('/login')
   async login(@Body() dto: UserLoginDto) {
     try {
       return await this.authService.userLogin(dto);
     } catch (e) {
-      if (e instanceof ConflictException) {
-        throw new HttpException(`${e.message}`, HttpStatus.BAD_REQUEST);
+      if (e instanceof HttpException) {
+        throw e;
       } else {
         throw new HttpException(
-          `Failed to login: ${e}`,
+          `Failed to login. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
