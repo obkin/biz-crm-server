@@ -75,8 +75,8 @@ export class AuthController {
     status: 500,
     description: 'Internal Server Error',
   })
-  @UseFilters(new HttpErrorFilter())
   @HttpCode(200)
+  @UseFilters(new HttpErrorFilter())
   @Post('/login')
   async login(@Body() dto: UserLoginDto) {
     try {
@@ -140,16 +140,17 @@ export class AuthController {
     status: 500,
     description: 'Internal Server Error',
   })
+  @UseFilters(new HttpErrorFilter())
   @Post('/save-refresh-token')
   async saveRefreshToken(@Body() dto: RefreshTokenDto) {
     try {
       return await this.authService.saveRefreshToken(dto);
     } catch (e) {
-      if (e instanceof ConflictException) {
-        throw new HttpException(`${e.message}`, HttpStatus.BAD_REQUEST);
+      if (e instanceof HttpException) {
+        throw e;
       } else {
         throw new HttpException(
-          `Failed to save refresh token: ${e}`,
+          `Failed to save refresh token. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }

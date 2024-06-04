@@ -66,7 +66,7 @@ export class AuthService {
         return newUser;
       } else {
         throw new InternalServerErrorException(
-          '[AuthService] User was not created. UsersService did not return User',
+          'User was not created. UsersService did not return UserEntity',
         );
       }
     } catch (e) {
@@ -206,11 +206,18 @@ export class AuthService {
           `[AuthService] Refresh token saved (userId: ${dto.userId})`,
         );
         return savedRefreshToken;
+      } else {
+        throw new InternalServerErrorException(
+          'Refresh token not saved. RefreshTokenRepository did not return RefreshTokenEntity',
+        );
       }
     } catch (e) {
       if (e.code === '23505') {
         throw new ConflictException('Such refresh token already exists');
       } else {
+        this.loggerService.error(
+          `[AuthService] Failed to save refresh token (userId: ${dto.userId} / error: ${e.message})`,
+        );
         throw e;
       }
     }
