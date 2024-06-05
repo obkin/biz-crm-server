@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { RefreshTokenEntity } from './entities/refresh-token.entity';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { AccessTokenEntity } from './entities/access-token.entity';
@@ -13,18 +13,31 @@ export class RefreshTokenRepository {
     private readonly refreshTokenRepository: Repository<RefreshTokenEntity>,
   ) {}
 
-  async saveRefreshToken(dto: RefreshTokenDto): Promise<RefreshTokenEntity> {
+  async saveRefreshToken(
+    dto: RefreshTokenDto,
+    manager?: EntityManager,
+  ): Promise<RefreshTokenEntity> {
+    const repository = manager
+      ? manager.getRepository(RefreshTokenEntity)
+      : this.refreshTokenRepository;
     try {
-      const token = this.refreshTokenRepository.create(dto);
-      return await this.refreshTokenRepository.save(token);
+      const token = repository.create(dto);
+      await repository.save(token);
+      return null;
     } catch (e) {
       throw e;
     }
   }
 
-  async deleteRefreshToken(userId: number): Promise<void> {
+  async deleteRefreshToken(
+    userId: number,
+    manager?: EntityManager,
+  ): Promise<void> {
+    const repository = manager
+      ? manager.getRepository(RefreshTokenEntity)
+      : this.refreshTokenRepository;
     try {
-      const result = await this.refreshTokenRepository.delete({ userId });
+      const result = await repository.delete({ userId });
       if (result.affected === 0) {
         throw new NotFoundException('Token not found');
       }
@@ -35,9 +48,13 @@ export class RefreshTokenRepository {
 
   async findRefreshTokenByUserId(
     userId: number,
+    manager?: EntityManager,
   ): Promise<RefreshTokenEntity | void> {
+    const repository = manager
+      ? manager.getRepository(RefreshTokenEntity)
+      : this.refreshTokenRepository;
     try {
-      return await this.refreshTokenRepository.findOne({ where: { userId } });
+      return await repository.findOne({ where: { userId } });
     } catch (e) {
       throw e;
     }

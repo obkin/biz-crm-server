@@ -22,6 +22,8 @@ import { AccessTokenDto } from './dto/access-token.dto';
 import { addDays } from 'date-fns';
 import { UserLoginResponseDto } from './dto/user-login-response.dto';
 import { IUserTokens } from './interfaces';
+import { DataSource } from 'typeorm';
+import { RefreshTokenEntity } from './entities/refresh-token.entity';
 
 @Injectable()
 export class AuthService {
@@ -32,6 +34,7 @@ export class AuthService {
     private readonly refreshTokenRepository: RefreshTokenRepository,
     private readonly accessTokenRepository: AccessTokenRepository,
     private readonly loggerService: LoggerService,
+    private readonly dataSource: DataSource,
   ) {}
 
   // --- Service logic ---
@@ -192,15 +195,29 @@ export class AuthService {
   }
 
   // --- Refresh tokens' logic ---
-  async saveRefreshToken(dto: RefreshTokenDto) {
+  async saveRefreshToken(dto: RefreshTokenDto): Promise<RefreshTokenEntity> {
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
     try {
       const existingRefreshToken =
-        await this.refreshTokenRepository.findRefreshTokenByUserId(dto.userId);
+        await this.refreshTokenRepository.findRefreshTokenByUserId(
+          dto.userId,
+          queryRunner.manager,
+        );
       if (existingRefreshToken) {
-        await this.deleteRefreshToken(dto.userId);
+        await this.refreshTokenRepository.deleteRefreshToken(
+          dto.userId,
+          queryRunner.manager,
+        );
       }
       const savedRefreshToken =
-        await this.refreshTokenRepository.saveRefreshToken(dto);
+        await this.refreshTokenRepository.saveRefreshToken(
+          dto,
+          queryRunner.manager,
+        );
       if (savedRefreshToken) {
         this.loggerService.log(
           `[AuthService] Refresh token saved (userId: ${dto.userId})`,
@@ -212,6 +229,8 @@ export class AuthService {
         );
       }
     } catch (e) {
+      await queryRunner.rollbackTransaction();
+
       if (e.code === '23505') {
         throw new ConflictException('Such refresh token already exists');
       } else {
@@ -220,17 +239,22 @@ export class AuthService {
         );
         throw e;
       }
+    } finally {
+      await queryRunner.release();
     }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async deleteRefreshToken(userId: number) {
+  async deleteRefreshToken(userId: number): Promise<void> {
     try {
       await this.refreshTokenRepository.deleteRefreshToken(userId);
       this.loggerService.log(
         `[AuthService] Refresh token deleted (userId: ${userId})`,
       );
     } catch (e) {
+      this.loggerService.error(
+        `[AuthService] Failed to delete refresh token (userId: ${userId} / error: ${e.message})`,
+      );
       throw e;
     }
   }
