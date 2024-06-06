@@ -216,16 +216,16 @@ export class AuthService {
           dto,
           queryRunner.manager,
         );
-      if (savedRefreshToken) {
+      if (!savedRefreshToken) {
+        throw new InternalServerErrorException(
+          'Refresh token not saved. RefreshTokenRepository did not return RefreshTokenEntity',
+        );
+      } else {
         await queryRunner.commitTransaction();
         this.loggerService.log(
           `[AuthService] Refresh token saved (userId: ${dto.userId})`,
         );
         return savedRefreshToken;
-      } else {
-        throw new InternalServerErrorException(
-          'Refresh token not saved. RefreshTokenRepository did not return RefreshTokenEntity',
-        );
       }
     } catch (e) {
       await queryRunner.rollbackTransaction();
