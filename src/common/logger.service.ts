@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { ILoggerService } from './logger.service.interface';
 import { ILogObj, ISettingsParam, Logger } from 'tslog';
 
 const loggerSettings = {
@@ -10,7 +9,7 @@ const loggerSettings = {
 };
 
 @Injectable()
-export class LoggerService implements ILoggerService {
+export class LoggerService {
   logger: Logger<ILogObj>;
 
   constructor() {
