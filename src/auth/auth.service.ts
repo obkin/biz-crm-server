@@ -62,15 +62,15 @@ export class AuthService {
         ...dto,
         password: hashedPassword,
       });
-      if (newUser) {
+      if (!newUser) {
+        throw new InternalServerErrorException(
+          'User was not created. UsersService did not return UserEntity',
+        );
+      } else {
         this.loggerService.log(
           `[AuthService] New user registered (user: ${newUser.email} / userId: ${newUser.id})`,
         );
         return newUser;
-      } else {
-        throw new InternalServerErrorException(
-          'User was not created. UsersService did not return UserEntity',
-        );
       }
     } catch (e) {
       this.loggerService.error(
