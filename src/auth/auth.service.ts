@@ -197,10 +197,8 @@ export class AuthService {
   // --- Refresh tokens' logic ---
   async saveRefreshToken(dto: RefreshTokenDto): Promise<RefreshTokenEntity> {
     const queryRunner = this.dataSource.createQueryRunner();
-
     await queryRunner.connect();
     await queryRunner.startTransaction();
-
     try {
       const existingRefreshToken =
         await this.refreshTokenRepository.findRefreshTokenByUserId(
@@ -219,6 +217,7 @@ export class AuthService {
           queryRunner.manager,
         );
       if (savedRefreshToken) {
+        await queryRunner.commitTransaction();
         this.loggerService.log(
           `[AuthService] Refresh token saved (userId: ${dto.userId})`,
         );
@@ -230,7 +229,6 @@ export class AuthService {
       }
     } catch (e) {
       await queryRunner.rollbackTransaction();
-
       if (e.code === '23505') {
         throw new ConflictException('Such refresh token already exists');
       } else {

@@ -22,8 +22,7 @@ export class RefreshTokenRepository {
       : this.refreshTokenRepository;
     try {
       const token = repository.create(dto);
-      await repository.save(token);
-      return null;
+      return await repository.save(token);
     } catch (e) {
       throw e;
     }
