@@ -3,6 +3,7 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -256,12 +257,12 @@ export class AuthService {
     }
   }
 
-  async getRefreshToken(userId: number) {
+  async getRefreshToken(userId: number): Promise<RefreshTokenEntity> {
     try {
       const refreshToken =
         await this.refreshTokenRepository.findRefreshTokenByUserId(userId);
       if (!refreshToken) {
-        throw new ConflictException('Such refresh token not found');
+        throw new NotFoundException('Such refresh token not found');
       } else {
         return refreshToken;
       }

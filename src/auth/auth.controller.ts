@@ -207,16 +207,17 @@ export class AuthController {
   })
   @ApiQuery({ name: 'userId', required: true, description: 'ID of the user' })
   @UsePipes(new UserIdValidationPipe())
+  @UseFilters(new HttpErrorFilter())
   @Get('/get-refresh-token')
   async getRefreshToken(@Query('userId') userId: number) {
     try {
       return await this.authService.getRefreshToken(Number(userId));
     } catch (e) {
-      if (e instanceof ConflictException) {
-        throw new HttpException(`${e.message}`, HttpStatus.NOT_FOUND);
+      if (e instanceof HttpException) {
+        throw e;
       } else {
         throw new HttpException(
-          `Failed to find refresh token: ${e}`,
+          `Failed to find refresh token. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
