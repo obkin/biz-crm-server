@@ -242,7 +242,6 @@ export class AuthService {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async deleteRefreshToken(userId: number): Promise<void> {
     try {
       await this.refreshTokenRepository.deleteRefreshToken(userId);

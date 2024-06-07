@@ -159,11 +159,11 @@ export class AuthController {
 
   @ApiOperation({ summary: 'Delete refresh token' })
   @ApiResponse({
-    status: 204,
+    status: 200,
     description: 'Refresh token deleted',
   })
   @ApiResponse({
-    status: 400,
+    status: 404,
     description: 'Token not found',
   })
   @ApiResponse({
@@ -171,19 +171,20 @@ export class AuthController {
     description: 'Internal Server Error',
   })
   @ApiQuery({ name: 'userId', required: true, description: 'ID of the user' })
-  @HttpCode(204)
+  @HttpCode(200)
   @UsePipes(new UserIdValidationPipe())
+  @UseFilters(new HttpErrorFilter())
   @Delete('/delete-refresh-token')
   async deleteRefreshToken(@Query('userId') userId: number) {
     try {
       await this.authService.deleteRefreshToken(Number(userId));
       return { userId, message: 'Refresh token deleted' };
     } catch (e) {
-      if (e instanceof ConflictException) {
-        throw new HttpException(`${e.message}`, HttpStatus.BAD_REQUEST);
+      if (e instanceof HttpException) {
+        throw e;
       } else {
         throw new HttpException(
-          `Failed to delete refresh token: ${e}`,
+          `Failed to delete refresh token. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
