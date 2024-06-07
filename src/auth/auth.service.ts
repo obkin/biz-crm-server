@@ -231,6 +231,9 @@ export class AuthService {
     } catch (e) {
       await queryRunner.rollbackTransaction();
       if (e.code === '23505') {
+        this.loggerService.error(
+          `[AuthService] Failed to save refresh token (userId: ${dto.userId} / error: ${e.message})`,
+        );
         throw new ConflictException('Such refresh token already exists');
       } else {
         this.loggerService.error(
