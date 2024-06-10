@@ -207,7 +207,7 @@ export class AuthController {
   })
   @ApiQuery({ name: 'userId', required: true, description: 'ID of the user' })
   @UsePipes(new UserIdValidationPipe())
-  @UseFilters(new HttpErrorFilter())
+  @UseFilters(new HttpErrorFilter(true))
   @Get('/get-refresh-token')
   async getRefreshToken(@Query('userId') userId: number) {
     try {
@@ -238,7 +238,7 @@ export class AuthController {
     status: 500,
     description: 'Internal Server Error',
   })
-  @UseFilters(new HttpErrorFilter())
+  @UseFilters(new HttpErrorFilter(true))
   @Get('/get-all-refresh-tokens')
   async getAllRefreshTokens() {
     try {
