@@ -48,7 +48,7 @@ export class RefreshTokenRepository {
   async findRefreshTokenByUserId(
     userId: number,
     manager?: EntityManager,
-  ): Promise<RefreshTokenEntity | void> {
+  ): Promise<RefreshTokenEntity> {
     const repository = manager
       ? manager.getRepository(RefreshTokenEntity)
       : this.refreshTokenRepository;
@@ -59,7 +59,7 @@ export class RefreshTokenRepository {
     }
   }
 
-  async getAllRefreshTokens() {
+  async getAllRefreshTokens(): Promise<RefreshTokenEntity[]> {
     try {
       return await this.refreshTokenRepository.find();
     } catch (e) {

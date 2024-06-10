@@ -238,16 +238,17 @@ export class AuthController {
     status: 500,
     description: 'Internal Server Error',
   })
+  @UseFilters(new HttpErrorFilter())
   @Get('/get-all-refresh-tokens')
   async getAllRefreshTokens() {
     try {
       return await this.authService.getAllRefreshTokens();
     } catch (e) {
-      if (e instanceof ConflictException) {
-        throw new HttpException(`${e.message}`, HttpStatus.NOT_FOUND);
+      if (e instanceof HttpException) {
+        throw e;
       } else {
         throw new HttpException(
-          `Failed to find all refresh tokens: ${e}`,
+          `Failed to find all refresh tokens. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }

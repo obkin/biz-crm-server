@@ -274,12 +274,12 @@ export class AuthService {
     }
   }
 
-  async getAllRefreshTokens() {
+  async getAllRefreshTokens(): Promise<RefreshTokenEntity[]> {
     try {
       const tokensArray =
         await this.refreshTokenRepository.getAllRefreshTokens();
       if (tokensArray.length === 0) {
-        throw new ConflictException('There are no refresh tokens');
+        throw new NotFoundException('There are no refresh tokens');
       }
       return tokensArray;
     } catch (e) {
