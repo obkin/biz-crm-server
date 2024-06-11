@@ -242,7 +242,8 @@ export class AuthController {
   @Get('/get-all-refresh-tokens')
   async getAllRefreshTokens() {
     try {
-      return await this.authService.getAllRefreshTokens();
+      const refreshTokensArray = await this.authService.getAllRefreshTokens();
+      return { tokensAmount: refreshTokensArray.length, refreshTokensArray };
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;
@@ -369,7 +370,8 @@ export class AuthController {
   @Get('/get-all-access-tokens')
   async getAllAccessTokens() {
     try {
-      return await this.authService.getAllAccessTokens();
+      const accessTokensArray = await this.authService.getAllAccessTokens();
+      return { tokensAmount: accessTokensArray.length, accessTokensArray };
     } catch (e) {
       if (e instanceof ConflictException) {
         throw new HttpException(`${e.message}`, HttpStatus.NOT_FOUND);
