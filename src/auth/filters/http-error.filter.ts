@@ -29,7 +29,7 @@ export class HttpErrorFilter implements ExceptionFilter {
       message: exception.message || null,
     };
 
-    if (this.shouldLog) {
+    if (this.shouldLog || status === 500) {
       this.loggerService.error(
         `[ExceptionFilter] "method: ${request.method}", "path: ${request.url}", "statusCode: ${status}". Error: ${exception.message}`,
       );

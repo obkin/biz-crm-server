@@ -25,6 +25,7 @@ import { UserLoginResponseDto } from './dto/user-login-response.dto';
 import { IUserTokens } from './interfaces';
 import { DataSource } from 'typeorm';
 import { RefreshTokenEntity } from './entities/refresh-token.entity';
+import { AccessTokenEntity } from './entities/access-token.entity';
 
 @Injectable()
 export class AuthService {
@@ -288,27 +289,52 @@ export class AuthService {
   }
 
   // --- Access tokens' logic ---
-  async saveAccessToken(dto: AccessTokenDto) {
+  async saveAccessToken(dto: AccessTokenDto): Promise<AccessTokenEntity> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
     try {
       const existingAccessToken =
-        await this.accessTokenRepository.findAccessTokenByUserId(dto.userId);
+        await this.accessTokenRepository.findAccessTokenByUserId(
+          dto.userId,
+          queryRunner.manager,
+        );
       if (existingAccessToken) {
-        await this.deleteAccessToken(dto.userId);
+        await this.accessTokenRepository.deleteAccessToken(
+          dto.userId,
+          queryRunner.manager,
+        );
       }
-      const savedAccessToken =
-        await this.accessTokenRepository.saveAccessToken(dto);
-      if (savedAccessToken) {
+      const savedAccessToken = await this.accessTokenRepository.saveAccessToken(
+        dto,
+        queryRunner.manager,
+      );
+      if (!savedAccessToken) {
+        throw new InternalServerErrorException(
+          'Access token not saved. AccessTokenRepository did not return AccessTokenEntity',
+        );
+      } else {
+        await queryRunner.commitTransaction();
         this.loggerService.log(
           `[AuthService] Access token saved (userId: ${dto.userId})`,
         );
         return savedAccessToken;
       }
     } catch (e) {
+      await queryRunner.rollbackTransaction();
       if (e.code === '23505') {
+        this.loggerService.error(
+          `[AuthService] Failed to save access token (userId: ${dto.userId} / error: Such access token already exists)`,
+        );
         throw new ConflictException('Such access token already exists');
       } else {
+        this.loggerService.error(
+          `[AuthService] Failed to save access token (userId: ${dto.userId} / error: ${e.message})`,
+        );
         throw e;
       }
+    } finally {
+      await queryRunner.release();
     }
   }
 

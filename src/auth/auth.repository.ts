@@ -75,18 +75,30 @@ export class AccessTokenRepository {
     private readonly accessTokenRepository: Repository<AccessTokenEntity>,
   ) {}
 
-  async saveAccessToken(dto: AccessTokenDto): Promise<AccessTokenEntity> {
+  async saveAccessToken(
+    dto: AccessTokenDto,
+    manager?: EntityManager,
+  ): Promise<AccessTokenEntity> {
+    const repository = manager
+      ? manager.getRepository(AccessTokenEntity)
+      : this.accessTokenRepository;
     try {
-      const token = this.accessTokenRepository.create(dto);
-      return await this.accessTokenRepository.save(token);
+      const token = repository.create(dto);
+      return await repository.save(token);
     } catch (e) {
       throw e;
     }
   }
 
-  async deleteAccessToken(userId: number): Promise<void> {
+  async deleteAccessToken(
+    userId: number,
+    manager?: EntityManager,
+  ): Promise<void> {
+    const repository = manager
+      ? manager.getRepository(AccessTokenEntity)
+      : this.accessTokenRepository;
     try {
-      const result = await this.accessTokenRepository.delete({ userId });
+      const result = await repository.delete({ userId });
       if (result.affected === 0) {
         throw new NotFoundException('Token not found');
       }
@@ -97,9 +109,13 @@ export class AccessTokenRepository {
 
   async findAccessTokenByUserId(
     userId: number,
-  ): Promise<AccessTokenEntity | void> {
+    manager?: EntityManager,
+  ): Promise<AccessTokenEntity> {
+    const repository = manager
+      ? manager.getRepository(AccessTokenEntity)
+      : this.accessTokenRepository;
     try {
-      return await this.accessTokenRepository.findOne({ where: { userId } });
+      return await repository.findOne({ where: { userId } });
     } catch (e) {
       throw e;
     }

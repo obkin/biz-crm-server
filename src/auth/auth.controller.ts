@@ -269,16 +269,17 @@ export class AuthController {
     status: 500,
     description: 'Internal Server Error',
   })
+  @UseFilters(new HttpErrorFilter())
   @Post('/save-access-token')
   async saveAccessToken(@Body() dto: AccessTokenDto) {
     try {
       return await this.authService.saveAccessToken(dto);
     } catch (e) {
-      if (e instanceof ConflictException) {
-        throw new HttpException(`${e.message}`, HttpStatus.BAD_REQUEST);
+      if (e instanceof HttpException) {
+        throw e;
       } else {
         throw new HttpException(
-          `Failed to save access token: ${e}`,
+          `Failed to save access token. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
