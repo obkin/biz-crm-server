@@ -44,7 +44,7 @@ export class UsersService {
     try {
       const user = await this.usersRepository.findOneUserById(id);
       if (!user) {
-        throw new ConflictException('User with such id not found'); // need to change on NotFoundException
+        throw new NotFoundException('User with such id not found');
       } else {
         return user;
       }
@@ -57,7 +57,7 @@ export class UsersService {
     try {
       const users = await this.usersRepository.getAllExistingUsers();
       if (!users || users.length === 0) {
-        throw new ConflictException('No users found'); // need to change on NotFoundException
+        throw new NotFoundException('No users found');
       } else {
         return users;
       }

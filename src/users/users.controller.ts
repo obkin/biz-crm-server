@@ -1,6 +1,5 @@
 import {
   Body,
-  ConflictException,
   Controller,
   Get,
   HttpException,
@@ -28,11 +27,11 @@ export class UsersController {
     try {
       return await this.usersService.create(dto);
     } catch (e) {
-      if (e instanceof ConflictException) {
-        throw new HttpException(`${e.message}`, HttpStatus.CONFLICT);
+      if (e instanceof HttpException) {
+        throw e;
       } else {
         throw new HttpException(
-          `Failed to create new user: ${e}`,
+          `Failed to create new user. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
@@ -47,11 +46,11 @@ export class UsersController {
     try {
       return await this.usersService.findByEmail(email);
     } catch (e) {
-      if (e instanceof ConflictException) {
-        throw new HttpException(`${e.message}`, HttpStatus.NOT_FOUND);
+      if (e instanceof HttpException) {
+        throw e;
       } else {
         throw new HttpException(
-          `Failed to find user by email: ${e}`,
+          `Failed to find user by email. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
@@ -66,11 +65,11 @@ export class UsersController {
     try {
       return await this.usersService.findById(id);
     } catch (e) {
-      if (e instanceof ConflictException) {
-        throw new HttpException(`${e.message}`, HttpStatus.NOT_FOUND);
+      if (e instanceof HttpException) {
+        throw e;
       } else {
         throw new HttpException(
-          `Failed to find user by id: ${e}`,
+          `Failed to find user by id. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
@@ -84,11 +83,11 @@ export class UsersController {
     try {
       return await this.usersService.getAllUsers();
     } catch (e) {
-      if (e instanceof ConflictException) {
-        throw new HttpException(`${e.message}`, HttpStatus.NOT_FOUND);
+      if (e instanceof HttpException) {
+        throw e;
       } else {
         throw new HttpException(
-          `Failed to get all users: ${e}`,
+          `Failed to get all users. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
