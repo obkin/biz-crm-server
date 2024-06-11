@@ -1,6 +1,5 @@
 import {
   Body,
-  ConflictException,
   Controller,
   HttpCode,
   HttpException,
@@ -24,11 +23,11 @@ export class EmailController {
         message: 'Confirmation code sent successfully',
       };
     } catch (e) {
-      if (e instanceof ConflictException) {
-        throw new HttpException(`${e.message}`, HttpStatus.CONFLICT);
+      if (e instanceof HttpException) {
+        throw e;
       } else {
         throw new HttpException(
-          `Failed to compare confirmation code: ${e}`,
+          `Failed to send confirmation code. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
