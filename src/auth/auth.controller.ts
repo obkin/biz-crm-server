@@ -337,16 +337,17 @@ export class AuthController {
   })
   @ApiQuery({ name: 'userId', required: true, description: 'ID of the user' })
   @UsePipes(new UserIdValidationPipe())
+  @UseFilters(new HttpErrorFilter(true))
   @Get('/get-access-token')
   async getAccessToken(@Query('userId') userId: number) {
     try {
       return await this.authService.getAccessToken(Number(userId));
     } catch (e) {
-      if (e instanceof ConflictException) {
-        throw new HttpException(`${e.message}`, HttpStatus.NOT_FOUND);
+      if (e instanceof HttpException) {
+        throw e;
       } else {
         throw new HttpException(
-          `Failed to find access token: ${e}`,
+          `Failed to find access token. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }

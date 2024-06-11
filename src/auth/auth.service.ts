@@ -352,12 +352,12 @@ export class AuthService {
     }
   }
 
-  async getAccessToken(userId: number) {
+  async getAccessToken(userId: number): Promise<AccessTokenEntity> {
     try {
       const accessToken =
         await this.accessTokenRepository.findAccessTokenByUserId(userId);
       if (!accessToken) {
-        throw new ConflictException('Such access token not found');
+        throw new NotFoundException('Such access token not found');
       } else {
         return accessToken;
       }
