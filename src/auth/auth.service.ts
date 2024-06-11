@@ -338,13 +338,16 @@ export class AuthService {
     }
   }
 
-  async deleteAccessToken(userId: number) {
+  async deleteAccessToken(userId: number): Promise<void> {
     try {
       await this.accessTokenRepository.deleteAccessToken(userId);
       this.loggerService.log(
         `[AuthService] Access token deleted (userId: ${userId})`,
       );
     } catch (e) {
+      this.loggerService.error(
+        `[AuthService] Failed to delete access token (userId: ${userId} / error: ${e.message})`,
+      );
       throw e;
     }
   }
