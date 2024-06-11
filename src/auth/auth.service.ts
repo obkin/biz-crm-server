@@ -366,11 +366,11 @@ export class AuthService {
     }
   }
 
-  async getAllAccessTokens() {
+  async getAllAccessTokens(): Promise<AccessTokenEntity[]> {
     try {
       const tokensArray = await this.accessTokenRepository.getAllAccessTokens();
       if (tokensArray.length === 0) {
-        throw new ConflictException('There are no access tokens');
+        throw new NotFoundException('There are no access tokens');
       }
       return tokensArray;
     } catch (e) {

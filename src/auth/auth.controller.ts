@@ -1,6 +1,5 @@
 import {
   Body,
-  ConflictException,
   Controller,
   Delete,
   Get,
@@ -368,17 +367,18 @@ export class AuthController {
     status: 500,
     description: 'Internal Server Error',
   })
+  @UseFilters(new HttpErrorFilter(true))
   @Get('/get-all-access-tokens')
   async getAllAccessTokens() {
     try {
       const accessTokensArray = await this.authService.getAllAccessTokens();
       return { tokensAmount: accessTokensArray.length, accessTokensArray };
     } catch (e) {
-      if (e instanceof ConflictException) {
-        throw new HttpException(`${e.message}`, HttpStatus.NOT_FOUND);
+      if (e instanceof HttpException) {
+        throw e;
       } else {
         throw new HttpException(
-          `Failed to find all access tokens: ${e}`,
+          `Failed to find all access tokens. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
