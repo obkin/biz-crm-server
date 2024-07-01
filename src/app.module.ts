@@ -5,6 +5,7 @@ import { LoggerService } from 'src/common/logger.service';
 import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './auth/auth.module';
 import { EmailModule } from './email/email.module';
+import { RolesModule } from './roles/roles.module';
 
 @Module({
   controllers: [],
@@ -17,6 +18,7 @@ import { EmailModule } from './email/email.module';
     UsersModule,
     AuthModule,
     EmailModule,
+    RolesModule,
   ],
 })
 export class AppModule {}
