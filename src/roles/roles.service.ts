@@ -7,7 +7,8 @@ import { CreateRoleDto } from './dto/create-role.dto';
 export class RolesService {
   constructor(private readonly rolesRepository: RolesRepository) {}
 
-  async createNewRole(dto: CreateRoleDto): Promise<RoleEntity> {
+  async createNewRole(dto: CreateRoleDto) {
+    // returns: Promise<RoleEntity>
     try {
       // ..
     } catch (e) {

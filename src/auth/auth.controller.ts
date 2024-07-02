@@ -22,7 +22,7 @@ import { AccessTokenDto } from './dto/access-token.dto';
 import { RefreshTokenEntity } from './entities/refresh-token.entity';
 import { AccessTokenEntity } from './entities/access-token.entity';
 import { UserIdValidationPipe } from 'src/pipes/validate-userId.pipe';
-import { HttpErrorFilter } from './filters/http-error.filter';
+import { HttpErrorFilter } from '../common/http-error.filter';
 
 @ApiTags('auth')
 @Controller('/auth')
