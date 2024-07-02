@@ -1,7 +1,12 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { RolesRepository } from './roles.repository';
 import { RoleEntity } from './entities/role.entity';
 import { CreateRoleDto } from './dto/create-role.dto';
+import { UpdateRoleDto } from './dto/update-role.dto';
 
 @Injectable()
 export class RolesService {
@@ -17,6 +22,15 @@ export class RolesService {
       }
     } catch (e) {
       throw e;
+    }
+  }
+
+  async updateRole(id: number, dto: UpdateRoleDto): Promise<RoleEntity> {
+    const role = await this.getRoleById(id);
+    if (role) {
+      return await this.rolesRepository.updateRole(id, dto);
+    } else {
+      throw new NotFoundException('Such role does not exist');
     }
   }
 

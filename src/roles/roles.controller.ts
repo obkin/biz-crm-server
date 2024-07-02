@@ -4,7 +4,9 @@ import {
   Get,
   HttpException,
   HttpStatus,
+  Param,
   Post,
+  Put,
   UseFilters,
 } from '@nestjs/common';
 import { RolesService } from './roles.service';
@@ -12,6 +14,7 @@ import { CreateRoleDto } from './dto/create-role.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RoleEntity } from './entities/role.entity';
 import { HttpErrorFilter } from 'src/common/http-error.filter';
+import { UpdateRoleDto } from './dto/update-role.dto';
 
 @ApiTags('roles')
 @Controller('/roles')
@@ -49,6 +52,37 @@ export class RolesController {
     }
   }
 
+  @ApiOperation({ summary: 'Update existing role' })
+  @ApiResponse({
+    status: 200,
+    description: 'Role updated',
+    type: RoleEntity,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Such role not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @UseFilters(new HttpErrorFilter(true))
+  @Put('/update/:id')
+  async updateRole(@Param('id') id: number, @Body() dto: UpdateRoleDto) {
+    try {
+      return await this.rolesService.updateRole(id, dto);
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to update role. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
   @ApiOperation({ summary: 'Get all roles' })
   @ApiResponse({
     status: 200,
@@ -73,7 +107,7 @@ export class RolesController {
         throw e;
       } else {
         throw new HttpException(
-          `Failed to find all refresh tokens. ${e}`,
+          `Failed to find all roles. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
