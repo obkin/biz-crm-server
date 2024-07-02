@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpException,
   HttpStatus,
   Post,
@@ -42,6 +43,37 @@ export class RolesController {
       } else {
         throw new HttpException(
           `Failed to create new role. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  @ApiOperation({ summary: 'Get all roles' })
+  @ApiResponse({
+    status: 200,
+    description: 'Retrieved all roles',
+    type: [RoleEntity],
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'There are no roles',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @Get('/get-all-roles')
+  @UseFilters(new HttpErrorFilter(true))
+  async getAllRoles() {
+    try {
+      return await this.rolesService.getAllRoles();
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to find all refresh tokens. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
