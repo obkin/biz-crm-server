@@ -4,12 +4,15 @@ import {
   HttpException,
   HttpStatus,
   Post,
+  UseFilters,
 } from '@nestjs/common';
 import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RoleEntity } from './entities/role.entity';
+import { HttpErrorFilter } from 'src/common/http-error.filter';
 
+@ApiTags('roles')
 @Controller('/roles')
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
@@ -28,6 +31,7 @@ export class RolesController {
     status: 500,
     description: 'Internal Server Error',
   })
+  @UseFilters(new HttpErrorFilter(true))
   @Post('/create')
   async createRole(@Body() dto: CreateRoleDto) {
     try {
