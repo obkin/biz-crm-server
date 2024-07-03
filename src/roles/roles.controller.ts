@@ -54,7 +54,7 @@ export class RolesController {
     }
   }
 
-  @ApiOperation({ summary: 'Update existing role' })
+  @ApiOperation({ summary: 'Update role' })
   @ApiResponse({
     status: 200,
     description: 'Role updated',
