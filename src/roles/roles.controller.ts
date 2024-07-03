@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
   HttpException,
   HttpStatus,
   Param,
@@ -83,6 +85,37 @@ export class RolesController {
     }
   }
 
+  @ApiOperation({ summary: 'Delete role' })
+  @ApiResponse({
+    status: 200,
+    description: 'Role deleted',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Role not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @HttpCode(200)
+  @UseFilters(new HttpErrorFilter(true))
+  @Delete('/delete/:id')
+  async deleteRole(@Param('id') id: number) {
+    try {
+      return await this.rolesService.deleteRole(Number(id));
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to find refresh token. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
   @ApiOperation({ summary: 'Get all roles' })
   @ApiResponse({
     status: 200,
@@ -97,8 +130,8 @@ export class RolesController {
     status: 500,
     description: 'Internal Server Error',
   })
-  @Get('/get-all-roles')
   @UseFilters(new HttpErrorFilter(true))
+  @Get('/get-all-roles')
   async getAllRoles() {
     try {
       return await this.rolesService.getAllRoles();

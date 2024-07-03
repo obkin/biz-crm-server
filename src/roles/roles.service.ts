@@ -34,6 +34,10 @@ export class RolesService {
     }
   }
 
+  async deleteRole(id: number): Promise<void> {
+    return await this.rolesRepository.deleteRole(id);
+  }
+
   async getRoleById(id: number): Promise<RoleEntity> {
     try {
       return await this.rolesRepository.getRoleById(id);

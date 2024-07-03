@@ -26,6 +26,13 @@ export class RolesRepository {
     return updatedRole;
   }
 
+  async deleteRole(id: number): Promise<void> {
+    const result = await this.rolesRepository.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException('Role not found');
+    }
+  }
+
   async getRoleById(id: number): Promise<RoleEntity | null> {
     return await this.rolesRepository.findOne({ where: { id } });
   }
