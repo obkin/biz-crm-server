@@ -60,7 +60,11 @@ export class RolesService {
 
   async getAllRoles(): Promise<RoleEntity[]> {
     try {
-      return await this.rolesRepository.getAllRoles();
+      const rolesArray = await this.rolesRepository.getAllRoles();
+      if (rolesArray.length === 0) {
+        throw new NotFoundException('There are no roles');
+      }
+      return rolesArray;
     } catch (e) {
       throw e;
     }

@@ -42,10 +42,6 @@ export class RolesRepository {
   }
 
   async getAllRoles(): Promise<RoleEntity[] | null> {
-    const roles = await this.rolesRepository.find();
-    if (!roles) {
-      throw new NotFoundException('There are no roles');
-    }
-    return roles;
+    return await this.rolesRepository.find();
   }
 }
