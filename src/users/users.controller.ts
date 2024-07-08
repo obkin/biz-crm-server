@@ -13,7 +13,7 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { EmailValidationPipe } from 'src/pipes/validate-email.pipe';
 import { UserEntity } from 'src/users/entities/user.entity';
-import { UserIdValidationPipe } from 'src/pipes/validate-userId.pipe';
+import { idValidationPipe } from 'src/pipes/validate-id.pipe';
 
 @ApiTags('users')
 @Controller('/users')
@@ -59,7 +59,7 @@ export class UsersController {
 
   @ApiOperation({ summary: 'Return existing user (by id)' })
   @ApiResponse({ status: 200, type: UserEntity })
-  @UsePipes(new UserIdValidationPipe())
+  @UsePipes(new idValidationPipe())
   @Get('/get-by-id')
   async getUserById(@Query('id') id: number) {
     try {

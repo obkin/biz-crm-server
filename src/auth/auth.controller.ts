@@ -21,7 +21,7 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { AccessTokenDto } from './dto/access-token.dto';
 import { RefreshTokenEntity } from './entities/refresh-token.entity';
 import { AccessTokenEntity } from './entities/access-token.entity';
-import { UserIdValidationPipe } from 'src/pipes/validate-userId.pipe';
+import { idValidationPipe } from 'src/pipes/validate-id.pipe';
 import { HttpErrorFilter } from '../common/http-error.filter';
 
 @ApiTags('auth')
@@ -106,7 +106,7 @@ export class AuthController {
     description: 'Internal Server Error',
   })
   @ApiQuery({ name: 'userId', required: true, description: 'ID of the user' })
-  @UsePipes(new UserIdValidationPipe())
+  @UsePipes(new idValidationPipe())
   @UseFilters(new HttpErrorFilter())
   @Delete('/logout')
   async logout(@Query('userId') userId: number) {
@@ -171,7 +171,7 @@ export class AuthController {
   })
   @ApiQuery({ name: 'userId', required: true, description: 'ID of the user' })
   @HttpCode(200)
-  @UsePipes(new UserIdValidationPipe())
+  @UsePipes(new idValidationPipe())
   @UseFilters(new HttpErrorFilter())
   @Delete('/delete-refresh-token')
   async deleteRefreshToken(@Query('userId') userId: number) {
@@ -205,7 +205,7 @@ export class AuthController {
     description: 'Internal Server Error',
   })
   @ApiQuery({ name: 'userId', required: true, description: 'ID of the user' })
-  @UsePipes(new UserIdValidationPipe())
+  @UsePipes(new idValidationPipe())
   @UseFilters(new HttpErrorFilter(true))
   @Get('/get-refresh-token')
   async getRefreshToken(@Query('userId') userId: number) {
@@ -301,7 +301,7 @@ export class AuthController {
   })
   @ApiQuery({ name: 'userId', required: true, description: 'ID of the user' })
   @HttpCode(200)
-  @UsePipes(new UserIdValidationPipe())
+  @UsePipes(new idValidationPipe())
   @UseFilters(new HttpErrorFilter())
   @Delete('/delete-access-token')
   async deleteAccessToken(@Query('userId') userId: number) {
@@ -335,7 +335,7 @@ export class AuthController {
     description: 'Internal Server Error',
   })
   @ApiQuery({ name: 'userId', required: true, description: 'ID of the user' })
-  @UsePipes(new UserIdValidationPipe())
+  @UsePipes(new idValidationPipe())
   @UseFilters(new HttpErrorFilter(true))
   @Get('/get-access-token')
   async getAccessToken(@Query('userId') userId: number) {

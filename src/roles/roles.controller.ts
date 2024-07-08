@@ -10,13 +10,15 @@ import {
   Post,
   Put,
   UseFilters,
+  UsePipes,
 } from '@nestjs/common';
 import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RoleEntity } from './entities/role.entity';
 import { HttpErrorFilter } from 'src/common/http-error.filter';
 import { UpdateRoleDto } from './dto/update-role.dto';
+import { idValidationPipe } from 'src/pipes/validate-id.pipe';
 
 @ApiTags('roles')
 @Controller('/roles')
@@ -78,7 +80,7 @@ export class RolesController {
         throw e;
       } else {
         throw new HttpException(
-          `Failed to update role. ${e}`,
+          `Failed to update the role. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
@@ -98,18 +100,21 @@ export class RolesController {
     status: 500,
     description: 'Internal Server Error',
   })
+  @ApiQuery({ name: 'id', required: true, description: 'ID of the role' })
   @HttpCode(200)
+  @UsePipes(new idValidationPipe())
   @UseFilters(new HttpErrorFilter(true))
   @Delete('/delete/:id')
   async deleteRole(@Param('id') id: number) {
     try {
-      return await this.rolesService.deleteRole(Number(id));
+      await this.rolesService.deleteRole(Number(id));
+      return { id, message: 'Role deleted' };
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;
       } else {
         throw new HttpException(
-          `Failed to find refresh token. ${e}`,
+          `Failed to delete the role. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
