@@ -139,13 +139,14 @@ export class RolesController {
   @Get('/get-all-roles')
   async getAllRoles() {
     try {
-      return await this.rolesService.getAllRoles();
+      const rolesArray = await this.rolesService.getAllRoles();
+      return { rolesAmount: rolesArray.length, rolesArray };
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;
       } else {
         throw new HttpException(
-          `Failed to find all roles. ${e}`,
+          `Failed to find all the roles. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
