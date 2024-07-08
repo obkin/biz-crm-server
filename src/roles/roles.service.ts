@@ -35,7 +35,11 @@ export class RolesService {
   }
 
   async deleteRole(id: number): Promise<void> {
-    return await this.rolesRepository.deleteRole(id);
+    try {
+      return await this.rolesRepository.deleteRole(id);
+    } catch (e) {
+      throw e;
+    }
   }
 
   async getRoleById(id: number): Promise<RoleEntity> {
