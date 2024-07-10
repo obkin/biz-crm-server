@@ -27,11 +27,14 @@ export class RolesService {
 
   async updateRole(id: number, dto: UpdateRoleDto): Promise<RoleEntity> {
     const role = await this.getRoleById(id);
-    if (role) {
-      return await this.rolesRepository.updateRole(id, dto);
-    } else {
-      throw new NotFoundException('Such role does not exist');
+    const roleExists = await this.getRoleByName(dto.name);
+    if (!role) {
+      throw new NotFoundException(`Role #${id} does not exist`);
     }
+    if (roleExists) {
+      throw new ConflictException('Such role already exists');
+    }
+    return await this.rolesRepository.updateRole(id, dto);
   }
 
   async deleteRole(id: number): Promise<void> {
