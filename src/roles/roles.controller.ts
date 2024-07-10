@@ -19,6 +19,7 @@ import { RoleEntity } from './entities/role.entity';
 import { HttpErrorFilter } from 'src/common/http-error.filter';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { idValidationPipe } from 'src/pipes/validate-id.pipe';
+import { NameValidationPipe } from 'src/pipes/validate-name.pipe';
 
 @ApiTags('roles')
 @Controller('/roles')
@@ -33,13 +34,14 @@ export class RolesController {
   })
   @ApiResponse({
     status: 409,
-    description: 'Such role already exists',
+    description: 'Such role already exists / Wrong name format',
   })
   @ApiResponse({
     status: 500,
     description: 'Internal Server Error',
   })
   @UseFilters(new HttpErrorFilter(true))
+  @UsePipes(new NameValidationPipe())
   @Post('/create')
   async createRole(@Body() dto: CreateRoleDto) {
     try {
