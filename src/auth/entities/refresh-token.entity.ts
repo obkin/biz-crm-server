@@ -1,14 +1,20 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Entity, Column, PrimaryGeneratedColumn, Index } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  Index,
+  CreateDateColumn,
+} from 'typeorm';
 
 @Entity('refresh_tokens')
 export class RefreshTokenEntity {
   @ApiProperty({
-    example: 4321,
+    example: 129,
     description: 'The unique identifier of the refresh token',
   })
   @PrimaryGeneratedColumn()
-  id: number;
+  public id: number;
 
   @ApiProperty({
     example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
@@ -16,21 +22,21 @@ export class RefreshTokenEntity {
   })
   @Index({ unique: true })
   @Column()
-  refreshToken: string;
+  public refreshToken: string;
 
   @ApiProperty({
     example: 123,
     description: 'User ID associated with the refresh token',
   })
   @Column()
-  userId: number;
+  public userId: number;
 
   @ApiProperty({
     example: '2024-12-31T23:59:59.999Z',
     description: 'Expiration date of the refresh token',
   })
   @Column({ type: 'timestamp' })
-  expiresIn: Date;
+  public expiresIn: Date;
 
   @ApiProperty({
     example: '192.168.0.1',
@@ -38,7 +44,7 @@ export class RefreshTokenEntity {
     required: false,
   })
   @Column({ nullable: true })
-  ipAddress: string; // need to add
+  public ipAddress?: string;
 
   @ApiProperty({
     example: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
@@ -46,5 +52,15 @@ export class RefreshTokenEntity {
     required: false,
   })
   @Column({ nullable: true })
-  userAgent: string; // need to add
+  public userAgent?: string;
+
+  @ApiProperty({
+    example: '2024-07-02T15:30:00Z',
+    description: 'The date and time when the refresh token was created',
+  })
+  @CreateDateColumn({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  public createdAt: Date;
 }
