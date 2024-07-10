@@ -64,7 +64,11 @@ export class RolesController {
   })
   @ApiResponse({
     status: 404,
-    description: 'Such role not found',
+    description: 'Role with such id does not exist',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Role with such name already exists',
   })
   @ApiResponse({
     status: 500,
