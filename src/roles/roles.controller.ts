@@ -33,15 +33,19 @@ export class RolesController {
     type: RoleEntity,
   })
   @ApiResponse({
+    status: 400,
+    description: 'Wrong name format',
+  })
+  @ApiResponse({
     status: 409,
-    description: 'Such role already exists / Wrong name format',
+    description: 'Such role already exists',
   })
   @ApiResponse({
     status: 500,
     description: 'Internal Server Error',
   })
-  @UseFilters(new HttpErrorFilter(true))
   @UsePipes(new NameValidationPipe())
+  @UseFilters(new HttpErrorFilter(true))
   @Post('/create')
   async createRole(@Body() dto: CreateRoleDto) {
     try {
@@ -65,6 +69,10 @@ export class RolesController {
     type: RoleEntity,
   })
   @ApiResponse({
+    status: 400,
+    description: 'Wrong name format',
+  })
+  @ApiResponse({
     status: 404,
     description: 'Role with such id does not exist',
   })
@@ -76,6 +84,7 @@ export class RolesController {
     status: 500,
     description: 'Internal Server Error',
   })
+  @UsePipes(new NameValidationPipe())
   @UseFilters(new HttpErrorFilter(true))
   @Put('/update/:id')
   async updateRole(@Param('id') id: number, @Body() dto: UpdateRoleDto) {
