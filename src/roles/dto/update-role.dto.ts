@@ -3,8 +3,8 @@ import { IsNotEmpty, IsString } from 'class-validator';
 
 export class UpdateRoleDto {
   @ApiProperty({
-    example: 'User',
-    description: 'Name of the role',
+    example: 'Viewer',
+    description: 'New name of the role',
   })
   @IsNotEmpty()
   @IsString()

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Entity, Column, PrimaryGeneratedColumn, Index } from 'typeorm';
 
-@Entity()
+@Entity('refresh_tokens')
 export class RefreshTokenEntity {
   @ApiProperty({
     example: 4321,

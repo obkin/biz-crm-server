@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Entity, Column, PrimaryGeneratedColumn, Index } from 'typeorm';
 
-@Entity()
+@Entity('access_tokens')
 export class AccessTokenEntity {
   @ApiProperty({
     example: 4321,

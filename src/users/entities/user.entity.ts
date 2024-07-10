@@ -1,41 +1,60 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
-@Entity()
+@Entity('users')
 export class UserEntity {
-  @ApiProperty({ example: 123 })
+  @ApiProperty({
+    example: 123,
+    description: 'The unique identifier of the user',
+  })
   @PrimaryGeneratedColumn()
-  id: number;
+  public id: number;
 
-  @ApiProperty({ example: 'john_dope@gmail.com' })
+  @ApiProperty({
+    example: 'john_dope@gmail.com',
+    description: 'The unique email of the user',
+  })
   @Column({ unique: true })
-  email: string;
+  public email: string;
 
   @ApiProperty({
     example: '$2b$10$fWHZ.JcwITaj9M.bJJLaDuPK399J3LnEirrJMSuLRt9F8LeyltXRu',
+    description: 'The secret password of the user',
   })
   @Column()
-  password: string;
+  public password: string;
 
-  @ApiProperty({ example: 'John' })
+  @ApiProperty({
+    example: 'John',
+    description: 'The name of the user',
+  })
   @Column()
-  username: string;
-
-  @ApiProperty({ example: 'user, helper' })
-  @Column({ default: 'user' })
-  roles: string;
+  public username: string;
 
   @ApiProperty({
     example: '2024-04-12T08:44:37.025Z',
-    description: 'Account created date',
+    description: 'The date and time when account was created',
   })
-  @Column({ default: () => 'CURRENT_TIMESTAMP' })
-  createdAt: Date;
+  @CreateDateColumn({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  public createdAt: Date;
 
   @ApiProperty({
     example: '2024-04-12T08:44:37.025Z',
-    description: 'Account updated date',
+    description: 'The date and time when account was updated',
   })
-  @Column({ default: () => 'CURRENT_TIMESTAMP' })
-  updatedAt: Date;
+  @UpdateDateColumn({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
+  public updatedAt: Date;
 }
