@@ -10,7 +10,7 @@ import { ConfigService } from '@nestjs/config';
 import { UserRegisterDto } from 'src/modules/auth/dto/user-register.dto';
 import { UsersService } from 'src/modules/users/users.service';
 import { genSalt, hash, compare } from 'bcrypt';
-import { LoggerService } from 'src/common/logger.service';
+import { LoggerService } from 'src/common/logger/logger.service';
 import { JwtService } from '@nestjs/jwt';
 import { UserLoginDto } from 'src/modules/auth/dto/user-login.dto';
 import { UserEntity } from 'src/modules/users/entities/user.entity';

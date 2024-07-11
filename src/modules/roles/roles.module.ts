@@ -3,7 +3,7 @@ import { RolesService } from './roles.service';
 import { RolesController } from './roles.controller';
 import { RolesRepository } from './roles.repository';
 import { ConfigModule } from '@nestjs/config';
-import { LoggerService } from 'src/common/logger.service';
+import { LoggerService } from 'src/common/logger/logger.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RoleEntity } from './entities/role.entity';
 
