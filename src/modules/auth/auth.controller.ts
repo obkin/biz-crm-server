@@ -13,16 +13,16 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { UserRegisterDto } from 'src/auth/dto/user-register.dto';
-import { UserLoginDto } from 'src/auth/dto/user-login.dto';
+import { UserRegisterDto } from 'src/modules/auth/dto/user-register.dto';
+import { UserLoginDto } from 'src/modules/auth/dto/user-login.dto';
 import { UserLoginResponseDto } from './dto/user-login-response.dto';
-import { UserEntity } from 'src/users/entities/user.entity';
+import { UserEntity } from 'src/modules/users/entities/user.entity';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { AccessTokenDto } from './dto/access-token.dto';
 import { RefreshTokenEntity } from './entities/refresh-token.entity';
 import { AccessTokenEntity } from './entities/access-token.entity';
-import { idValidationPipe } from 'src/pipes/validate-id.pipe';
-import { HttpErrorFilter } from '../common/http-error.filter';
+import { idValidationPipe } from 'src/common/pipes/validate-id.pipe';
+import { HttpErrorFilter } from '../../common/filters/http-error.filter';
 
 @ApiTags('auth')
 @Controller('/auth')

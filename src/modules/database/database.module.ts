@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AccessTokenEntity } from 'src/auth/entities/access-token.entity';
-import { RefreshTokenEntity } from 'src/auth/entities/refresh-token.entity';
-import { RoleEntity } from 'src/roles/entities/role.entity';
-import { UserEntity } from 'src/users/entities/user.entity';
+import { AccessTokenEntity } from 'src/modules/auth/entities/access-token.entity';
+import { RefreshTokenEntity } from 'src/modules/auth/entities/refresh-token.entity';
+import { RoleEntity } from 'src/modules/roles/entities/role.entity';
+import { UserEntity } from 'src/modules/users/entities/user.entity';
 
 @Module({
   imports: [

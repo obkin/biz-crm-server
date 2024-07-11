@@ -16,10 +16,10 @@ import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RoleEntity } from './entities/role.entity';
-import { HttpErrorFilter } from 'src/common/http-error.filter';
+import { HttpErrorFilter } from 'src/common/filters/http-error.filter';
 import { UpdateRoleDto } from './dto/update-role.dto';
-import { idValidationPipe } from 'src/pipes/validate-id.pipe';
-import { NameValidationPipe } from 'src/pipes/validate-name.pipe';
+import { idValidationPipe } from 'src/common/pipes/validate-id.pipe';
+import { NameValidationPipe } from 'src/common/pipes/validate-name.pipe';
 
 @ApiTags('roles')
 @Controller('/roles')

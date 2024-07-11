@@ -7,13 +7,13 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { UserRegisterDto } from 'src/auth/dto/user-register.dto';
-import { UsersService } from 'src/users/users.service';
+import { UserRegisterDto } from 'src/modules/auth/dto/user-register.dto';
+import { UsersService } from 'src/modules/users/users.service';
 import { genSalt, hash, compare } from 'bcrypt';
 import { LoggerService } from 'src/common/logger.service';
 import { JwtService } from '@nestjs/jwt';
-import { UserLoginDto } from 'src/auth/dto/user-login.dto';
-import { UserEntity } from 'src/users/entities/user.entity';
+import { UserLoginDto } from 'src/modules/auth/dto/user-login.dto';
+import { UserEntity } from 'src/modules/users/entities/user.entity';
 import {
   AccessTokenRepository,
   RefreshTokenRepository,

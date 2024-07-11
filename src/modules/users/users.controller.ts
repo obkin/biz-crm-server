@@ -11,9 +11,9 @@ import {
 import { UserRegisterDto } from '../auth/dto/user-register.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
-import { EmailValidationPipe } from 'src/pipes/validate-email.pipe';
-import { UserEntity } from 'src/users/entities/user.entity';
-import { idValidationPipe } from 'src/pipes/validate-id.pipe';
+import { EmailValidationPipe } from 'src/common/pipes/validate-email.pipe';
+import { UserEntity } from 'src/modules/users/entities/user.entity';
+import { idValidationPipe } from 'src/common/pipes/validate-id.pipe';
 
 @ApiTags('users')
 @Controller('/users')
@@ -37,6 +37,11 @@ export class UsersController {
       }
     }
   }
+
+  async updateUser() {}
+  async deleteUser() {}
+  async blockUser() {}
+  async ublockUser() {}
 
   @ApiOperation({ summary: 'Return existing user (by email)' })
   @ApiResponse({ status: 200, type: UserEntity })

@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
-import { UsersModule } from './users/users.module';
+import { UsersModule } from './modules/users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { LoggerService } from 'src/common/logger.service';
-import { DatabaseModule } from './database/database.module';
-import { AuthModule } from './auth/auth.module';
-import { EmailModule } from './email/email.module';
-import { RolesModule } from './roles/roles.module';
+import { DatabaseModule } from './modules/database/database.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { EmailModule } from './modules/email/email.module';
+import { RolesModule } from './modules/roles/roles.module';
 
 @Module({
   controllers: [],
