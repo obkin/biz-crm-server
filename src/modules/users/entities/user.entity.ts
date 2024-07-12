@@ -38,6 +38,13 @@ export class UserEntity {
   public username: string;
 
   @ApiProperty({
+    example: 'user, moderator',
+    description: 'Roles assigned to the user',
+  })
+  @Column({ default: 'user' })
+  public roles: string;
+
+  @ApiProperty({
     example: '2024-04-12T08:44:37.025Z',
     description: 'The date and time when account was created',
   })

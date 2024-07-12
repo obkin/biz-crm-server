@@ -23,6 +23,7 @@ import { RefreshTokenEntity } from './entities/refresh-token.entity';
 import { AccessTokenEntity } from './entities/access-token.entity';
 import { idValidationPipe } from 'src/common/pipes/validate-id.pipe';
 import { HttpErrorFilter } from '../../common/filters/http-error.filter';
+import { Public } from 'src/common/decorators/public.decorator';
 
 @ApiTags('auth')
 @Controller('/auth')
@@ -43,6 +44,7 @@ export class AuthController {
     status: 500,
     description: 'Internal Server Error',
   })
+  @Public()
   @UseFilters(new HttpErrorFilter())
   @Post('/register')
   async register(@Body() dto: UserRegisterDto) {
@@ -74,6 +76,7 @@ export class AuthController {
     status: 500,
     description: 'Internal Server Error',
   })
+  @Public()
   @HttpCode(200)
   @UseFilters(new HttpErrorFilter())
   @Post('/login')
