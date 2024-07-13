@@ -225,11 +225,14 @@ export class AuthService {
         },
       );
 
-      await this.saveAccessToken({
-        userId: user.id,
-        accessToken: newAccessToken,
-        expiresIn: addDays(new Date(), 1),
-      });
+      await this.saveAccessToken(
+        {
+          userId: user.id,
+          accessToken: newAccessToken,
+          expiresIn: addDays(new Date(), 1),
+        },
+        false,
+      );
 
       this.loggerService.log(
         `[AuthService] Access token refreshed (userId: ${userId})`,
@@ -334,7 +337,10 @@ export class AuthService {
   }
 
   // --- Access tokens' logic ---
-  async saveAccessToken(dto: AccessTokenDto): Promise<AccessTokenEntity> {
+  async saveAccessToken(
+    dto: AccessTokenDto,
+    shouldLog: boolean = true,
+  ): Promise<AccessTokenEntity> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -360,9 +366,11 @@ export class AuthService {
         );
       } else {
         await queryRunner.commitTransaction();
-        this.loggerService.log(
-          `[AuthService] Access token saved (userId: ${dto.userId})`,
-        );
+        if (shouldLog) {
+          this.loggerService.log(
+            `[AuthService] Access token saved (userId: ${dto.userId})`,
+          );
+        }
         return savedAccessToken;
       }
     } catch (e) {
