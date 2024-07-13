@@ -182,7 +182,7 @@ export class AuthService {
         iat: Math.floor(Date.now() / 1000),
       };
       const accessToken = this.jwtService.sign(payload, {
-        expiresIn: '24h',
+        expiresIn: '1m', // change to 24h
       });
       const refreshToken = this.jwtService.sign(
         { sub: user.id },
@@ -194,6 +194,50 @@ export class AuthService {
       };
     } catch (e) {
       throw e;
+    }
+  }
+
+  async refreshAccessToken(refreshToken: string): Promise<string> {
+    try {
+      const decoded = this.jwtService.verify(refreshToken);
+      const userId = Number(decoded.sub);
+
+      const storedToken =
+        await this.refreshTokenRepository.findRefreshTokenByUserId(userId);
+      if (!storedToken || storedToken.refreshToken !== refreshToken) {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+
+      const user = await this.usersService.findById(userId);
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      const newAccessToken = this.jwtService.sign(
+        {
+          id: user.id,
+          email: user.email,
+          roles: user.roles,
+          iat: Math.floor(Date.now() / 1000),
+        },
+        {
+          expiresIn: '1m', // change to 24h
+        },
+      );
+
+      await this.saveAccessToken({
+        userId: user.id,
+        accessToken: newAccessToken,
+        expiresIn: addDays(new Date(), 1),
+      });
+
+      this.loggerService.log(
+        `[AuthService] Access token refreshed (userId: ${userId})`,
+      );
+
+      return newAccessToken;
+    } catch (e) {
+      throw new UnauthorizedException('Invalid refresh token');
     }
   }
 

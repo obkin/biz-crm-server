@@ -8,15 +8,17 @@ import { JwtService } from '@nestjs/jwt';
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { Request } from 'express';
+import { AuthService } from 'src/modules/auth/auth.service';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
   constructor(
     private jwtService: JwtService,
     private reflector: Reflector,
+    private authService: AuthService,
   ) {}
 
-  canActivate(context: ExecutionContext): boolean {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),
@@ -35,7 +37,26 @@ export class JwtAuthGuard implements CanActivate {
       const payload = this.jwtService.verify(token);
       request.user = payload;
     } catch (e) {
-      throw new UnauthorizedException('Invalid access token');
+      if (e.name === 'TokenExpiredError') {
+        const userId = Number(this.getUserIdFromExpiredToken(token));
+        const refreshToken = await this.authService.getRefreshToken(userId);
+        if (!refreshToken) {
+          throw new UnauthorizedException('Refresh token is missing');
+        }
+
+        try {
+          const newAccessToken = await this.authService.refreshAccessToken(
+            refreshToken.refreshToken,
+          );
+          request.headers.authorization = `Bearer ${newAccessToken}`;
+          const payload = this.jwtService.verify(newAccessToken);
+          request.user = payload;
+        } catch (refreshError) {
+          throw new UnauthorizedException('Invalid refresh token');
+        }
+      } else {
+        throw new UnauthorizedException('Invalid access token');
+      }
     }
 
     return true;
@@ -44,5 +65,14 @@ export class JwtAuthGuard implements CanActivate {
   private extractTokenFromHeader(request: Request): string | undefined {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined;
+  }
+
+  private getUserIdFromExpiredToken(token: string): number | undefined {
+    try {
+      const payload = this.jwtService.decode(token) as any;
+      return payload.id ? payload.id : undefined;
+    } catch (e) {
+      return undefined;
+    }
   }
 }

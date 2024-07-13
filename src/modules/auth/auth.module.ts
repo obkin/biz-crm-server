@@ -33,5 +33,6 @@ import {
     }),
     UsersModule,
   ],
+  exports: [AuthService],
 })
 export class AuthModule {}
