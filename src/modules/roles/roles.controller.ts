@@ -10,6 +10,7 @@ import {
   Post,
   Put,
   UseFilters,
+  UseGuards,
   UsePipes,
 } from '@nestjs/common';
 import { RolesService } from './roles.service';
@@ -20,8 +21,12 @@ import { HttpErrorFilter } from 'src/common/filters/http-error.filter';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { idValidationPipe } from 'src/common/pipes/validate-id.pipe';
 import { NameValidationPipe } from 'src/common/pipes/validate-name.pipe';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { RolesGuard } from 'src/common/guards/roles.guard';
 
 @ApiTags('roles')
+@UseGuards(RolesGuard)
+@Roles('admin')
 @Controller('/roles')
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}

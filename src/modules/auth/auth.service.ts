@@ -182,11 +182,17 @@ export class AuthService {
         iat: Math.floor(Date.now() / 1000),
       };
       const accessToken = this.jwtService.sign(payload, {
-        expiresIn: '1m', // change to 24h
+        expiresIn: this.configService.get<string>(
+          'JWT_ACCESS_TOKEN_EXPIRES_IN',
+        ),
       });
       const refreshToken = this.jwtService.sign(
         { sub: user.id },
-        { expiresIn: '2m' }, // change to 30d
+        {
+          expiresIn: this.configService.get<string>(
+            'JWT_REFRESH_TOKEN_EXPIRES_IN',
+          ),
+        },
       );
       return {
         accessToken,

@@ -6,9 +6,10 @@ import { DatabaseModule } from './modules/database/database.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { EmailModule } from './modules/email/email.module';
 import { RolesModule } from './modules/roles/roles.module';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, Reflector } from '@nestjs/core';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { JwtModule } from '@nestjs/jwt';
+import { RolesGuard } from './common/guards/roles.guard';
 
 @Module({
   controllers: [],
@@ -17,6 +18,11 @@ import { JwtModule } from '@nestjs/jwt';
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+    Reflector,
     LoggerService,
   ],
   imports: [
@@ -33,5 +39,6 @@ import { JwtModule } from '@nestjs/jwt';
       signOptions: { expiresIn: '60m' },
     }),
   ],
+  exports: [JwtModule],
 })
 export class AppModule {}
