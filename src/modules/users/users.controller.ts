@@ -85,19 +85,21 @@ export class UsersController {
     description: 'Internal Server Error',
   })
   @ApiQuery({ name: 'id', required: true, description: 'ID of the user' })
-  @UsePipes(new idValidationPipe())
   @UseFilters(new HttpErrorFilter(true))
   @Put('/update/:id')
-  async updateUser(@Param('id') id: number, @Body() dto: UserUpdateDto) {
+  async updateUser(
+    @Param('id', new idValidationPipe()) id: number,
+    @Body() dto: UserUpdateDto,
+  ) {
     try {
       if (dto.username) {
-        return await this.usersService.updateUserName(id, dto);
+        return await this.usersService.updateUserName(Number(id), dto);
       }
       if (dto.email) {
-        return await this.usersService.updateUserEmail(id, dto);
+        return await this.usersService.updateUserEmail(Number(id), dto);
       }
       if (dto.password) {
-        return await this.usersService.updateUserPassword(id, dto);
+        return await this.usersService.updateUserPassword(Number(id), dto);
       }
       throw new BadRequestException('Cannot update this user field');
     } catch (e) {

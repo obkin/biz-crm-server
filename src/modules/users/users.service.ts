@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -103,6 +104,11 @@ export class UsersService {
   }
 
   async deleteUser(id: number): Promise<void> {
+    const user = await this.usersRepository.findOneUserById(id);
+    if (user.roles && user.roles.some((role) => role === 'admin')) {
+      throw new ForbiddenException('This user is admin');
+    }
+
     try {
       return await this.usersRepository.deleteUser(id);
     } catch (e) {
