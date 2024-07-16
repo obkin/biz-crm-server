@@ -132,7 +132,7 @@ export class UsersService {
     try {
       const users = await this.usersRepository.getAllExistingUsers();
       if (!users || users.length === 0) {
-        throw new NotFoundException('No users found');
+        throw new NotFoundException('There are no users');
       } else {
         return users;
       }

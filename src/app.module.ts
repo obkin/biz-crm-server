@@ -8,7 +8,6 @@ import { EmailModule } from './modules/email/email.module';
 import { RolesModule } from './modules/roles/roles.module';
 import { APP_GUARD, Reflector } from '@nestjs/core';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
-import { JwtModule } from '@nestjs/jwt';
 import { RolesGuard } from './common/guards/roles.guard';
 
 @Module({
@@ -28,17 +27,18 @@ import { RolesGuard } from './common/guards/roles.guard';
   imports: [
     ConfigModule.forRoot({
       envFilePath: `.${process.env.NODE_ENV}.env`,
+      isGlobal: true,
     }),
     DatabaseModule,
     UsersModule,
     AuthModule,
     EmailModule,
     RolesModule,
-    JwtModule.register({
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '60m' },
-    }),
+    // JwtModule.register({
+    //   secret: process.env.JWT_SECRET,
+    //   signOptions: { expiresIn: '60m' },
+    // }),
   ],
-  exports: [JwtModule],
+  exports: [],
 })
 export class AppModule {}

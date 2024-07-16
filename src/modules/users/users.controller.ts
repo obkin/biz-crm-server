@@ -9,6 +9,7 @@ import {
   Post,
   Put,
   Query,
+  UseFilters,
   UsePipes,
 } from '@nestjs/common';
 import { UserRegisterDto } from '../auth/dto/user-register.dto';
@@ -18,14 +19,30 @@ import { EmailValidationPipe } from 'src/common/pipes/validate-email.pipe';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
 import { idValidationPipe } from 'src/common/pipes/validate-id.pipe';
 import { UserUpdateDto } from './dto/user-update.dto';
+import { HttpErrorFilter } from 'src/common/filters/http-error.filter';
 
 @ApiTags('users')
+// @UseGuards(RolesGuard)
+// @Roles('admin')
 @Controller('/users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @ApiOperation({ summary: 'Create new user' })
-  @ApiResponse({ status: 201, type: UserEntity })
+  @ApiResponse({
+    status: 201,
+    description: 'New user created',
+    type: UserEntity,
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'User with such email already exists',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @UseFilters(new HttpErrorFilter(true))
   @Post('/create')
   async createUser(@Body() dto: UserRegisterDto) {
     try {
@@ -42,6 +59,30 @@ export class UsersController {
     }
   }
 
+  @ApiOperation({ summary: 'Update user' })
+  @ApiResponse({
+    status: 200,
+    description: 'User updated',
+    type: UserEntity,
+  })
+  @ApiResponse({
+    status: 400,
+    description:
+      'Wrong updating value format / New updating value for must be different from the current value ',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User with such id does not exist',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'User with such email already exists',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @UseFilters(new HttpErrorFilter(true))
   @Put('/update/:id')
   async updateUser(@Param('id') id: number, @Body() dto: UserUpdateDto) {
     try {
@@ -67,13 +108,34 @@ export class UsersController {
     }
   }
 
+  // --- Should add ---
+
   async deleteUser() {}
   async blockUser() {}
   async ublockUser() {}
 
-  @ApiOperation({ summary: 'Return existing user (by email)' })
-  @ApiResponse({ status: 200, type: UserEntity })
+  // -----------------
+
+  @ApiOperation({ summary: 'Get user by email' })
+  @ApiResponse({
+    status: 200,
+    description: 'User found and returned',
+    type: UserEntity,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Wrong email format',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User with such email not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
   @UsePipes(new EmailValidationPipe())
+  @UseFilters(new HttpErrorFilter(true))
   @Get('/get-by-email')
   async getUserByEmail(@Query('email') email: string) {
     try {
@@ -90,9 +152,26 @@ export class UsersController {
     }
   }
 
-  @ApiOperation({ summary: 'Return existing user (by id)' })
-  @ApiResponse({ status: 200, type: UserEntity })
+  @ApiOperation({ summary: 'Get user by id' })
+  @ApiResponse({
+    status: 200,
+    description: 'User found and returned',
+    type: UserEntity,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Wrong id format',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User with such id not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
   @UsePipes(new idValidationPipe())
+  @UseFilters(new HttpErrorFilter(true))
   @Get('/get-by-id')
   async getUserById(@Query('id') id: number) {
     try {
@@ -109,12 +188,26 @@ export class UsersController {
     }
   }
 
-  @ApiOperation({ summary: 'Return all existing users' })
-  @ApiResponse({ status: 200, type: [UserEntity] })
+  @ApiOperation({ summary: 'Get all users' })
+  @ApiResponse({
+    status: 200,
+    description: 'Retrieved all users',
+    type: [UserEntity],
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'There are no users',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @UseFilters(new HttpErrorFilter(true))
   @Get('/get-all')
   async getAllUsers() {
     try {
-      return await this.usersService.getAllUsers();
+      const usersArray = await this.usersService.getAllUsers();
+      return { usersAmount: usersArray.length, usersArray };
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;

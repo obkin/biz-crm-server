@@ -29,7 +29,7 @@ export class RolesGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<Request>();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
-      throw new UnauthorizedException('Access token is missing');
+      throw new UnauthorizedException('[RolesGuard] Access token is missing');
     }
 
     try {
@@ -40,17 +40,21 @@ export class RolesGuard implements CanActivate {
         payload.roles?.includes(role),
       );
       if (!hasRole) {
-        throw new ForbiddenException('You do not have required role');
+        throw new ForbiddenException(
+          '[RolesGuard] You do not have required role',
+        );
       }
 
       return true;
     } catch (e) {
       if (e.name === 'TokenExpiredError') {
-        throw new UnauthorizedException('Access token expired');
+        throw new UnauthorizedException('[RolesGuard] Access token expired');
       } else if (e.name === 'ForbiddenException') {
         throw e;
       } else {
-        throw new UnauthorizedException('Invalid access token');
+        throw new UnauthorizedException(
+          `[RolesGuard] Invalid access token: ${e}`,
+        );
       }
     }
   }

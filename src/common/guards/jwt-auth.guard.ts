@@ -30,7 +30,7 @@ export class JwtAuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<Request>();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
-      throw new UnauthorizedException('Access token is missing');
+      throw new UnauthorizedException('[JwtAuthGuard] Access token is missing');
     }
 
     try {
@@ -41,7 +41,9 @@ export class JwtAuthGuard implements CanActivate {
         const userId = Number(this.getUserIdFromExpiredToken(token));
         const refreshToken = await this.authService.getRefreshToken(userId);
         if (!refreshToken) {
-          throw new UnauthorizedException('Refresh token is missing');
+          throw new UnauthorizedException(
+            '[JwtAuthGuard] Refresh token is missing',
+          );
         }
 
         try {
@@ -52,10 +54,14 @@ export class JwtAuthGuard implements CanActivate {
           const payload = this.jwtService.verify(newAccessToken);
           request.user = payload;
         } catch (refreshError) {
-          throw new UnauthorizedException('Invalid refresh token');
+          throw new UnauthorizedException(
+            '[JwtAuthGuard] Invalid refresh token',
+          );
         }
       } else {
-        throw new UnauthorizedException('Invalid access token');
+        throw new UnauthorizedException(
+          `[JwtAuthGuard] Invalid access token: ${e}`,
+        );
       }
     }
 
