@@ -46,6 +46,7 @@ export class UsersService {
       if (user.username === dto.username) {
         throw new BadRequestException('Enter a new name');
       }
+
       return await this.usersRepository.updateUser(id, dto);
     } catch (e) {
       throw e;
@@ -65,6 +66,14 @@ export class UsersService {
       if (user.email === dto.email) {
         throw new BadRequestException('Enter a new email');
       }
+
+      const emailTaken = await this.usersRepository.findOneUserByEmail(
+        dto.email,
+      );
+      if (emailTaken) {
+        throw new BadRequestException('User with such email already exists');
+      }
+
       return await this.usersRepository.updateUser(id, dto);
     } catch (e) {
       throw e;
