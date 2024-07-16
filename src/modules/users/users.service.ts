@@ -102,6 +102,14 @@ export class UsersService {
     }
   }
 
+  async deleteUser(id: number): Promise<void> {
+    try {
+      return await this.usersRepository.deleteUser(id);
+    } catch (e) {
+      throw e;
+    }
+  }
+
   async findUserByEmail(email: string): Promise<UserEntity> {
     try {
       const user = await this.usersRepository.findOneUserByEmail(email);

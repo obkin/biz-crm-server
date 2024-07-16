@@ -2,7 +2,9 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
   HttpException,
   HttpStatus,
   Param,
@@ -13,7 +15,7 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { UserRegisterDto } from '../auth/dto/user-register.dto';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { EmailValidationPipe } from 'src/common/pipes/validate-email.pipe';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
@@ -82,6 +84,8 @@ export class UsersController {
     status: 500,
     description: 'Internal Server Error',
   })
+  @ApiQuery({ name: 'id', required: true, description: 'ID of the user' })
+  @UsePipes(new idValidationPipe())
   @UseFilters(new HttpErrorFilter(true))
   @Put('/update/:id')
   async updateUser(@Param('id') id: number, @Body() dto: UserUpdateDto) {
@@ -108,9 +112,46 @@ export class UsersController {
     }
   }
 
+  // --- Working on ---
+
+  @ApiOperation({ summary: 'Delete user' })
+  @ApiResponse({
+    status: 200,
+    description: 'User deleted',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @ApiQuery({ name: 'id', required: true, description: 'ID of the user' })
+  @HttpCode(200)
+  @UsePipes(new idValidationPipe())
+  @UseFilters(new HttpErrorFilter(true))
+  @Delete('/delete/:id')
+  async deleteUser(@Param('id') id: number) {
+    try {
+      await this.usersService.deleteUser(Number(id));
+      return { userId: id, message: 'User deleted' };
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to delete user. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  // ------------------
+
   // --- Should add ---
 
-  async deleteUser() {}
   async blockUser() {}
   async ublockUser() {}
 
@@ -170,10 +211,11 @@ export class UsersController {
     status: 500,
     description: 'Internal Server Error',
   })
+  @ApiQuery({ name: 'id', required: true, description: 'ID of the user' })
   @UsePipes(new idValidationPipe())
   @UseFilters(new HttpErrorFilter(true))
-  @Get('/get-by-id')
-  async getUserById(@Query('id') id: number) {
+  @Get('/get-by-id/:id')
+  async getUserById(@Param('id') id: number) {
     try {
       return await this.usersService.findUserById(id);
     } catch (e) {

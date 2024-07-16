@@ -35,6 +35,17 @@ export class UsersRepository {
     }
   }
 
+  async deleteUser(id: number): Promise<void> {
+    try {
+      const result = await this.userRepository.delete(id);
+      if (result.affected === 0) {
+        throw new NotFoundException('User not found');
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
+
   async findOneUserByEmail(email: string): Promise<UserEntity | undefined> {
     try {
       return await this.userRepository.findOne({ where: { email } });
