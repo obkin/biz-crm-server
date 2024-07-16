@@ -41,8 +41,8 @@ export class UserEntity {
     example: 'user, moderator',
     description: 'Roles assigned to the user',
   })
-  @Column({ default: 'user' })
-  public roles: string;
+  @Column('text', { array: true, default: ['user'] })
+  public roles: string[];
 
   @ApiProperty({
     example: '2024-04-12T08:44:37.025Z',

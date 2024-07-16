@@ -12,5 +12,6 @@ import { JwtModule } from '@nestjs/jwt';
   controllers: [RolesController],
   providers: [RolesService, RolesRepository, LoggerService],
   imports: [ConfigModule, TypeOrmModule.forFeature([RoleEntity]), JwtModule],
+  exports: [RolesService],
 })
 export class RolesModule {}

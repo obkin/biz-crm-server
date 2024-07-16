@@ -60,7 +60,7 @@ export class AuthService {
 
       const salt = await genSalt(saltRounds);
       const hashedPassword = await hash(dto.password, salt);
-      const newUser = await this.usersService.create({
+      const newUser = await this.usersService.createNewUser({
         ...dto,
         password: hashedPassword,
       });
@@ -90,7 +90,7 @@ export class AuthService {
       }
 
       const JWTtokens = await this.generateTokens(validatedUser);
-      const user = await this.usersService.findByEmail(validatedUser.email);
+      const user = await this.usersService.findUserByEmail(validatedUser.email);
 
       await this.saveAccessToken({
         userId: user.id,
@@ -150,7 +150,7 @@ export class AuthService {
   // --- Methods ---
   private async validateUser(dto: UserLoginDto): Promise<UserEntity | null> {
     try {
-      const user = await this.usersService.findByEmail(dto.email);
+      const user = await this.usersService.findUserByEmail(dto.email);
       if (user && (await this.verifyPassword(dto.password, user))) {
         return user;
       } else {
@@ -214,7 +214,7 @@ export class AuthService {
         throw new UnauthorizedException('Invalid refresh token');
       }
 
-      const user = await this.usersService.findById(userId);
+      const user = await this.usersService.findUserById(userId);
       if (!user) {
         throw new NotFoundException('User not found');
       }
@@ -227,7 +227,9 @@ export class AuthService {
           iat: Math.floor(Date.now() / 1000),
         },
         {
-          expiresIn: '1m', // change to 24h
+          expiresIn: this.configService.get<string>(
+            'JWT_ACCESS_TOKEN_EXPIRES_IN',
+          ),
         },
       );
 
