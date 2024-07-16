@@ -9,14 +9,14 @@ import { UserUpdateDto } from './dto/user-update.dto';
 export class UsersRepository {
   constructor(
     @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>,
+    private readonly usersRepository: Repository<UserEntity>,
   ) {}
 
   // --- Service logic ---
   async createNewUser(dto: UserRegisterDto): Promise<UserEntity> {
     try {
-      const createdUser = this.userRepository.create(dto);
-      return await this.userRepository.save(createdUser);
+      const createdUser = this.usersRepository.create(dto);
+      return await this.usersRepository.save(createdUser);
     } catch (e) {
       throw e;
     }
@@ -24,8 +24,8 @@ export class UsersRepository {
 
   async updateUser(id: number, dto: UserUpdateDto): Promise<UserEntity> {
     try {
-      await this.userRepository.update(id, dto);
-      const updatedUser = await this.userRepository.findOne({ where: { id } });
+      await this.usersRepository.update(id, dto);
+      const updatedUser = await this.usersRepository.findOne({ where: { id } });
       if (!updatedUser) {
         throw new NotFoundException('User not found');
       }
@@ -37,7 +37,7 @@ export class UsersRepository {
 
   async deleteUser(id: number): Promise<void> {
     try {
-      const result = await this.userRepository.delete(id);
+      const result = await this.usersRepository.delete(id);
       if (result.affected === 0) {
         throw new NotFoundException('User not found');
       }
@@ -48,7 +48,7 @@ export class UsersRepository {
 
   async findOneUserByEmail(email: string): Promise<UserEntity | undefined> {
     try {
-      return await this.userRepository.findOne({ where: { email } });
+      return await this.usersRepository.findOne({ where: { email } });
     } catch (e) {
       throw e;
     }
@@ -56,7 +56,7 @@ export class UsersRepository {
 
   async findOneUserById(id: number): Promise<UserEntity | undefined> {
     try {
-      return await this.userRepository.findOne({ where: { id } });
+      return await this.usersRepository.findOne({ where: { id } });
     } catch (e) {
       throw e;
     }
@@ -64,7 +64,7 @@ export class UsersRepository {
 
   async getAllExistingUsers(): Promise<UserEntity[]> {
     try {
-      return await this.userRepository.find();
+      return await this.usersRepository.find();
     } catch (e) {
       throw e;
     }
@@ -73,7 +73,7 @@ export class UsersRepository {
   // --- Methods ---
   async checkUserExisting(email: string): Promise<UserEntity | undefined> {
     try {
-      return await this.userRepository.findOne({ where: { email } });
+      return await this.usersRepository.findOne({ where: { email } });
     } catch (e) {
       throw e;
     }
