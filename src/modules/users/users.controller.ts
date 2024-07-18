@@ -154,7 +154,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Block user' })
   @ApiResponse({
     status: 200,
-    description: 'User blocked successfully',
+    description: 'User blocked',
   })
   @ApiResponse({
     status: 404,
@@ -174,7 +174,7 @@ export class UsersController {
   async blockUser(@Body() dto: UserBlockDto) {
     try {
       await this.usersService.blockUser(Number(dto.userId));
-      return { userId: dto.userId, message: 'User is blocked' };
+      return { userId: dto.userId, message: 'User blocked' };
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;
@@ -187,9 +187,31 @@ export class UsersController {
     }
   }
 
-  async ublockUser() {
+  @ApiOperation({ summary: 'Unblock user' })
+  @ApiResponse({
+    status: 200,
+    description: 'User unblocked',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'This user is not blocked',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @HttpCode(200)
+  @UsePipes(new idValidationPipe())
+  @UseFilters(new HttpErrorFilter(true))
+  @Post('/unblock/:id')
+  async unblockUser(@Param('id') id: number) {
     try {
-      // ...
+      await this.usersService.unblockUser(Number(id));
+      return { id, message: 'User unblocked' };
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;

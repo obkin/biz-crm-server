@@ -103,7 +103,7 @@ export class UsersService {
 
   async deleteUser(id: number): Promise<void> {
     const user = await this.usersRepository.getUserById(id);
-    if (user.roles && user.roles.some((role) => role === 'admin')) {
+    if (await this.checkIsUserAdmin(user.id)) {
       throw new ForbiddenException('This user is admin');
     }
     try {
@@ -122,7 +122,25 @@ export class UsersService {
       if (user.isBlocked) {
         throw new ConflictException('This user is already blocked');
       }
-      return await this.usersRepository.blockUser(user);
+      if (await this.checkIsUserAdmin(user.id)) {
+        throw new ForbiddenException('This user is admin');
+      }
+      await this.usersRepository.blockUser(user);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async unblockUser(id: number): Promise<void> {
+    try {
+      const user = await this.getUserById(id);
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+      if (!user.isBlocked) {
+        throw new ConflictException('This user is not blocked');
+      }
+      await this.usersRepository.unblockUser(user);
     } catch (e) {
       throw e;
     }
@@ -199,6 +217,18 @@ export class UsersService {
     try {
       const user = await this.usersRepository.checkUserExisting(email);
       return !!user;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  public async checkIsUserAdmin(id: number): Promise<boolean> {
+    try {
+      const user = await this.getUserById(id);
+      if (user.roles && user.roles.some((role) => role === 'admin')) {
+        return true;
+      }
+      return false;
     } catch (e) {
       throw e;
     }

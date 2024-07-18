@@ -55,6 +55,15 @@ export class UsersRepository {
     }
   }
 
+  async unblockUser(user: UserEntity): Promise<void> {
+    try {
+      user.isBlocked = false;
+      await this.usersRepository.save(user);
+    } catch (e) {
+      throw e;
+    }
+  }
+
   async getUserByEmail(email: string): Promise<UserEntity | undefined> {
     try {
       return await this.usersRepository.findOne({ where: { email } });
