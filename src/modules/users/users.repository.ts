@@ -88,6 +88,14 @@ export class UsersRepository {
     }
   }
 
+  async getAllBlockedUsers(): Promise<UserEntity[]> {
+    try {
+      return await this.usersRepository.find({ where: { isBlocked: true } });
+    } catch (e) {
+      throw e;
+    }
+  }
+
   // --- Methods ---
   async checkUserExisting(email: string): Promise<UserEntity | undefined> {
     try {

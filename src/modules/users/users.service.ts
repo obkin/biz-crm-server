@@ -18,7 +18,6 @@ export class UsersService {
     private readonly rolesService: RolesService,
   ) {}
 
-  // --- Service logic ---
   async createNewUser(dto: UserRegisterDto): Promise<UserEntity> {
     try {
       const existingUser = await this.usersRepository.checkUserExisting(
@@ -177,9 +176,20 @@ export class UsersService {
       const users = await this.usersRepository.getAllUsers();
       if (!users || users.length === 0) {
         throw new NotFoundException('There are no users');
-      } else {
-        return users;
       }
+      return users;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async getAllBlockedUsers(): Promise<UserEntity[]> {
+    try {
+      const blockedUsers = await this.usersRepository.getAllBlockedUsers();
+      if (!blockedUsers || blockedUsers.length === 0) {
+        throw new NotFoundException('There are no blocked users');
+      }
+      return blockedUsers;
     } catch (e) {
       throw e;
     }

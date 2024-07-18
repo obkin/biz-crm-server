@@ -149,8 +149,6 @@ export class UsersController {
     }
   }
 
-  // --- Should add ---
-
   @ApiOperation({ summary: 'Block user' })
   @ApiResponse({
     status: 200,
@@ -223,8 +221,6 @@ export class UsersController {
       }
     }
   }
-
-  // -----------------
 
   @ApiOperation({ summary: 'Get user by email' })
   @ApiResponse({
@@ -332,11 +328,28 @@ export class UsersController {
   }
 
   @ApiOperation({ summary: 'Get all blocked users' })
-  @ApiResponse({ status: 200, type: [UserEntity] })
+  @ApiResponse({
+    status: 200,
+    description: 'Retrieved all blocked users',
+    type: [UserEntity],
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'There are no blocked users',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @UseFilters(new HttpErrorFilter(true))
   @Get('/get-all-blocked')
   async getAllBlockedUsers() {
     try {
-      // ..
+      const blockedUsersArray = await this.usersService.getAllBlockedUsers();
+      return {
+        blockedUsersAmount: blockedUsersArray.length,
+        blockedUsersArray,
+      };
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;
