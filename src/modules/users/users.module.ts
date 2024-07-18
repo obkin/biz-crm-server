@@ -8,13 +8,14 @@ import { ConfigModule } from '@nestjs/config';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
 import { RolesModule } from '../roles/roles.module';
 import { JwtModule } from '@nestjs/jwt';
+import { UserBlockHistoryEntity } from './entities/user-block-history.entity';
 
 @Module({
   controllers: [UsersController],
   providers: [UsersService, UsersRepository, LoggerService],
   imports: [
     ConfigModule,
-    TypeOrmModule.forFeature([UserEntity]),
+    TypeOrmModule.forFeature([UserEntity, UserBlockHistoryEntity]),
     JwtModule,
     RolesModule,
   ],
