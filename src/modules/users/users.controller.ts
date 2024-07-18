@@ -182,7 +182,7 @@ export class UsersController {
   @Get('/get-by-email')
   async getUserByEmail(@Query('email') email: string) {
     try {
-      return await this.usersService.findUserByEmail(email);
+      return await this.usersService.getUserByEmail(email);
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;

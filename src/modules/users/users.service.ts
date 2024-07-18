@@ -68,9 +68,7 @@ export class UsersService {
         throw new BadRequestException('Enter a new email');
       }
 
-      const emailTaken = await this.usersRepository.findOneUserByEmail(
-        dto.email,
-      );
+      const emailTaken = await this.usersRepository.getUserByEmail(dto.email);
       if (emailTaken) {
         throw new BadRequestException('User with such email already exists');
       }
@@ -116,9 +114,9 @@ export class UsersService {
     }
   }
 
-  async findUserByEmail(email: string): Promise<UserEntity> {
+  async getUserByEmail(email: string): Promise<UserEntity> {
     try {
-      const user = await this.usersRepository.findOneUserByEmail(email);
+      const user = await this.usersRepository.getUserByEmail(email);
       if (!user) {
         throw new NotFoundException('User with such email not found');
       } else {

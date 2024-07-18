@@ -90,7 +90,7 @@ export class AuthService {
       }
 
       const JWTtokens = await this.generateTokens(validatedUser);
-      const user = await this.usersService.findUserByEmail(validatedUser.email);
+      const user = await this.usersService.getUserByEmail(validatedUser.email);
 
       await this.saveAccessToken({
         userId: user.id,
@@ -150,7 +150,7 @@ export class AuthService {
   // --- Methods ---
   private async validateUser(dto: UserLoginDto): Promise<UserEntity | null> {
     try {
-      const user = await this.usersService.findUserByEmail(dto.email);
+      const user = await this.usersService.getUserByEmail(dto.email);
       if (user && (await this.verifyPassword(dto.password, user))) {
         return user;
       } else {
