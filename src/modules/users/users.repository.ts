@@ -46,6 +46,15 @@ export class UsersRepository {
     }
   }
 
+  async blockUser(user: UserEntity): Promise<void> {
+    try {
+      user.isBlocked = true;
+      await this.usersRepository.save(user);
+    } catch (e) {
+      throw e;
+    }
+  }
+
   async getUserByEmail(email: string): Promise<UserEntity | undefined> {
     try {
       return await this.usersRepository.findOne({ where: { email } });
@@ -54,7 +63,7 @@ export class UsersRepository {
     }
   }
 
-  async findOneUserById(id: number): Promise<UserEntity | undefined> {
+  async getUserById(id: number): Promise<UserEntity | undefined> {
     try {
       return await this.usersRepository.findOne({ where: { id } });
     } catch (e) {
@@ -62,7 +71,7 @@ export class UsersRepository {
     }
   }
 
-  async getAllExistingUsers(): Promise<UserEntity[]> {
+  async getAllUsers(): Promise<UserEntity[]> {
     try {
       return await this.usersRepository.find();
     } catch (e) {

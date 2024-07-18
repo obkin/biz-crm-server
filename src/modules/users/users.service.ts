@@ -40,7 +40,7 @@ export class UsersService {
         throw new BadRequestException('You can update only username');
       }
 
-      const user = await this.usersRepository.findOneUserById(id);
+      const user = await this.usersRepository.getUserById(id);
       if (!user) {
         throw new NotFoundException('User not found');
       }
@@ -60,7 +60,7 @@ export class UsersService {
         throw new BadRequestException('You can update only email');
       }
 
-      const user = await this.usersRepository.findOneUserById(id);
+      const user = await this.usersRepository.getUserById(id);
       if (!user) {
         throw new NotFoundException('User not found');
       }
@@ -88,7 +88,7 @@ export class UsersService {
         throw new BadRequestException('You can update only password');
       }
 
-      const user = await this.usersRepository.findOneUserById(id);
+      const user = await this.usersRepository.getUserById(id);
       if (!user) {
         throw new NotFoundException('User not found');
       }
@@ -102,13 +102,27 @@ export class UsersService {
   }
 
   async deleteUser(id: number): Promise<void> {
-    const user = await this.usersRepository.findOneUserById(id);
+    const user = await this.usersRepository.getUserById(id);
     if (user.roles && user.roles.some((role) => role === 'admin')) {
       throw new ForbiddenException('This user is admin');
     }
-
     try {
       return await this.usersRepository.deleteUser(id);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async blockUser(id: number): Promise<void> {
+    try {
+      const user = await this.getUserById(id);
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+      if (user.isBlocked) {
+        throw new ConflictException('This user is already blocked');
+      }
+      return await this.usersRepository.blockUser(user);
     } catch (e) {
       throw e;
     }
@@ -127,9 +141,9 @@ export class UsersService {
     }
   }
 
-  async findUserById(id: number): Promise<UserEntity> {
+  async getUserById(id: number): Promise<UserEntity> {
     try {
-      const user = await this.usersRepository.findOneUserById(id);
+      const user = await this.usersRepository.getUserById(id);
       if (!user) {
         throw new NotFoundException('User with such id not found');
       } else {
@@ -142,7 +156,7 @@ export class UsersService {
 
   async getAllUsers(): Promise<UserEntity[]> {
     try {
-      const users = await this.usersRepository.getAllExistingUsers();
+      const users = await this.usersRepository.getAllUsers();
       if (!users || users.length === 0) {
         throw new NotFoundException('There are no users');
       } else {
@@ -156,7 +170,7 @@ export class UsersService {
   // --- Roles ---
 
   async assignRoleToUser(userId: number, roleId: number): Promise<void> {
-    const user = await this.findUserById(userId);
+    const user = await this.getUserById(userId);
     if (!user) {
       throw new NotFoundException('Користувача не знайдено');
     }

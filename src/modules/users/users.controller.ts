@@ -22,6 +22,7 @@ import { UserEntity } from 'src/modules/users/entities/user.entity';
 import { idValidationPipe } from 'src/common/pipes/validate-id.pipe';
 import { UserUpdateDto } from './dto/user-update.dto';
 import { HttpErrorFilter } from 'src/common/filters/http-error.filter';
+import { UserBlockDto } from './dto/user-block.dto';
 
 @ApiTags('users')
 // @UseGuards(RolesGuard)
@@ -114,8 +115,6 @@ export class UsersController {
     }
   }
 
-  // --- Working on ---
-
   @ApiOperation({ summary: 'Delete user' })
   @ApiResponse({
     status: 200,
@@ -143,19 +142,65 @@ export class UsersController {
         throw e;
       } else {
         throw new HttpException(
-          `Failed to delete user. ${e}`,
+          `Failed to delete the user. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
     }
   }
 
-  // ------------------
-
   // --- Should add ---
 
-  async blockUser() {}
-  async ublockUser() {}
+  @ApiOperation({ summary: 'Block user' })
+  @ApiResponse({
+    status: 200,
+    description: 'User blocked successfully',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'User is already blocked',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @HttpCode(200)
+  @UseFilters(new HttpErrorFilter(true))
+  @Post('/block')
+  async blockUser(@Body() dto: UserBlockDto) {
+    try {
+      await this.usersService.blockUser(Number(dto.userId));
+      return { userId: dto.userId, message: 'User is blocked' };
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to block the user. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  async ublockUser() {
+    try {
+      // ...
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to unblock the user. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
 
   // -----------------
 
@@ -219,7 +264,7 @@ export class UsersController {
   @Get('/get-by-id/:id')
   async getUserById(@Param('id') id: number) {
     try {
-      return await this.usersService.findUserById(id);
+      return await this.usersService.getUserById(id);
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;
@@ -264,14 +309,21 @@ export class UsersController {
     }
   }
 
-  @ApiOperation({ summary: 'Return all blocked users' })
+  @ApiOperation({ summary: 'Get all blocked users' })
   @ApiResponse({ status: 200, type: [UserEntity] })
   @Get('/get-all-blocked')
   async getAllBlockedUsers() {
     try {
       // ..
     } catch (e) {
-      // ..
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to get all blocked users. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
   }
 }
