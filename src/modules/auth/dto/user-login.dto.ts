@@ -15,6 +15,7 @@ export class UserLoginDto {
 
   @ApiProperty({ example: '12345678' })
   @IsNotEmpty()
+  @IsString()
   @MinLength(8)
   readonly password: string;
 
