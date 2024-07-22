@@ -55,25 +55,28 @@ export class UsersService {
 
   async changeUserEmail(
     id: number,
-    dto: ChangeUserEmailDto,
+    chaneUserEmailDto: ChangeUserEmailDto,
   ): Promise<UserEntity> {
     try {
       const user = await this.usersRepository.getUserById(id);
       if (!user) {
         throw new NotFoundException('User not found');
       }
-      if (user.email === dto.newEmail) {
+      if (user.email === chaneUserEmailDto.newEmail) {
         throw new BadRequestException('Enter a new email');
       }
 
       const emailTaken = await this.usersRepository.getUserByEmail(
-        dto.newEmail,
+        chaneUserEmailDto.newEmail,
       );
       if (emailTaken) {
-        throw new BadRequestException('User with such email already exists');
+        throw new ConflictException('User with such email already exists');
       }
 
-      return await this.usersRepository.changeUserEmail(id, dto);
+      return await this.usersRepository.changeUserEmail(
+        user,
+        chaneUserEmailDto,
+      );
     } catch (e) {
       throw e;
     }

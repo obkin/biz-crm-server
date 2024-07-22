@@ -7,7 +7,6 @@ import { UserRegisterDto } from '../auth/dto/user-register.dto';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UserUpdateDto } from './dto/user-update.dto';
 import { ChangeUserNameDto } from './dto/change-user-name.dto';
 import { ChangeUserEmailDto } from './dto/change-user-email.dto';
 import { ChangeUserPasswordDto } from './dto/change-user-password.dto';
@@ -29,19 +28,6 @@ export class UsersRepository {
     }
   }
 
-  async updateUser(id: number, dto: UserUpdateDto): Promise<UserEntity> {
-    try {
-      await this.usersRepository.update(id, dto);
-      const updatedUser = await this.usersRepository.findOne({ where: { id } });
-      if (!updatedUser) {
-        throw new NotFoundException('User not found');
-      }
-      return updatedUser;
-    } catch (e) {
-      throw e;
-    }
-  }
-
   async changeUserName(
     user: UserEntity,
     dto: ChangeUserNameDto,
@@ -55,14 +41,10 @@ export class UsersRepository {
   }
 
   async changeUserEmail(
-    id: number,
+    user: UserEntity,
     dto: ChangeUserEmailDto,
   ): Promise<UserEntity> {
     try {
-      const user = await this.usersRepository.findOne({ where: { id } });
-      if (!user) {
-        throw new NotFoundException('User not found');
-      }
       user.email = dto.newEmail;
       return await this.usersRepository.save(user);
     } catch (e) {
