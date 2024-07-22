@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -11,6 +10,7 @@ import {
   Post,
   Put,
   Query,
+  Req,
   UseFilters,
   UsePipes,
 } from '@nestjs/common';
@@ -20,9 +20,12 @@ import { UsersService } from './users.service';
 import { EmailValidationPipe } from 'src/common/pipes/validate-email.pipe';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
 import { idValidationPipe } from 'src/common/pipes/validate-id.pipe';
-import { UserUpdateDto } from './dto/user-update.dto';
 import { HttpErrorFilter } from 'src/common/filters/http-error.filter';
 import { UserBlockDto } from './dto/user-block.dto';
+import { ChangeUserNameDto } from './dto/change-user-name.dto';
+import { ChangeUserEmailDto } from './dto/change-user-email.dto';
+import { ChangeUserPasswordDto } from './dto/change-user-password.dto';
+import { Request } from 'express';
 
 @ApiTags('users')
 // @UseGuards(RolesGuard)
@@ -62,53 +65,120 @@ export class UsersController {
     }
   }
 
-  @ApiOperation({ summary: 'Update user' })
+  // @ApiOperation({ summary: 'Update user' })
+  // @ApiResponse({
+  //   status: 200,
+  //   description: 'User updated',
+  //   type: UserEntity,
+  // })
+  // @ApiResponse({
+  //   status: 400,
+  //   description:
+  //     'Wrong updating value format / New updating value for must be different from the current value ',
+  // })
+  // @ApiResponse({
+  //   status: 404,
+  //   description: 'User with such id does not exist',
+  // })
+  // @ApiResponse({
+  //   status: 409,
+  //   description: 'User with such email already exists',
+  // })
+  // @ApiResponse({
+  //   status: 500,
+  //   description: 'Internal Server Error',
+  // })
+  // @ApiQuery({ name: 'id', required: true, description: 'ID of the user' })
+  // @UseFilters(new HttpErrorFilter(true))
+  // @Put('/update/:id')
+  // async updateUser(
+  //   @Param('id', new idValidationPipe()) id: number,
+  //   @Body() dto: UserUpdateDto,
+  // ) {
+  //   try {
+  //     if (dto.username) {
+  //       return await this.usersService.updateUserName(Number(id), dto);
+  //     }
+  //     if (dto.email) {
+  //       return await this.usersService.updateUserEmail(Number(id), dto);
+  //     }
+  //     if (dto.password) {
+  //       return await this.usersService.updateUserPassword(Number(id), dto);
+  //     }
+  //     throw new BadRequestException('Cannot update this user field');
+  //   } catch (e) {
+  //     if (e instanceof HttpException) {
+  //       throw e;
+  //     } else {
+  //       throw new HttpException(
+  //         `Failed to update the user. ${e}`,
+  //         HttpStatus.INTERNAL_SERVER_ERROR,
+  //       );
+  //     }
+  //   }
+  // }
+
+  @ApiOperation({ summary: 'Change user name' })
   @ApiResponse({
     status: 200,
-    description: 'User updated',
+    description: 'User name changed',
     type: UserEntity,
   })
   @ApiResponse({
     status: 400,
-    description:
-      'Wrong updating value format / New updating value for must be different from the current value ',
+    description: 'Enter a new name',
   })
   @ApiResponse({
     status: 404,
-    description: 'User with such id does not exist',
-  })
-  @ApiResponse({
-    status: 409,
-    description: 'User with such email already exists',
+    description: 'User not found',
   })
   @ApiResponse({
     status: 500,
     description: 'Internal Server Error',
   })
-  @ApiQuery({ name: 'id', required: true, description: 'ID of the user' })
-  @UseFilters(new HttpErrorFilter(true))
-  @Put('/update/:id')
-  async updateUser(
-    @Param('id', new idValidationPipe()) id: number,
-    @Body() dto: UserUpdateDto,
-  ) {
+  @UseFilters(new HttpErrorFilter())
+  @Put('/change-name')
+  async chaneUserName(@Body() dto: ChangeUserNameDto, @Req() req: Request) {
     try {
-      if (dto.username) {
-        return await this.usersService.updateUserName(Number(id), dto);
-      }
-      if (dto.email) {
-        return await this.usersService.updateUserEmail(Number(id), dto);
-      }
-      if (dto.password) {
-        return await this.usersService.updateUserPassword(Number(id), dto);
-      }
-      throw new BadRequestException('Cannot update this user field');
+      return await this.usersService.changeUserName(req.user.id, dto);
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;
       } else {
         throw new HttpException(
-          `Failed to update the user. ${e}`,
+          `Failed to change user name. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  @Put('/change-email')
+  async chaneUserEmail(@Body() dto: ChangeUserEmailDto) {
+    try {
+      // return await this.usersService.changeUserEmail(id, dto);
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to change user email. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  @Put('/change-password')
+  async chaneUserPassword(@Body() dto: ChangeUserPasswordDto) {
+    try {
+      // return await this.usersService.changeUserPassword(id, dto);
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to change user password. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }

@@ -9,7 +9,9 @@ import { UserRegisterDto } from '../auth/dto/user-register.dto';
 import { UsersRepository } from './users.repository';
 import { UserEntity } from './entities/user.entity';
 import { RolesService } from '../roles/roles.service';
-import { UserUpdateDto } from './dto/user-update.dto';
+import { ChangeUserNameDto } from './dto/change-user-name.dto';
+import { ChangeUserEmailDto } from './dto/change-user-email.dto';
+import { ChangeUserPasswordDto } from './dto/change-user-password.dto';
 
 @Injectable()
 export class UsersService {
@@ -33,60 +35,55 @@ export class UsersService {
     }
   }
 
-  async updateUserName(id: number, dto: UserUpdateDto): Promise<UserEntity> {
+  async changeUserName(
+    id: number,
+    chaneUserNameDto: ChangeUserNameDto,
+  ): Promise<UserEntity> {
     try {
-      if (!dto.username) {
-        throw new BadRequestException('You can update only username');
-      }
-
       const user = await this.usersRepository.getUserById(id);
       if (!user) {
         throw new NotFoundException('User not found');
       }
-      if (user.username === dto.username) {
+      if (user.username === chaneUserNameDto.newName) {
         throw new BadRequestException('Enter a new name');
       }
-
-      return await this.usersRepository.updateUser(id, dto);
+      return await this.usersRepository.changeUserName(user, chaneUserNameDto);
     } catch (e) {
       throw e;
     }
   }
 
-  async updateUserEmail(id: number, dto: UserUpdateDto): Promise<UserEntity> {
+  async changeUserEmail(
+    id: number,
+    dto: ChangeUserEmailDto,
+  ): Promise<UserEntity> {
     try {
-      if (!dto.email) {
-        throw new BadRequestException('You can update only email');
-      }
-
       const user = await this.usersRepository.getUserById(id);
       if (!user) {
         throw new NotFoundException('User not found');
       }
-      if (user.email === dto.email) {
+      if (user.email === dto.newEmail) {
         throw new BadRequestException('Enter a new email');
       }
 
-      const emailTaken = await this.usersRepository.getUserByEmail(dto.email);
+      const emailTaken = await this.usersRepository.getUserByEmail(
+        dto.newEmail,
+      );
       if (emailTaken) {
         throw new BadRequestException('User with such email already exists');
       }
 
-      return await this.usersRepository.updateUser(id, dto);
+      return await this.usersRepository.changeUserEmail(id, dto);
     } catch (e) {
       throw e;
     }
   }
 
-  async updateUserPassword(
+  async changeUserPassword(
     id: number,
-    dto: UserUpdateDto,
+    dto: ChangeUserPasswordDto,
   ): Promise<UserEntity> {
     try {
-      if (!dto.password) {
-        throw new BadRequestException('You can update only password');
-      }
-
       const user = await this.usersRepository.getUserById(id);
       if (!user) {
         throw new NotFoundException('User not found');
@@ -94,7 +91,7 @@ export class UsersService {
       // if (user.password === dto.password) {
       //   throw new BadRequestException('Enter a new password');
       // }
-      return await this.usersRepository.updateUser(id, dto);
+      return await this.usersRepository.changeUserPassword(id, dto);
     } catch (e) {
       throw e;
     }
