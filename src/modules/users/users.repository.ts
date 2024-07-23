@@ -9,7 +9,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ChangeUserNameDto } from './dto/change-user-name.dto';
 import { ChangeUserEmailDto } from './dto/change-user-email.dto';
-import { ChangeUserPasswordDto } from './dto/change-user-password.dto';
 
 @Injectable()
 export class UsersRepository {
@@ -53,15 +52,11 @@ export class UsersRepository {
   }
 
   async changeUserPassword(
-    id: number,
-    dto: ChangeUserPasswordDto,
+    user: UserEntity,
+    newPassword: string,
   ): Promise<UserEntity> {
     try {
-      const user = await this.usersRepository.findOne({ where: { id } });
-      if (!user) {
-        throw new NotFoundException('User not found');
-      }
-      user.password = dto.newPassword;
+      user.password = newPassword;
       return await this.usersRepository.save(user);
     } catch (e) {
       throw e;
@@ -116,6 +111,18 @@ export class UsersRepository {
   async getAllUsers(): Promise<UserEntity[]> {
     try {
       return await this.usersRepository.find();
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async getAllAdmins(): Promise<UserEntity[]> {
+    try {
+      const query = `
+        SELECT * FROM users
+        WHERE 'admin' = ANY(roles)
+      `;
+      return await this.usersRepository.query(query);
     } catch (e) {
       throw e;
     }

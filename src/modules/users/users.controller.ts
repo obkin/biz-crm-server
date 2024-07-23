@@ -139,10 +139,39 @@ export class UsersController {
     }
   }
 
+  @ApiOperation({ summary: 'Change user password' })
+  @ApiResponse({
+    status: 200,
+    description: 'User password changed',
+    type: UserEntity,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Enter a new password',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Wrong old password',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @UseFilters(new HttpErrorFilter())
   @Put('/change-password')
-  async chaneUserPassword(@Body() dto: ChangeUserPasswordDto) {
+  async changeUserPassword(
+    @Body() dto: ChangeUserPasswordDto,
+    @Req() req: Request,
+  ) {
     try {
-      // return await this.usersService.changeUserPassword(id, dto);
+      return await this.usersService.changeUserPassword(
+        Number(req.user.id),
+        dto,
+      );
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;
@@ -163,6 +192,10 @@ export class UsersController {
   @ApiResponse({
     status: 404,
     description: 'User not found',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'This user is admin',
   })
   @ApiResponse({
     status: 500,
@@ -361,6 +394,38 @@ export class UsersController {
       } else {
         throw new HttpException(
           `Failed to get all users. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  @ApiOperation({ summary: 'Get all admins' })
+  @ApiResponse({
+    status: 200,
+    description: 'Retrieved all admins',
+    type: [UserEntity],
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'There are no admins',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @UseFilters(new HttpErrorFilter(true))
+  @Get('/get-all-admins')
+  async getAllAdmins() {
+    try {
+      const adminsArray = await this.usersService.getAllAdmins();
+      return { adminsAmount: adminsArray.length, adminsArray };
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to get all admins. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }

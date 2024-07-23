@@ -3,6 +3,7 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { UserRegisterDto } from '../auth/dto/user-register.dto';
@@ -12,12 +13,15 @@ import { RolesService } from '../roles/roles.service';
 import { ChangeUserNameDto } from './dto/change-user-name.dto';
 import { ChangeUserEmailDto } from './dto/change-user-email.dto';
 import { ChangeUserPasswordDto } from './dto/change-user-password.dto';
+import { genSalt, hash, compare } from 'bcrypt';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UsersService {
   constructor(
     private readonly usersRepository: UsersRepository,
     private readonly rolesService: RolesService,
+    private readonly configService: ConfigService,
   ) {}
 
   async createNewUser(dto: UserRegisterDto): Promise<UserEntity> {
@@ -65,14 +69,12 @@ export class UsersService {
       if (user.email === chaneUserEmailDto.newEmail) {
         throw new BadRequestException('Enter a new email');
       }
-
       const emailTaken = await this.usersRepository.getUserByEmail(
         chaneUserEmailDto.newEmail,
       );
       if (emailTaken) {
         throw new ConflictException('User with such email already exists');
       }
-
       return await this.usersRepository.changeUserEmail(
         user,
         chaneUserEmailDto,
@@ -84,17 +86,54 @@ export class UsersService {
 
   async changeUserPassword(
     id: number,
-    dto: ChangeUserPasswordDto,
+    changeUserPasswordDto: ChangeUserPasswordDto,
   ): Promise<UserEntity> {
     try {
       const user = await this.usersRepository.getUserById(id);
       if (!user) {
         throw new NotFoundException('User not found');
       }
-      // if (user.password === dto.password) {
-      //   throw new BadRequestException('Enter a new password');
-      // }
-      return await this.usersRepository.changeUserPassword(id, dto);
+      const isOldPasswordCorrect = await compare(
+        changeUserPasswordDto.oldPassword,
+        user.password,
+      );
+      if (!isOldPasswordCorrect) {
+        throw new BadRequestException('Incorrect old password');
+      }
+      if (await compare(changeUserPasswordDto.newPassword, user.password)) {
+        throw new BadRequestException('Enter a new password');
+      }
+
+      // --- ConfigService ---
+
+      const saltRoundsString = this.configService.get<string>(
+        'PASSWORD_SALT_ROUNDS',
+      );
+      if (!saltRoundsString) {
+        throw new InternalServerErrorException(
+          '[.env] PASSWORD_SALT_ROUNDS not configured',
+        );
+      }
+
+      const saltRounds = Number(saltRoundsString);
+      if (isNaN(saltRounds)) {
+        throw new InternalServerErrorException(
+          '[.env] PASSWORD_SALT_ROUNDS must be a valid number',
+        );
+      }
+
+      const salt = await genSalt(saltRounds);
+      const hashedPassword = await hash(
+        changeUserPasswordDto.newPassword,
+        salt,
+      );
+
+      // ---------------------
+
+      return await this.usersRepository.changeUserPassword(
+        user,
+        hashedPassword,
+      );
     } catch (e) {
       throw e;
     }
@@ -102,6 +141,9 @@ export class UsersService {
 
   async deleteUser(id: number): Promise<void> {
     const user = await this.usersRepository.getUserById(id);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
     if (await this.checkIsUserAdmin(user.id)) {
       throw new ForbiddenException('This user is admin');
     }
@@ -178,6 +220,18 @@ export class UsersService {
         throw new NotFoundException('There are no users');
       }
       return users;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async getAllAdmins(): Promise<UserEntity[]> {
+    try {
+      const admins = await this.usersRepository.getAllAdmins();
+      if (!admins || admins.length === 0) {
+        throw new NotFoundException('There are no admins');
+      }
+      return admins;
     } catch (e) {
       throw e;
     }
