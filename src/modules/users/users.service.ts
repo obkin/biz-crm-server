@@ -230,30 +230,59 @@ export class UsersService {
 
   // --- Roles ---
 
-  async assignRoleToUser(userId: number, roleId: number): Promise<void> {
-    const user = await this.getUserById(userId);
-    if (!user) {
-      throw new NotFoundException('Користувача не знайдено');
-    }
+  async assignRoleToUser(userId: number, roleId: number): Promise<UserEntity> {
+    try {
+      const user = await this.getUserById(userId);
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
 
-    const role = await this.rolesService.getRoleById(roleId);
-    if (!role) {
-      throw new NotFoundException('Role not found');
-    }
+      const role = await this.rolesService.getRoleById(roleId);
+      if (!role) {
+        throw new NotFoundException('Role not found');
+      }
 
-    // update user and set the new role
+      if (!user.roles.includes(role.name)) {
+        user.roles.push(role.name);
+      } else {
+        throw new ConflictException('Role already assigned to user');
+      }
+      return await this.usersRepository.saveUser(user);
+    } catch (e) {
+      throw e;
+    }
   }
 
-  // async removeRoleFromUser(userId: number, roleId: number): Promise<void> {
-  //   const user = await this.usersRepository.findOne(userId, {
-  //     relations: ['roles'],
-  //   });
-  //   if (!user) {
-  //     throw new NotFoundException('Користувача не знайдено');
-  //   }
+  async removeRoleFromUser(
+    userId: number,
+    roleId: number,
+  ): Promise<UserEntity> {
+    try {
+      const user = await this.getUserById(userId);
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
 
-  //   await this.rolesService.removeRoleFromUser(userId, roleId); // Делегуємо видалення ролі сервісу RolesService
-  // }
+      const role = await this.rolesService.getRoleById(roleId);
+      if (!role) {
+        throw new NotFoundException('Role not found');
+      }
+
+      if (role.name === 'user') {
+        throw new BadRequestException('Cannot remove the <user> role');
+      }
+
+      const roleIndex = user.roles.indexOf(role.name);
+      if (roleIndex > -1) {
+        user.roles.splice(roleIndex, 1);
+        return await this.usersRepository.saveUser(user);
+      } else {
+        throw new ConflictException('User does not have this role');
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
 
   // --- Methods ---
   public async checkUserExisting(email: string): Promise<boolean> {

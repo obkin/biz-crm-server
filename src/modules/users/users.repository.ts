@@ -136,6 +136,16 @@ export class UsersRepository {
     }
   }
 
+  // --- Roles ---
+
+  async saveUser(user: UserEntity): Promise<UserEntity> {
+    try {
+      return await this.usersRepository.save(user);
+    } catch (e) {
+      throw e;
+    }
+  }
+
   // --- Methods ---
   async checkUserExisting(
     email?: string,
