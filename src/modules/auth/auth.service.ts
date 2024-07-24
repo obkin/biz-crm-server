@@ -9,7 +9,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { UserRegisterDto } from 'src/modules/auth/dto/user-register.dto';
 import { UsersService } from 'src/modules/users/users.service';
-import { genSalt, hash, compare } from 'bcrypt';
+import { compare } from 'bcrypt';
 import { LoggerService } from 'src/common/logger/logger.service';
 import { JwtService } from '@nestjs/jwt';
 import { UserLoginDto } from 'src/modules/auth/dto/user-login.dto';
@@ -42,24 +42,7 @@ export class AuthService {
   // --- Service logic ---
   async userRegister(dto: UserRegisterDto): Promise<UserEntity> {
     try {
-      const saltRoundsString = this.configService.get<string>(
-        'PASSWORD_SALT_ROUNDS',
-      );
-      if (!saltRoundsString) {
-        throw new InternalServerErrorException(
-          '[.env] PASSWORD_SALT_ROUNDS not configured',
-        );
-      }
-
-      const saltRounds = Number(saltRoundsString);
-      if (isNaN(saltRounds)) {
-        throw new InternalServerErrorException(
-          '[.env] PASSWORD_SALT_ROUNDS must be a valid number',
-        );
-      }
-
-      const salt = await genSalt(saltRounds);
-      const hashedPassword = await hash(dto.password, salt);
+      const hashedPassword = await this.usersService.hashPassword(dto.password);
       const newUser = await this.usersService.createNewUser({
         ...dto,
         password: hashedPassword,

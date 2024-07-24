@@ -93,46 +93,25 @@ export class UsersService {
       if (!user) {
         throw new NotFoundException('User not found');
       }
+
       const isOldPasswordCorrect = await compare(
         changeUserPasswordDto.oldPassword,
         user.password,
       );
       if (!isOldPasswordCorrect) {
-        throw new BadRequestException('Incorrect old password');
+        throw new BadRequestException('Wrong old password');
       }
+
       if (await compare(changeUserPasswordDto.newPassword, user.password)) {
         throw new BadRequestException('Enter a new password');
       }
 
-      // --- ConfigService ---
-
-      const saltRoundsString = this.configService.get<string>(
-        'PASSWORD_SALT_ROUNDS',
-      );
-      if (!saltRoundsString) {
-        throw new InternalServerErrorException(
-          '[.env] PASSWORD_SALT_ROUNDS not configured',
-        );
-      }
-
-      const saltRounds = Number(saltRoundsString);
-      if (isNaN(saltRounds)) {
-        throw new InternalServerErrorException(
-          '[.env] PASSWORD_SALT_ROUNDS must be a valid number',
-        );
-      }
-
-      const salt = await genSalt(saltRounds);
-      const hashedPassword = await hash(
+      const hashedNewPassword = await this.hashPassword(
         changeUserPasswordDto.newPassword,
-        salt,
       );
-
-      // ---------------------
-
       return await this.usersRepository.changeUserPassword(
         user,
-        hashedPassword,
+        hashedNewPassword,
       );
     } catch (e) {
       throw e;
@@ -293,6 +272,31 @@ export class UsersService {
         return true;
       }
       return false;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  public async hashPassword(password: string): Promise<string> {
+    try {
+      const saltRoundsString = this.configService.get<string>(
+        'PASSWORD_SALT_ROUNDS',
+      );
+      if (!saltRoundsString) {
+        throw new InternalServerErrorException(
+          '[.env] PASSWORD_SALT_ROUNDS not configured',
+        );
+      }
+
+      const saltRounds = Number(saltRoundsString);
+      if (isNaN(saltRounds)) {
+        throw new InternalServerErrorException(
+          '[.env] PASSWORD_SALT_ROUNDS must be a valid number',
+        );
+      }
+
+      const salt = await genSalt(saltRounds);
+      return await hash(password, salt);
     } catch (e) {
       throw e;
     }
