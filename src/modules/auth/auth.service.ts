@@ -39,14 +39,9 @@ export class AuthService {
     private readonly dataSource: DataSource,
   ) {}
 
-  // --- Service logic ---
   async userRegister(dto: UserRegisterDto): Promise<UserEntity> {
     try {
-      const hashedPassword = await this.usersService.hashPassword(dto.password);
-      const newUser = await this.usersService.createNewUser({
-        ...dto,
-        password: hashedPassword,
-      });
+      const newUser = await this.usersService.createNewUser(dto);
       if (!newUser) {
         throw new InternalServerErrorException(
           'User was not created. UsersService did not return UserEntity',

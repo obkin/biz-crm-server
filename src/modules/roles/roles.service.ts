@@ -15,11 +15,10 @@ export class RolesService {
   async createNewRole(dto: CreateRoleDto): Promise<RoleEntity> {
     try {
       const role = await this.getRoleByName(dto.name);
-      if (!role) {
-        return await this.rolesRepository.createRole(dto);
-      } else {
+      if (role) {
         throw new ConflictException('Such role already exists');
       }
+      return await this.rolesRepository.createRole(dto);
     } catch (e) {
       throw e;
     }

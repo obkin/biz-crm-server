@@ -26,14 +26,15 @@ export class UsersService {
 
   async createNewUser(dto: UserRegisterDto): Promise<UserEntity> {
     try {
-      const existingUser = await this.usersRepository.checkUserExisting(
-        dto.email,
-      );
+      const existingUser = await this.usersRepository.getUserByEmail(dto.email);
       if (existingUser) {
         throw new ConflictException('User with such email already exists');
-      } else {
-        return await this.usersRepository.createNewUser(dto);
       }
+      const hashedPassword = await this.hashPassword(dto.password);
+      return await this.usersRepository.createNewUser({
+        ...dto,
+        password: hashedPassword,
+      });
     } catch (e) {
       throw e;
     }
