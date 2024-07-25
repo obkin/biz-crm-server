@@ -15,6 +15,7 @@ import { ChangeUserEmailDto } from './dto/change-user-email.dto';
 import { ChangeUserPasswordDto } from './dto/change-user-password.dto';
 import { genSalt, hash, compare } from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
+import { LoggerService } from 'src/common/logger/logger.service';
 
 @Injectable()
 export class UsersService {
@@ -22,19 +23,31 @@ export class UsersService {
     private readonly usersRepository: UsersRepository,
     private readonly rolesService: RolesService,
     private readonly configService: ConfigService,
+    private readonly loggerService: LoggerService,
   ) {}
 
-  async createNewUser(dto: UserRegisterDto): Promise<UserEntity> {
+  async createNewUser(
+    dto: UserRegisterDto,
+    shouldLog: boolean = true,
+  ): Promise<UserEntity> {
     try {
       const existingUser = await this.usersRepository.getUserByEmail(dto.email);
       if (existingUser) {
         throw new ConflictException('User with such email already exists');
       }
+
       const hashedPassword = await this.hashPassword(dto.password);
-      return await this.usersRepository.createNewUser({
+      const newUser = await this.usersRepository.createNewUser({
         ...dto,
         password: hashedPassword,
       });
+
+      if (shouldLog) {
+        this.loggerService.log(
+          `[UsersService] New user created (user: ${newUser.email} / userId: ${newUser.id})`,
+        );
+      }
+      return newUser;
     } catch (e) {
       throw e;
     }

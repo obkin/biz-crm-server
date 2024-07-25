@@ -41,7 +41,7 @@ export class AuthService {
 
   async userRegister(dto: UserRegisterDto): Promise<UserEntity> {
     try {
-      const newUser = await this.usersService.createNewUser(dto);
+      const newUser = await this.usersService.createNewUser(dto, false);
       if (!newUser) {
         throw new InternalServerErrorException(
           'User was not created. UsersService did not return UserEntity',
