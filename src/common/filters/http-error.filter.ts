@@ -3,13 +3,13 @@ import {
   Catch,
   ArgumentsHost,
   HttpException,
+  Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { LoggerService } from 'src/common/logger/logger.service';
 
 @Catch(HttpException)
 export class HttpErrorFilter implements ExceptionFilter {
-  private readonly loggerService = new LoggerService();
+  private readonly logger = new Logger(HttpErrorFilter.name);
   private readonly shouldLog: boolean;
 
   constructor(shouldLog: boolean = false) {
@@ -19,6 +19,7 @@ export class HttpErrorFilter implements ExceptionFilter {
   catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const request = ctx.getRequest<Request>();
+    const userId = request.user?.id;
     const response = ctx.getResponse<Response>();
     const status = exception.getStatus();
     const error = exception.getResponse();
@@ -42,9 +43,13 @@ export class HttpErrorFilter implements ExceptionFilter {
       errorResponse.message = [error];
     }
 
-    if (this.shouldLog || status === 500) {
-      this.loggerService.error(
-        `[ExceptionFilter] "method: ${request.method}", "path: ${request.url}", "statusCode: ${status}". Error: ${exception.message}`,
+    if (this.shouldLog && status !== 500) {
+      this.logger.warn(
+        `Res: { method: ${request.method}, path: ${request.url}, statusCode: ${status}, userId: ${userId}, message: ${exception.message} }`,
+      );
+    } else {
+      this.logger.error(
+        `"method: ${request.method}", "path: ${request.url}", "statusCode: ${status}". error: ${exception.message}`,
       );
     }
 

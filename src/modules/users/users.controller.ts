@@ -12,6 +12,7 @@ import {
   Query,
   Req,
   UseFilters,
+  UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
 import { UserRegisterDto } from '../auth/dto/user-register.dto';
@@ -28,10 +29,12 @@ import { ChangeUserPasswordDto } from './dto/change-user-password.dto';
 import { Request } from 'express';
 import { AssignRoleDto } from './dto/assign-role.dto';
 import { RemoveRoleDto } from './dto/remove-role.dto';
+import { LoggerInterceptor } from 'src/common/interceptors/logging.interceptor';
 
 @ApiTags('users')
 // @UseGuards(RolesGuard)
 // @Roles('admin')
+@UseInterceptors(LoggerInterceptor)
 @Controller('/users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
