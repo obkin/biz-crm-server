@@ -9,14 +9,12 @@ import {
   Param,
   Post,
   Put,
-  UseFilters,
   UsePipes,
 } from '@nestjs/common';
 import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RoleEntity } from './entities/role.entity';
-import { HttpErrorFilter } from 'src/common/filters/http-error.filter';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { idValidationPipe } from 'src/common/pipes/validate-id.pipe';
 import { NameValidationPipe } from 'src/common/pipes/validate-name.pipe';
@@ -47,7 +45,6 @@ export class RolesController {
     description: 'Internal Server Error',
   })
   @UsePipes(new NameValidationPipe())
-  @UseFilters(new HttpErrorFilter(true))
   @Post('/create')
   async createRole(@Body() dto: CreateRoleDto) {
     try {
@@ -87,7 +84,6 @@ export class RolesController {
     description: 'Internal Server Error',
   })
   @UsePipes(new NameValidationPipe())
-  @UseFilters(new HttpErrorFilter(true))
   @Put('/update/:id')
   async updateRole(@Param('id') id: number, @Body() dto: UpdateRoleDto) {
     try {
@@ -120,7 +116,6 @@ export class RolesController {
   @ApiQuery({ name: 'id', required: true, description: 'ID of the role' })
   @HttpCode(200)
   @UsePipes(new idValidationPipe())
-  @UseFilters(new HttpErrorFilter(true))
   @Delete('/delete/:id')
   async deleteRole(@Param('id') id: number) {
     try {
@@ -152,7 +147,6 @@ export class RolesController {
     status: 500,
     description: 'Internal Server Error',
   })
-  @UseFilters(new HttpErrorFilter(true))
   @Get('/get-all-roles')
   async getAllRoles() {
     try {

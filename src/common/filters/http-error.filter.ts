@@ -10,11 +10,6 @@ import { Request, Response } from 'express';
 @Catch(HttpException)
 export class HttpErrorFilter implements ExceptionFilter {
   private readonly logger = new Logger(HttpErrorFilter.name);
-  private readonly shouldLog: boolean;
-
-  constructor(shouldLog: boolean = false) {
-    this.shouldLog = shouldLog;
-  }
 
   catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
@@ -23,34 +18,33 @@ export class HttpErrorFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const status = exception.getStatus();
     const error = exception.getResponse();
+
     const errorResponse = {
       statusCode: status,
       timestamp: new Date().toISOString(),
       path: request.url,
       method: request.method,
-      message: {},
+      message: [],
     };
 
     if (typeof error === 'object' && error !== null) {
-      if ('message' in error) {
-        errorResponse.message = Array.isArray(error.message)
-          ? error.message
-          : [error.message];
+      if (error.hasOwnProperty('message')) {
+        errorResponse.message = Array.isArray(error['message'])
+          ? error['message']
+          : [error['message']];
       } else {
-        errorResponse.message = error;
+        errorResponse.message = [error];
       }
     } else {
       errorResponse.message = [error];
     }
 
-    if (this.shouldLog && status !== 500) {
-      this.logger.warn(
-        `Res: { method: ${request.method}, path: ${request.url}, statusCode: ${status}, userId: ${userId}, message: ${exception.message} }`,
-      );
+    const logMessage = `Res: { method: ${request.method}, path: ${request.url}, statusCode: ${status}, userId: ${userId}, message: ${exception.message} }`;
+
+    if (status >= 500) {
+      this.logger.error(logMessage, exception.stack);
     } else {
-      this.logger.error(
-        `"method: ${request.method}", "path: ${request.url}", "statusCode: ${status}". error: ${exception.message}`,
-      );
+      this.logger.warn(logMessage);
     }
 
     response.status(status).json(errorResponse);

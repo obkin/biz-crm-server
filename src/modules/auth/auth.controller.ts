@@ -8,7 +8,6 @@ import {
   HttpStatus,
   Post,
   Query,
-  UseFilters,
   UsePipes,
 } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -22,7 +21,6 @@ import { AccessTokenDto } from './dto/access-token.dto';
 import { RefreshTokenEntity } from './entities/refresh-token.entity';
 import { AccessTokenEntity } from './entities/access-token.entity';
 import { idValidationPipe } from 'src/common/pipes/validate-id.pipe';
-import { HttpErrorFilter } from '../../common/filters/http-error.filter';
 import { Public } from 'src/common/decorators/public.decorator';
 
 @ApiTags('auth')
@@ -45,7 +43,6 @@ export class AuthController {
     description: 'Internal Server Error',
   })
   @Public()
-  @UseFilters(new HttpErrorFilter())
   @Post('/register')
   async register(@Body() dto: UserRegisterDto) {
     try {
@@ -78,7 +75,6 @@ export class AuthController {
   })
   @Public()
   @HttpCode(200)
-  @UseFilters(new HttpErrorFilter())
   @Post('/login')
   async login(@Body() dto: UserLoginDto) {
     try {
@@ -110,7 +106,6 @@ export class AuthController {
   })
   @ApiQuery({ name: 'userId', required: true, description: 'ID of the user' })
   @UsePipes(new idValidationPipe())
-  @UseFilters(new HttpErrorFilter())
   @Delete('/logout')
   async logout(@Query('userId') userId: number) {
     try {
@@ -142,7 +137,6 @@ export class AuthController {
     status: 500,
     description: 'Internal Server Error',
   })
-  @UseFilters(new HttpErrorFilter())
   @Post('/save-refresh-token')
   async saveRefreshToken(@Body() dto: RefreshTokenDto) {
     try {
@@ -175,7 +169,6 @@ export class AuthController {
   @ApiQuery({ name: 'userId', required: true, description: 'ID of the user' })
   @HttpCode(200)
   @UsePipes(new idValidationPipe())
-  @UseFilters(new HttpErrorFilter())
   @Delete('/delete-refresh-token')
   async deleteRefreshToken(@Query('userId') userId: number) {
     try {
@@ -209,7 +202,6 @@ export class AuthController {
   })
   @ApiQuery({ name: 'userId', required: true, description: 'ID of the user' })
   @UsePipes(new idValidationPipe())
-  @UseFilters(new HttpErrorFilter(true))
   @Get('/get-refresh-token')
   async getRefreshToken(@Query('userId') userId: number) {
     try {
@@ -240,7 +232,6 @@ export class AuthController {
     status: 500,
     description: 'Internal Server Error',
   })
-  @UseFilters(new HttpErrorFilter(true))
   @Get('/get-all-refresh-tokens')
   async getAllRefreshTokens() {
     try {
@@ -272,7 +263,6 @@ export class AuthController {
     status: 500,
     description: 'Internal Server Error',
   })
-  @UseFilters(new HttpErrorFilter())
   @Post('/save-access-token')
   async saveAccessToken(@Body() dto: AccessTokenDto) {
     try {
@@ -305,7 +295,6 @@ export class AuthController {
   @ApiQuery({ name: 'userId', required: true, description: 'ID of the user' })
   @HttpCode(200)
   @UsePipes(new idValidationPipe())
-  @UseFilters(new HttpErrorFilter())
   @Delete('/delete-access-token')
   async deleteAccessToken(@Query('userId') userId: number) {
     try {
@@ -339,7 +328,6 @@ export class AuthController {
   })
   @ApiQuery({ name: 'userId', required: true, description: 'ID of the user' })
   @UsePipes(new idValidationPipe())
-  @UseFilters(new HttpErrorFilter(true))
   @Get('/get-access-token')
   async getAccessToken(@Query('userId') userId: number) {
     try {
@@ -370,7 +358,6 @@ export class AuthController {
     status: 500,
     description: 'Internal Server Error',
   })
-  @UseFilters(new HttpErrorFilter(true))
   @Get('/get-all-access-tokens')
   async getAllAccessTokens() {
     try {

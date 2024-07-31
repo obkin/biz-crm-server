@@ -11,8 +11,6 @@ import {
   Put,
   Query,
   Req,
-  UseFilters,
-  UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
 import { UserRegisterDto } from '../auth/dto/user-register.dto';
@@ -21,7 +19,6 @@ import { UsersService } from './users.service';
 import { EmailValidationPipe } from 'src/common/pipes/validate-email.pipe';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
 import { idValidationPipe } from 'src/common/pipes/validate-id.pipe';
-import { HttpErrorFilter } from 'src/common/filters/http-error.filter';
 import { UserBlockDto } from './dto/user-block.dto';
 import { ChangeUserNameDto } from './dto/change-user-name.dto';
 import { ChangeUserEmailDto } from './dto/change-user-email.dto';
@@ -29,12 +26,10 @@ import { ChangeUserPasswordDto } from './dto/change-user-password.dto';
 import { Request } from 'express';
 import { AssignRoleDto } from './dto/assign-role.dto';
 import { RemoveRoleDto } from './dto/remove-role.dto';
-import { LoggerInterceptor } from 'src/common/interceptors/logging.interceptor';
 
 @ApiTags('users')
 // @UseGuards(RolesGuard)
 // @Roles('admin')
-@UseInterceptors(LoggerInterceptor)
 @Controller('/users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -53,7 +48,6 @@ export class UsersController {
     status: 500,
     description: 'Internal Server Error',
   })
-  @UseFilters(new HttpErrorFilter(true))
   @Post('/create')
   async createUser(@Body() dto: UserRegisterDto) {
     try {
@@ -88,7 +82,6 @@ export class UsersController {
     status: 500,
     description: 'Internal Server Error',
   })
-  @UseFilters(new HttpErrorFilter())
   @Put('/change-name')
   async chaneUserName(@Body() dto: ChangeUserNameDto, @Req() req: Request) {
     try {
@@ -127,7 +120,6 @@ export class UsersController {
     status: 500,
     description: 'Internal Server Error',
   })
-  @UseFilters(new HttpErrorFilter())
   @Put('/change-email')
   async chaneUserEmail(@Body() dto: ChangeUserEmailDto, @Req() req: Request) {
     try {
@@ -166,7 +158,6 @@ export class UsersController {
     status: 500,
     description: 'Internal Server Error',
   })
-  @UseFilters(new HttpErrorFilter())
   @Put('/change-password')
   async changeUserPassword(
     @Body() dto: ChangeUserPasswordDto,
@@ -209,7 +200,6 @@ export class UsersController {
   @ApiQuery({ name: 'id', required: true, description: 'ID of the user' })
   @HttpCode(200)
   @UsePipes(new idValidationPipe())
-  @UseFilters(new HttpErrorFilter(true))
   @Delete('/delete/:id')
   async deleteUser(@Param('id') id: number) {
     try {
@@ -245,7 +235,6 @@ export class UsersController {
     description: 'Internal Server Error',
   })
   @HttpCode(200)
-  @UseFilters(new HttpErrorFilter(true))
   @Post('/block')
   async blockUser(@Body() dto: UserBlockDto) {
     try {
@@ -282,7 +271,6 @@ export class UsersController {
   })
   @HttpCode(200)
   @UsePipes(new idValidationPipe())
-  @UseFilters(new HttpErrorFilter(true))
   @Post('/unblock/:id')
   async unblockUser(@Param('id') id: number) {
     try {
@@ -319,7 +307,6 @@ export class UsersController {
     description: 'Internal Server Error',
   })
   @UsePipes(new EmailValidationPipe())
-  @UseFilters(new HttpErrorFilter(true))
   @Get('/get-by-email')
   async getUserByEmail(@Query('email') email: string) {
     try {
@@ -356,7 +343,6 @@ export class UsersController {
   })
   @ApiQuery({ name: 'id', required: true, description: 'ID of the user' })
   @UsePipes(new idValidationPipe())
-  @UseFilters(new HttpErrorFilter(true))
   @Get('/get-by-id/:id')
   async getUserById(@Param('id') id: number) {
     try {
@@ -387,7 +373,6 @@ export class UsersController {
     status: 500,
     description: 'Internal Server Error',
   })
-  @UseFilters(new HttpErrorFilter(true))
   @Get('/get-all')
   async getAllUsers() {
     try {
@@ -419,7 +404,6 @@ export class UsersController {
     status: 500,
     description: 'Internal Server Error',
   })
-  @UseFilters(new HttpErrorFilter(true))
   @Get('/get-all-admins')
   async getAllAdmins() {
     try {
@@ -451,7 +435,6 @@ export class UsersController {
     status: 500,
     description: 'Internal Server Error',
   })
-  @UseFilters(new HttpErrorFilter(true))
   @Get('/get-all-blocked')
   async getAllBlockedUsers() {
     try {
@@ -495,7 +478,6 @@ export class UsersController {
     description: 'Internal Server Error',
   })
   @HttpCode(200)
-  @UseFilters(new HttpErrorFilter(true))
   @Post('/assign-role')
   async assignRoleToUser(@Body() dto: AssignRoleDto) {
     try {
@@ -538,7 +520,6 @@ export class UsersController {
     description: 'Internal Server Error',
   })
   @HttpCode(200)
-  @UseFilters(new HttpErrorFilter(true))
   @Post('/remove-role')
   async removeRoleFromUser(@Body() dto: RemoveRoleDto) {
     try {
