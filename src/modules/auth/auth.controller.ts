@@ -52,7 +52,7 @@ export class AuthController {
         throw e;
       } else {
         throw new HttpException(
-          `Failed to create new user. ${e}`,
+          `Failed to register new user. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
