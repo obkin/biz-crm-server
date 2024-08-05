@@ -3,6 +3,7 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -10,7 +11,6 @@ import { ConfigService } from '@nestjs/config';
 import { UserRegisterDto } from 'src/modules/auth/dto/user-register.dto';
 import { UsersService } from 'src/modules/users/users.service';
 import { compare } from 'bcrypt';
-import { LoggerService } from 'src/common/logger/logger.service';
 import { JwtService } from '@nestjs/jwt';
 import { UserLoginDto } from 'src/modules/auth/dto/user-login.dto';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
@@ -29,13 +29,14 @@ import { AccessTokenEntity } from './entities/access-token.entity';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly refreshTokenRepository: RefreshTokenRepository,
     private readonly accessTokenRepository: AccessTokenRepository,
-    private readonly loggerService: LoggerService,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -47,15 +48,12 @@ export class AuthService {
           'User was not created. UsersService did not return UserEntity',
         );
       } else {
-        this.loggerService.log(
-          `[AuthService] New user registered (user: ${newUser.email} / userId: ${newUser.id})`,
+        this.logger.log(
+          `New user registered (user: ${newUser.email} / userId: ${newUser.id})`,
         );
         return newUser;
       }
     } catch (e) {
-      this.loggerService.error(
-        `[AuthService] Failed to register new user (user: ${dto.email} / error: ${e.message})`,
-      );
       throw e;
     }
   }
@@ -84,8 +82,8 @@ export class AuthService {
         userAgent: dto.userAgent || null,
       });
 
-      this.loggerService.log(
-        `[AuthService] Signed in as user (user: ${user.email} / userId: ${user.id})`,
+      this.logger.log(
+        `Signed in as user (user: ${user.email} / userId: ${user.id})`,
       );
       return {
         id: validatedUser.id,
@@ -96,9 +94,6 @@ export class AuthService {
         userAgent: dto.userAgent || null,
       };
     } catch (e) {
-      this.loggerService.error(
-        `[AuthService] Failed to sign in as user (user: ${dto.email} / error: ${e.message})`,
-      );
       throw e;
     }
   }
@@ -107,19 +102,14 @@ export class AuthService {
     try {
       await this.deleteAccessToken(userId);
       await this.deleteRefreshToken(userId);
-      this.loggerService.log(
-        `[AuthService] User logged out (userId: ${userId})`,
-      );
+      this.logger.log(`User logged out (userId: ${userId})`);
     } catch (e) {
       if (e?.status === 404) {
-        this.loggerService.error(
-          `[AuthService] Failed to logout (userId: ${userId} / error: This user is not logged in)`,
+        this.logger.warn(
+          `Failed to logout (userId: ${userId} / error: This user is not logged in)`,
         );
         throw new UnauthorizedException('This user is not logged in');
       } else {
-        this.loggerService.error(
-          `[AuthService] Failed to logout (userId: ${userId} / error: ${e.message})`,
-        );
         throw e;
       }
     }
@@ -220,10 +210,7 @@ export class AuthService {
         false,
       );
 
-      this.loggerService.log(
-        `[AuthService] Access token refreshed (userId: ${userId})`,
-      );
-
+      this.logger.log(`Access token refreshed (userId: ${userId})`);
       return newAccessToken;
     } catch (e) {
       throw new UnauthorizedException('Invalid refresh token');
@@ -258,21 +245,19 @@ export class AuthService {
         );
       } else {
         await queryRunner.commitTransaction();
-        this.loggerService.log(
-          `[AuthService] Refresh token saved (userId: ${dto.userId})`,
-        );
+        this.logger.log(`Refresh token saved (userId: ${dto.userId})`);
         return savedRefreshToken;
       }
     } catch (e) {
       await queryRunner.rollbackTransaction();
       if (e.code === '23505') {
-        this.loggerService.error(
-          `[AuthService] Failed to save refresh token (userId: ${dto.userId} / error: Such refresh token already exists)`,
+        this.logger.warn(
+          `Failed to save refresh token (userId: ${dto.userId} / error: Such refresh token already exists)`,
         );
         throw new ConflictException('Such refresh token already exists');
       } else {
-        this.loggerService.error(
-          `[AuthService] Failed to save refresh token (userId: ${dto.userId} / error: ${e.message})`,
+        this.logger.error(
+          `Failed to save refresh token (userId: ${dto.userId} / error: ${e.message})`,
         );
         throw e;
       }
@@ -284,12 +269,10 @@ export class AuthService {
   async deleteRefreshToken(userId: number): Promise<void> {
     try {
       await this.refreshTokenRepository.deleteRefreshToken(userId);
-      this.loggerService.log(
-        `[AuthService] Refresh token deleted (userId: ${userId})`,
-      );
+      this.logger.log(`Refresh token deleted (userId: ${userId})`);
     } catch (e) {
-      this.loggerService.error(
-        `[AuthService] Failed to delete refresh token (userId: ${userId} / error: ${e.message})`,
+      this.logger.warn(
+        `Failed to delete refresh token (userId: ${userId} / error: ${e.message})`,
       );
       throw e;
     }
@@ -353,22 +336,20 @@ export class AuthService {
       } else {
         await queryRunner.commitTransaction();
         if (shouldLog) {
-          this.loggerService.log(
-            `[AuthService] Access token saved (userId: ${dto.userId})`,
-          );
+          this.logger.log(`Access token saved (userId: ${dto.userId})`);
         }
         return savedAccessToken;
       }
     } catch (e) {
       await queryRunner.rollbackTransaction();
       if (e.code === '23505') {
-        this.loggerService.error(
-          `[AuthService] Failed to save access token (userId: ${dto.userId} / error: Such access token already exists)`,
+        this.logger.warn(
+          `Failed to save access token (userId: ${dto.userId} / error: Such access token already exists)`,
         );
         throw new ConflictException('Such access token already exists');
       } else {
-        this.loggerService.error(
-          `[AuthService] Failed to save access token (userId: ${dto.userId} / error: ${e.message})`,
+        this.logger.error(
+          `Failed to save access token (userId: ${dto.userId} / error: ${e.message})`,
         );
         throw e;
       }
@@ -380,12 +361,10 @@ export class AuthService {
   async deleteAccessToken(userId: number): Promise<void> {
     try {
       await this.accessTokenRepository.deleteAccessToken(userId);
-      this.loggerService.log(
-        `[AuthService] Access token deleted (userId: ${userId})`,
-      );
+      this.logger.log(`Access token deleted (userId: ${userId})`);
     } catch (e) {
-      this.loggerService.error(
-        `[AuthService] Failed to delete access token (userId: ${userId} / error: ${e.message})`,
+      this.logger.warn(
+        `Failed to delete access token (userId: ${userId} / error: ${e.message})`,
       );
       throw e;
     }

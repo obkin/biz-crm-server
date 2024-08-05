@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { LoggerService } from 'src/common/logger/logger.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from 'src/modules/users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -20,7 +19,6 @@ import {
     RefreshTokenRepository,
     AccessTokenRepository,
     ConfigService,
-    LoggerService,
   ],
   imports: [
     TypeOrmModule.forFeature([RefreshTokenEntity, AccessTokenEntity]),
