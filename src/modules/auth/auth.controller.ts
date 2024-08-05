@@ -8,6 +8,7 @@ import {
   HttpStatus,
   Post,
   Query,
+  Req,
   UsePipes,
 } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -22,6 +23,7 @@ import { RefreshTokenEntity } from './entities/refresh-token.entity';
 import { AccessTokenEntity } from './entities/access-token.entity';
 import { idValidationPipe } from 'src/common/pipes/validate-id.pipe';
 import { Public } from 'src/common/decorators/public.decorator';
+import { Request } from 'express';
 
 @ApiTags('auth')
 @Controller('/auth')
@@ -107,9 +109,10 @@ export class AuthController {
   @ApiQuery({ name: 'userId', required: true, description: 'ID of the user' })
   @UsePipes(new idValidationPipe())
   @Delete('/logout')
-  async logout(@Query('userId') userId: number) {
+  async logout(@Req() req: Request) {
     try {
-      await this.authService.userLogout(Number(userId));
+      const userId = Number(req.user.id);
+      await this.authService.userLogout(userId);
       return { userId, message: 'User logged out' };
     } catch (e) {
       if (e instanceof HttpException) {
