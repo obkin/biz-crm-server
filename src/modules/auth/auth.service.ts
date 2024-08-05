@@ -395,4 +395,25 @@ export class AuthService {
       throw e;
     }
   }
+
+  // --- Methods ---
+
+  public async checkIsUserLoggedIn(userId: number): Promise<boolean> {
+    try {
+      const accessToken =
+        await this.accessTokenRepository.findAccessTokenByUserId(userId);
+      if (!accessToken) {
+        this.logger.warn('Access token not found');
+      }
+      const refreshToken =
+        await this.refreshTokenRepository.findRefreshTokenByUserId(userId);
+      if (!refreshToken) {
+        this.logger.warn('Refresh token not found');
+        return false;
+      }
+      return true;
+    } catch (e) {
+      throw e;
+    }
+  }
 }

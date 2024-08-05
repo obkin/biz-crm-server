@@ -34,11 +34,22 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     try {
+      const isUserLoggined = await this.authService.checkIsUserLoggedIn(
+        this.getUserIdFromToken(token),
+      );
+      if (!isUserLoggined) {
+        throw new UnauthorizedException('[JwtAuthGuard] User is not logged in');
+      }
+    } catch (e) {
+      throw e;
+    }
+
+    try {
       const payload = this.jwtService.verify(token);
       request.user = payload;
     } catch (e) {
       if (e.name === 'TokenExpiredError') {
-        const userId = Number(this.getUserIdFromExpiredToken(token));
+        const userId = Number(this.getUserIdFromToken(token));
         const refreshToken = await this.authService.getRefreshToken(userId);
         if (!refreshToken) {
           throw new UnauthorizedException(
@@ -73,7 +84,7 @@ export class JwtAuthGuard implements CanActivate {
     return type === 'Bearer' ? token : undefined;
   }
 
-  private getUserIdFromExpiredToken(token: string): number | undefined {
+  private getUserIdFromToken(token: string): number | undefined {
     try {
       const payload = this.jwtService.decode(token) as any;
       return payload.id ? payload.id : undefined;
