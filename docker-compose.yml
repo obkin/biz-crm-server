@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   database:
+    container_name: bc-database
     image: postgres:latest
     env_file:
       - .dev.env
@@ -13,11 +14,13 @@ services:
       - postgres-data:/var/lib/postgresql/data
 
   redis:
+    container_name: bc-redis
     image: redis:latest
     ports:
       - "6379:6379"
 
-  app:
+  server:
+    container_name: bc-server
     build:
       context: .
     env_file:
