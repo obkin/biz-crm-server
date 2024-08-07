@@ -12,6 +12,8 @@ import {
   RefreshTokenRepository,
 } from './auth.repository';
 import { RedisModule } from '../redis/redis.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { AuthEventListener } from './events/auth-event.listener';
 
 @Module({
   controllers: [AuthController],
@@ -20,6 +22,7 @@ import { RedisModule } from '../redis/redis.module';
     RefreshTokenRepository,
     AccessTokenRepository,
     ConfigService,
+    AuthEventListener,
   ],
   imports: [
     TypeOrmModule.forFeature([RefreshTokenEntity, AccessTokenEntity]),
@@ -30,6 +33,7 @@ import { RedisModule } from '../redis/redis.module';
       }),
       inject: [ConfigService],
     }),
+    EventEmitterModule.forRoot(),
     UsersModule,
     RedisModule,
   ],

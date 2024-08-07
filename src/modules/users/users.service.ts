@@ -132,7 +132,7 @@ export class UsersService {
     }
     try {
       await this.usersRepository.deleteUser(id);
-      this.eventEmitter.emit('user.deleted', { userId: id });
+      this.eventEmitter.emit('auth.userLogout', { userId: id });
     } catch (e) {
       throw e;
     }
