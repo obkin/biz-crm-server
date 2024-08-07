@@ -17,6 +17,7 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { HttpErrorFilter } from './common/filters/http-error.filter';
 import { LoggerInterceptor } from './common/interceptors/logging.interceptor';
+import { RedisModule } from './modules/redis/redis.module';
 
 @Module({
   controllers: [],
@@ -50,6 +51,7 @@ import { LoggerInterceptor } from './common/interceptors/logging.interceptor';
       isGlobal: true,
     }),
     DatabaseModule,
+    RedisModule,
     UsersModule,
     AuthModule,
     EmailModule,

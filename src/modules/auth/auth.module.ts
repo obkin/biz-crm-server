@@ -11,6 +11,7 @@ import {
   AccessTokenRepository,
   RefreshTokenRepository,
 } from './auth.repository';
+import { RedisModule } from '../redis/redis.module';
 
 @Module({
   controllers: [AuthController],
@@ -30,6 +31,7 @@ import {
       inject: [ConfigService],
     }),
     UsersModule,
+    RedisModule,
   ],
   exports: [AuthService, JwtModule],
 })

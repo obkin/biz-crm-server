@@ -26,6 +26,7 @@ import { IUserTokens } from './interfaces';
 import { DataSource } from 'typeorm';
 import { RefreshTokenEntity } from './entities/refresh-token.entity';
 import { AccessTokenEntity } from './entities/access-token.entity';
+import { RedisService } from '../redis/redis.service';
 
 @Injectable()
 export class AuthService {
@@ -38,6 +39,7 @@ export class AuthService {
     private readonly refreshTokenRepository: RefreshTokenRepository,
     private readonly accessTokenRepository: AccessTokenRepository,
     private readonly dataSource: DataSource,
+    private readonly redisService: RedisService,
   ) {}
 
   async userRegister(dto: UserRegisterDto): Promise<UserEntity> {
@@ -400,17 +402,39 @@ export class AuthService {
 
   public async checkIsUserLoggedIn(userId: number): Promise<boolean> {
     try {
-      const accessToken =
-        await this.accessTokenRepository.findAccessTokenByUserId(userId);
+      const redisClient = this.redisService.getClient();
+
+      let accessToken = await redisClient.get(`access_token:${userId}`);
       if (!accessToken) {
-        this.logger.warn('Access token not found');
+        this.logger.log('Access token not found in Redis, fetching from database');
+        const dbAccessToken =
+          await this.accessTokenRepository.findAccessTokenByUserId(userId);
+        if (dbAccessToken) {
+          accessToken = dbAccessToken.accessToken;
+          await redisClient.set(`access_token:${userId}`, accessToken, 'EX', 3600); // 1h
+        } else {
+          this.logger.warn('Access token not found in database');
+        }
+      } else {
+        this.logger.log('Access token tooked from Redis');
       }
-      const refreshToken =
-        await this.refreshTokenRepository.findRefreshTokenByUserId(userId);
+
+      let refreshToken = await redisClient.get(`refresh_token:${userId}`);
       if (!refreshToken) {
-        this.logger.warn('Refresh token not found');
-        return false;
+        this.logger.log('Refresh token not found in Redis, fetching from database');
+        const dbRefreshToken =
+          await this.refreshTokenRepository.findRefreshTokenByUserId(userId);
+        if (dbRefreshToken) {
+          refreshToken = dbRefreshToken.refreshToken;
+          await redisClient.set(`refresh_token:${userId}`, refreshToken, 'EX', 86400); // 1 day
+        } else {
+          this.logger.warn('Refresh token not found in database');
+          return false;
+        }
+      } else {
+        this.logger.log('Refresh token tooked from Redis');
       }
+
       return true;
     } catch (e) {
       throw e;
