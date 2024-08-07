@@ -406,12 +406,19 @@ export class AuthService {
 
       let accessToken = await redisClient.get(`access_token:${userId}`);
       if (!accessToken) {
-        this.logger.log('Access token not found in Redis, fetching from database');
+        this.logger.log(
+          'Access token not found in Redis, fetching from database',
+        );
         const dbAccessToken =
           await this.accessTokenRepository.findAccessTokenByUserId(userId);
         if (dbAccessToken) {
           accessToken = dbAccessToken.accessToken;
-          await redisClient.set(`access_token:${userId}`, accessToken, 'EX', 3600); // 1h
+          await redisClient.set(
+            `access_token:${userId}`,
+            accessToken,
+            'EX',
+            3600,
+          ); // 1h
         } else {
           this.logger.warn('Access token not found in database');
         }
@@ -421,12 +428,19 @@ export class AuthService {
 
       let refreshToken = await redisClient.get(`refresh_token:${userId}`);
       if (!refreshToken) {
-        this.logger.log('Refresh token not found in Redis, fetching from database');
+        this.logger.log(
+          'Refresh token not found in Redis, fetching from database',
+        );
         const dbRefreshToken =
           await this.refreshTokenRepository.findRefreshTokenByUserId(userId);
         if (dbRefreshToken) {
           refreshToken = dbRefreshToken.refreshToken;
-          await redisClient.set(`refresh_token:${userId}`, refreshToken, 'EX', 86400); // 1 day
+          await redisClient.set(
+            `refresh_token:${userId}`,
+            refreshToken,
+            'EX',
+            86400,
+          ); // 1 day
         } else {
           this.logger.warn('Refresh token not found in database');
           return false;
