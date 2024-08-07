@@ -15,6 +15,7 @@ import { ChangeUserEmailDto } from './dto/change-user-email.dto';
 import { ChangeUserPasswordDto } from './dto/change-user-password.dto';
 import { genSalt, hash, compare } from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class UsersService {
@@ -22,6 +23,7 @@ export class UsersService {
     private readonly usersRepository: UsersRepository,
     private readonly rolesService: RolesService,
     private readonly configService: ConfigService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async createNewUser(dto: UserRegisterDto): Promise<UserEntity> {
@@ -129,7 +131,8 @@ export class UsersService {
       throw new ForbiddenException('This user is admin');
     }
     try {
-      return await this.usersRepository.deleteUser(id);
+      await this.usersRepository.deleteUser(id);
+      this.eventEmitter.emit('user.deleted', { userId: id });
     } catch (e) {
       throw e;
     }

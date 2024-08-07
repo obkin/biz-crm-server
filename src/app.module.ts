@@ -18,6 +18,7 @@ import { RolesGuard } from './common/guards/roles.guard';
 import { HttpErrorFilter } from './common/filters/http-error.filter';
 import { LoggerInterceptor } from './common/interceptors/logging.interceptor';
 import { RedisModule } from './modules/redis/redis.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   controllers: [],
@@ -56,6 +57,7 @@ import { RedisModule } from './modules/redis/redis.module';
     AuthModule,
     EmailModule,
     RolesModule,
+    EventEmitterModule.forRoot(),
   ],
   exports: [],
 })
