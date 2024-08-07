@@ -131,8 +131,8 @@ export class UsersService {
       throw new ForbiddenException('This user is admin');
     }
     try {
-      await this.usersRepository.deleteUser(id);
       this.eventEmitter.emit('auth.userLogout', { userId: id });
+      await this.usersRepository.deleteUser(id);
     } catch (e) {
       throw e;
     }
