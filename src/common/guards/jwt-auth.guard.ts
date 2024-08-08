@@ -29,14 +29,13 @@ export class JwtAuthGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest<Request>();
     const token = this.extractTokenFromHeader(request);
-    const userId = Number(this.getUserIdFromToken(token));
-
     if (!token) {
       throw new UnauthorizedException(
         '[JwtAuthGuard] User is not identified. Access token is missing',
       );
     }
 
+    const userId = Number(this.getUserIdFromToken(token));
     const isUserLoggined = await this.authService.checkIsUserLoggedIn(userId);
     if (!isUserLoggined) {
       throw new UnauthorizedException('[JwtAuthGuard] User is not logged in');
