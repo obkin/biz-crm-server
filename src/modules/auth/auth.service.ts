@@ -27,6 +27,7 @@ import { DataSource } from 'typeorm';
 import { RefreshTokenEntity } from './entities/refresh-token.entity';
 import { AccessTokenEntity } from './entities/access-token.entity';
 import { RedisService } from '../redis/redis.service';
+import { Request } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -181,7 +182,7 @@ export class AuthService {
       const storedToken =
         await this.refreshTokenRepository.findRefreshTokenByUserId(userId);
       if (!storedToken || storedToken.refreshToken !== refreshToken) {
-        throw new UnauthorizedException('Invalid refresh token');
+        throw new UnauthorizedException('Invalid refresh token / not found');
       }
 
       const user = await this.usersService.getUserById(userId);
@@ -271,6 +272,7 @@ export class AuthService {
   async deleteRefreshToken(userId: number): Promise<void> {
     try {
       await this.refreshTokenRepository.deleteRefreshToken(userId);
+      await this.redisService.del(`refresh_token:${userId}`);
       this.logger.log(`Refresh token deleted (userId: ${userId})`);
     } catch (e) {
       this.logger.warn(
@@ -363,6 +365,7 @@ export class AuthService {
   async deleteAccessToken(userId: number): Promise<void> {
     try {
       await this.accessTokenRepository.deleteAccessToken(userId);
+      await this.redisService.del(`access_token:${userId}`);
       this.logger.log(`Access token deleted (userId: ${userId})`);
     } catch (e) {
       this.logger.warn(
@@ -399,6 +402,52 @@ export class AuthService {
   }
 
   // --- Methods ---
+
+  // public async verifyUser(request: Request, accessToken: string) {
+  //   const userId = Number(this.getUserIdFromToken(accessToken));
+  //   if (!userId) {
+  //     throw new ConflictException('There is no userId in token payload');
+  //   }
+
+  //   try {
+  //     const isUserLoggined = await this.checkIsUserLoggedIn(userId);
+  //     if (!isUserLoggined) {
+  //       throw new UnauthorizedException('User is not logged in');
+  //     }
+
+  //     const payload = this.jwtService.verify(accessToken);
+  //     request.user = payload;
+  //   } catch (e) {
+  //     if (e.name === 'TokenExpiredError') {
+  //       const refreshToken = await this.getRefreshToken(userId);
+  //       if (!refreshToken) {
+  //         throw new UnauthorizedException('Refresh token is missing');
+  //       }
+
+  //       try {
+  //         const newAccessToken = await this.refreshAccessToken(
+  //           refreshToken.refreshToken,
+  //         );
+  //         request.headers.authorization = `Bearer ${newAccessToken}`;
+  //         const payload = this.jwtService.verify(newAccessToken);
+  //         request.user = payload;
+  //       } catch (refreshError) {
+  //         throw new UnauthorizedException('Invalid refresh token');
+  //       }
+  //     } else {
+  //       throw new UnauthorizedException(`Invalid access token: ${e}`);
+  //     }
+  //   }
+  // }
+
+  // private getUserIdFromToken(token: string): number | undefined {
+  //   try {
+  //     const payload = this.jwtService.decode(token) as any;
+  //     return payload.id ? payload.id : undefined;
+  //   } catch (e) {
+  //     return undefined;
+  //   }
+  // }
 
   public async checkIsUserLoggedIn(userId: number): Promise<boolean> {
     try {
