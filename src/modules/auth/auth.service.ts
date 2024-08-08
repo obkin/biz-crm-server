@@ -403,52 +403,6 @@ export class AuthService {
 
   // --- Methods ---
 
-  // public async verifyUser(request: Request, accessToken: string) {
-  //   const userId = Number(this.getUserIdFromToken(accessToken));
-  //   if (!userId) {
-  //     throw new ConflictException('There is no userId in token payload');
-  //   }
-
-  //   try {
-  //     const isUserLoggined = await this.checkIsUserLoggedIn(userId);
-  //     if (!isUserLoggined) {
-  //       throw new UnauthorizedException('User is not logged in');
-  //     }
-
-  //     const payload = this.jwtService.verify(accessToken);
-  //     request.user = payload;
-  //   } catch (e) {
-  //     if (e.name === 'TokenExpiredError') {
-  //       const refreshToken = await this.getRefreshToken(userId);
-  //       if (!refreshToken) {
-  //         throw new UnauthorizedException('Refresh token is missing');
-  //       }
-
-  //       try {
-  //         const newAccessToken = await this.refreshAccessToken(
-  //           refreshToken.refreshToken,
-  //         );
-  //         request.headers.authorization = `Bearer ${newAccessToken}`;
-  //         const payload = this.jwtService.verify(newAccessToken);
-  //         request.user = payload;
-  //       } catch (refreshError) {
-  //         throw new UnauthorizedException('Invalid refresh token');
-  //       }
-  //     } else {
-  //       throw new UnauthorizedException(`Invalid access token: ${e}`);
-  //     }
-  //   }
-  // }
-
-  // private getUserIdFromToken(token: string): number | undefined {
-  //   try {
-  //     const payload = this.jwtService.decode(token) as any;
-  //     return payload.id ? payload.id : undefined;
-  //   } catch (e) {
-  //     return undefined;
-  //   }
-  // }
-
   public async checkIsUserLoggedIn(userId: number): Promise<boolean> {
     try {
       const redisClient = this.redisService.getClient();
@@ -460,16 +414,11 @@ export class AuthService {
         );
         const dbAccessToken =
           await this.accessTokenRepository.findAccessTokenByUserId(userId);
-        if (dbAccessToken) {
-          accessToken = dbAccessToken.accessToken;
-          await redisClient.set(
-            `access_token:${userId}`,
-            accessToken,
-            'EX',
-            3600, // 1h
+        if (!dbAccessToken) {
+          this.logger.warn(
+            'Access token not found in database, fetching refresh token',
           );
-        } else {
-          this.logger.warn('Access token not found in database');
+
           let refreshToken = await redisClient.get(`refresh_token:${userId}`);
           if (!refreshToken) {
             this.logger.warn(
@@ -479,21 +428,35 @@ export class AuthService {
               await this.refreshTokenRepository.findRefreshTokenByUserId(
                 userId,
               );
-            if (dbRefreshToken) {
+            if (!dbRefreshToken) {
+              this.logger.warn('Refresh token not found in database');
+              return false;
+            } else {
               refreshToken = dbRefreshToken.refreshToken;
               await redisClient.set(
                 `refresh_token:${userId}`,
                 refreshToken,
                 'EX',
-                86400, // 1 day
+                Number(
+                  this.configService.get<number>('REDIS_REFRESH_TOKEN_LIFE'),
+                ),
               );
-            } else {
-              this.logger.warn('Refresh token not found in database');
-              return false;
+              this.logger.log(
+                'Refresh token found in database, saved into Redis',
+              );
             }
           } else {
             this.logger.log('Refresh token has taken from Redis');
           }
+        } else {
+          accessToken = dbAccessToken.accessToken;
+          await redisClient.set(
+            `access_token:${userId}`,
+            accessToken,
+            'EX',
+            Number(this.configService.get<number>('REDIS_ACCESS_TOKEN_LIFE')),
+          );
+          this.logger.log('Access token found in database, saved into Redis');
         }
       } else {
         this.logger.log('Access token has taken from Redis');
