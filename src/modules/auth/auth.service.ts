@@ -27,7 +27,6 @@ import { DataSource } from 'typeorm';
 import { RefreshTokenEntity } from './entities/refresh-token.entity';
 import { AccessTokenEntity } from './entities/access-token.entity';
 import { RedisService } from '../redis/redis.service';
-import { Request } from 'express';
 
 @Injectable()
 export class AuthService {

@@ -29,27 +29,24 @@ export class JwtAuthGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest<Request>();
     const token = this.extractTokenFromHeader(request);
+    const userId = Number(this.getUserIdFromToken(token));
+
     if (!token) {
-      throw new UnauthorizedException('[JwtAuthGuard] Access token is missing');
-    }
-
-    try {
-      const isUserLoggined = await this.authService.checkIsUserLoggedIn(
-        this.getUserIdFromToken(token),
+      throw new UnauthorizedException(
+        '[JwtAuthGuard] User is not identified. Access token is missing',
       );
-      if (!isUserLoggined) {
-        throw new UnauthorizedException('[JwtAuthGuard] User is not logged in');
-      }
-    } catch (e) {
-      throw e;
+    }
+
+    const isUserLoggined = await this.authService.checkIsUserLoggedIn(userId);
+    if (!isUserLoggined) {
+      throw new UnauthorizedException('[JwtAuthGuard] User is not logged in');
     }
 
     try {
-      const payload = this.jwtService.verify(token);
-      request.user = payload;
+      const verifiedAccessToken = this.jwtService.verify(token);
+      request.user = verifiedAccessToken;
     } catch (e) {
       if (e.name === 'TokenExpiredError') {
-        const userId = Number(this.getUserIdFromToken(token));
         const refreshToken = await this.authService.getRefreshToken(userId);
         if (!refreshToken) {
           throw new UnauthorizedException(
