@@ -455,7 +455,7 @@ export class AuthService {
 
       let accessToken = await redisClient.get(`access_token:${userId}`);
       if (!accessToken) {
-        this.logger.log(
+        this.logger.warn(
           'Access token not found in Redis, fetching from database',
         );
         const dbAccessToken =
@@ -466,36 +466,37 @@ export class AuthService {
             `access_token:${userId}`,
             accessToken,
             'EX',
-            3600,
-          ); // 1h
+            3600, // 1h
+          );
         } else {
           this.logger.warn('Access token not found in database');
+          let refreshToken = await redisClient.get(`refresh_token:${userId}`);
+          if (!refreshToken) {
+            this.logger.warn(
+              'Refresh token not found in Redis, fetching from database',
+            );
+            const dbRefreshToken =
+              await this.refreshTokenRepository.findRefreshTokenByUserId(
+                userId,
+              );
+            if (dbRefreshToken) {
+              refreshToken = dbRefreshToken.refreshToken;
+              await redisClient.set(
+                `refresh_token:${userId}`,
+                refreshToken,
+                'EX',
+                86400, // 1 day
+              );
+            } else {
+              this.logger.warn('Refresh token not found in database');
+              return false;
+            }
+          } else {
+            this.logger.log('Refresh token has taken from Redis');
+          }
         }
       } else {
-        this.logger.log('Access token tooked from Redis');
-      }
-
-      let refreshToken = await redisClient.get(`refresh_token:${userId}`);
-      if (!refreshToken) {
-        this.logger.log(
-          'Refresh token not found in Redis, fetching from database',
-        );
-        const dbRefreshToken =
-          await this.refreshTokenRepository.findRefreshTokenByUserId(userId);
-        if (dbRefreshToken) {
-          refreshToken = dbRefreshToken.refreshToken;
-          await redisClient.set(
-            `refresh_token:${userId}`,
-            refreshToken,
-            'EX',
-            86400,
-          ); // 1 day
-        } else {
-          this.logger.warn('Refresh token not found in database');
-          return false;
-        }
-      } else {
-        this.logger.log('Refresh token tooked from Redis');
+        this.logger.log('Access token has taken from Redis');
       }
 
       return true;
