@@ -67,6 +67,11 @@ export class AuthService {
         throw new BadRequestException('Wrong password');
       }
 
+      const isUserLoggined = await this.checkIsUserLoggedIn(validatedUser.id);
+      if (isUserLoggined) {
+        await this.userLogout(validatedUser.id);
+      }
+
       const JWTtokens = await this.generateTokens(validatedUser);
       const user = await this.usersService.getUserByEmail(validatedUser.email);
 
