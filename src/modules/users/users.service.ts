@@ -26,7 +26,7 @@ export class UsersService {
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
-  async createNewUser(dto: UserRegisterDto): Promise<UserEntity> {
+  async createUser(dto: UserRegisterDto): Promise<UserEntity> {
     try {
       const existingUser = await this.usersRepository.getUserByEmail(dto.email);
       if (existingUser) {
@@ -34,7 +34,7 @@ export class UsersService {
       }
 
       const hashedPassword = await this.hashPassword(dto.password);
-      return await this.usersRepository.createNewUser({
+      return await this.usersRepository.createUser({
         ...dto,
         password: hashedPassword,
       });

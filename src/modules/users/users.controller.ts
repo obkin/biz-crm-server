@@ -51,7 +51,7 @@ export class UsersController {
   @Post('/create')
   async createUser(@Body() dto: UserRegisterDto) {
     try {
-      return await this.usersService.createNewUser(dto);
+      return await this.usersService.createUser(dto);
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;

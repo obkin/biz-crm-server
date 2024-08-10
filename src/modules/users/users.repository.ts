@@ -17,7 +17,7 @@ export class UsersRepository {
     private readonly usersRepository: Repository<UserEntity>,
   ) {}
 
-  async createNewUser(dto: UserRegisterDto): Promise<UserEntity> {
+  async createUser(dto: UserRegisterDto): Promise<UserEntity> {
     try {
       const user = this.usersRepository.create(dto);
       return await this.usersRepository.save(user);
