@@ -80,6 +80,9 @@ export class JwtAuthGuard implements CanActivate {
       }
     }
 
+    this.logger.log(
+      `user: { id: ${userId}, email: ${request.user?.email}, roles: ${request.user?.roles} }`,
+    );
     return true;
   }
 

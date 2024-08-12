@@ -8,11 +8,11 @@ import { UserEntity } from 'src/modules/users/entities/user.entity';
 import { RolesModule } from '../roles/roles.module';
 import { JwtModule } from '@nestjs/jwt';
 import { UserBlockHistoryEntity } from './entities/user-block-history.entity';
-import { LoggerInterceptor } from 'src/common/interceptors/logging.interceptor';
+import { ResponseLogger } from 'src/common/interceptors/response-logger.interceptor';
 
 @Module({
   controllers: [UsersController],
-  providers: [UsersService, UsersRepository, ConfigService, LoggerInterceptor],
+  providers: [UsersService, UsersRepository, ConfigService, ResponseLogger],
   imports: [
     ConfigModule,
     TypeOrmModule.forFeature([UserEntity, UserBlockHistoryEntity]),

@@ -1,4 +1,9 @@
-import { Module, ValidationPipe } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  NestModule,
+  Module,
+  ValidationPipe,
+} from '@nestjs/common';
 import { UsersModule } from './modules/users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { LoggerService } from 'src/common/logger/logger.service';
@@ -16,9 +21,10 @@ import {
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { HttpErrorFilter } from './common/filters/http-error.filter';
-import { LoggerInterceptor } from './common/interceptors/logging.interceptor';
 import { RedisModule } from './modules/redis/redis.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ResponseLogger } from './common/interceptors/response-logger.interceptor';
+import { RequestLogger } from './common/middlewares/request-logger.middleware';
 
 @Module({
   controllers: [],
@@ -37,7 +43,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     },
     {
       provide: APP_INTERCEPTOR,
-      useClass: LoggerInterceptor,
+      useClass: ResponseLogger,
     },
     {
       provide: APP_PIPE,
@@ -61,4 +67,8 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
   ],
   exports: [],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(RequestLogger).forRoutes('*');
+  }
+}
