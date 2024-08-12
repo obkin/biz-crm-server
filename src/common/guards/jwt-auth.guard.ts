@@ -3,6 +3,7 @@ import {
   CanActivate,
   ExecutionContext,
   UnauthorizedException,
+  Logger,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Reflector } from '@nestjs/core';
@@ -12,6 +13,8 @@ import { AuthService } from 'src/modules/auth/auth.service';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
+  private readonly logger = new Logger(JwtAuthGuard.name);
+
   constructor(
     private jwtService: JwtService,
     private reflector: Reflector,
@@ -30,6 +33,7 @@ export class JwtAuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<Request>();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
+      this.logger.warn('User is not identified. Access token is missing');
       throw new UnauthorizedException(
         '[JwtAuthGuard] User is not identified. Access token is missing',
       );
@@ -38,6 +42,7 @@ export class JwtAuthGuard implements CanActivate {
     const userId = Number(this.getUserIdFromToken(token));
     const isUserLoggined = await this.authService.checkIsUserLoggedIn(userId);
     if (!isUserLoggined) {
+      this.logger.warn('User is not logged in');
       throw new UnauthorizedException('[JwtAuthGuard] User is not logged in');
     }
 
@@ -48,6 +53,7 @@ export class JwtAuthGuard implements CanActivate {
       if (e.name === 'TokenExpiredError') {
         const refreshToken = await this.authService.getRefreshToken(userId);
         if (!refreshToken) {
+          this.logger.warn('Refresh token is missing');
           throw new UnauthorizedException(
             '[JwtAuthGuard] Refresh token is missing',
           );
@@ -61,11 +67,13 @@ export class JwtAuthGuard implements CanActivate {
           const payload = this.jwtService.verify(newAccessToken);
           request.user = payload;
         } catch (refreshError) {
+          this.logger.warn('Invalid refresh token');
           throw new UnauthorizedException(
             '[JwtAuthGuard] Invalid refresh token',
           );
         }
       } else {
+        this.logger.warn(`Invalid access token: ${e}`);
         throw new UnauthorizedException(
           `[JwtAuthGuard] Invalid access token: ${e}`,
         );

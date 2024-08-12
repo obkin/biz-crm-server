@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class LoggerInterceptor implements NestInterceptor {
@@ -17,7 +18,9 @@ export class LoggerInterceptor implements NestInterceptor {
     const { method, url } = request;
     const userId = request.user?.id;
     const startTime = Date.now();
+    const requestId = uuidv4();
 
+    console.log(`\nNew request: [${requestId}]`);
     this.logger.log(
       `Req: { method: ${method}, path: ${url}, userId: ${userId} }`,
     );
@@ -35,6 +38,7 @@ export class LoggerInterceptor implements NestInterceptor {
           `Res: { method: ${method}, path: ${url}, status: ${statusCode}, ` +
             `userId: ${userId}, duration: ${duration}ms, responseSize: ${contentLength || 0} bytes }`,
         );
+        console.log(`Request is complete \n`);
       }),
     );
   }

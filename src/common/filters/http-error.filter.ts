@@ -39,7 +39,7 @@ export class HttpErrorFilter implements ExceptionFilter {
       errorResponse.message = [error];
     }
 
-    const logMessage = `Res: { method: ${request.method}, path: ${request.url}, statusCode: ${status}, userId: ${userId}, message: ${exception.message} }`;
+    const logMessage = `Res: { method: ${request.method}, path: ${request.url}, statusCode: ${status}, userId: ${userId}, message: ${exception.message} }\n`;
 
     if (status >= 500) {
       this.logger.error(logMessage, exception.stack);

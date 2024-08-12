@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { UserRegisterDto } from '../auth/dto/user-register.dto';
@@ -19,6 +20,8 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
+
   constructor(
     private readonly usersRepository: UsersRepository,
     private readonly rolesService: RolesService,
@@ -34,10 +37,15 @@ export class UsersService {
       }
 
       const hashedPassword = await this.hashPassword(dto.password);
-      return await this.usersRepository.createUser({
+      const newUser = await this.usersRepository.createUser({
         ...dto,
         password: hashedPassword,
       });
+
+      this.logger.log(
+        `New user created (email: ${newUser.email} / userId: ${newUser.id})`,
+      );
+      return newUser;
     } catch (e) {
       throw e;
     }
