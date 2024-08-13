@@ -5,7 +5,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { UsersModule } from './modules/users/users.module';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { LoggerService } from 'src/common/logger/logger.service';
 import { DatabaseModule } from './modules/database/database.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -26,6 +26,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ResponseLogger } from './common/interceptors/response-logger.interceptor';
 import { RequestLogger } from './common/middlewares/request-logger.middleware';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerConfigService } from './common/config/throttler-config.service';
 
 @Module({
   controllers: [],
@@ -64,13 +65,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
     }),
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => [
-        {
-          ttl: config.get('THROTTLE_TTL'),
-          limit: config.get('THROTTLE_LIMIT'),
-        },
-      ],
+      useClass: ThrottlerConfigService,
     }),
     EventEmitterModule.forRoot(),
     DatabaseModule,
