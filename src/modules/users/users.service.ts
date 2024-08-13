@@ -53,17 +53,25 @@ export class UsersService {
 
   async changeUserName(
     id: number,
-    chaneUserNameDto: ChangeUserNameDto,
+    changeUserNameDto: ChangeUserNameDto,
   ): Promise<UserEntity> {
     try {
       const user = await this.usersRepository.getUserById(id);
       if (!user) {
         throw new NotFoundException('User not found');
       }
-      if (user.username === chaneUserNameDto.newName) {
+      if (user.username === changeUserNameDto.newName) {
         throw new BadRequestException('Enter a new name');
       }
-      return await this.usersRepository.changeUserName(user, chaneUserNameDto);
+      const oldName = user.username;
+      const userWithNewName = await this.usersRepository.changeUserName(
+        user,
+        changeUserNameDto,
+      );
+      this.logger.log(
+        `User name changed (userId: ${user.id}, oldName: ${oldName}, newName: ${changeUserNameDto.newName})`,
+      );
+      return userWithNewName;
     } catch (e) {
       throw e;
     }

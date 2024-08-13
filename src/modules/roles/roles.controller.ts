@@ -87,7 +87,7 @@ export class RolesController {
   @Put('/update/:id')
   async updateRole(@Param('id') id: number, @Body() dto: UpdateRoleDto) {
     try {
-      return await this.rolesService.updateRole(id, dto);
+      return await this.rolesService.updateRole(Number(id), dto);
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;

@@ -3,7 +3,7 @@ import { BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
 @Injectable()
 export class UserNameValidationPipe implements PipeTransform<any> {
   transform(value: any) {
-    const username = value.username;
+    const username = value.username ? value.username : value.newName;
     if (!/^[A-Za-zА-Яа-яЁёЇїІіЄєҐґ]+$/.test(username.replace(/\s/g, ''))) {
       throw new BadRequestException('User name must contain only letters');
     }
