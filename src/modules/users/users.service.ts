@@ -60,10 +60,10 @@ export class UsersService {
       if (!user) {
         throw new NotFoundException('User not found');
       }
-      if (user.username === changeUserNameDto.newName) {
+      const oldName = user.username;
+      if (oldName === changeUserNameDto.newName) {
         throw new BadRequestException('Enter a new name');
       }
-      const oldName = user.username;
       const userWithNewName = await this.usersRepository.changeUserName(
         user,
         changeUserNameDto,

@@ -86,7 +86,7 @@ export class UsersController {
   })
   @UsePipes(new UserNameValidationPipe())
   @Put('/change-name')
-  async chaneUserName(@Body() dto: ChangeUserNameDto, @Req() req: Request) {
+  async changeUserName(@Body() dto: ChangeUserNameDto, @Req() req: Request) {
     try {
       return await this.usersService.changeUserName(Number(req.user.id), dto);
     } catch (e) {
