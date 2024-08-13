@@ -5,7 +5,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { UsersModule } from './modules/users/users.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LoggerService } from 'src/common/logger/logger.service';
 import { DatabaseModule } from './modules/database/database.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -25,10 +25,15 @@ import { RedisModule } from './modules/redis/redis.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ResponseLogger } from './common/interceptors/response-logger.interceptor';
 import { RequestLogger } from './common/middlewares/request-logger.middleware';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   controllers: [],
   providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
@@ -56,6 +61,16 @@ import { RequestLogger } from './common/middlewares/request-logger.middleware';
     ConfigModule.forRoot({
       envFilePath: `.${process.env.NODE_ENV}.env`,
       isGlobal: true,
+    }),
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => [
+        {
+          ttl: config.get('THROTTLE_TTL'),
+          limit: config.get('THROTTLE_LIMIT'),
+        },
+      ],
     }),
     EventEmitterModule.forRoot(),
     DatabaseModule,
