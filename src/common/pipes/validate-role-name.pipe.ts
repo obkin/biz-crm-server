@@ -1,7 +1,7 @@
 import { PipeTransform, Injectable, BadRequestException } from '@nestjs/common';
 
 @Injectable()
-export class NameValidationPipe implements PipeTransform<any> {
+export class RoleNameValidationPipe implements PipeTransform<any> {
   transform(value: any) {
     if (value.name !== undefined) {
       if (typeof value.name !== 'string') {

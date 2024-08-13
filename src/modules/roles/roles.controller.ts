@@ -17,7 +17,7 @@ import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RoleEntity } from './entities/role.entity';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { idValidationPipe } from 'src/common/pipes/validate-id.pipe';
-import { NameValidationPipe } from 'src/common/pipes/validate-name.pipe';
+import { RoleNameValidationPipe } from 'src/common/pipes/validate-role-name.pipe';
 
 @ApiTags('roles')
 // @UseGuards(RolesGuard)
@@ -44,7 +44,7 @@ export class RolesController {
     status: 500,
     description: 'Internal Server Error',
   })
-  @UsePipes(new NameValidationPipe())
+  @UsePipes(new RoleNameValidationPipe())
   @Post('/create')
   async createRole(@Body() dto: CreateRoleDto) {
     try {
@@ -83,7 +83,7 @@ export class RolesController {
     status: 500,
     description: 'Internal Server Error',
   })
-  @UsePipes(new NameValidationPipe())
+  @UsePipes(new RoleNameValidationPipe())
   @Put('/update/:id')
   async updateRole(@Param('id') id: number, @Body() dto: UpdateRoleDto) {
     try {
