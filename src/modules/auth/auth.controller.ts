@@ -24,6 +24,7 @@ import { AccessTokenEntity } from './entities/access-token.entity';
 import { idValidationPipe } from 'src/common/pipes/validate-id.pipe';
 import { Public } from 'src/common/decorators/public.decorator';
 import { Request } from 'express';
+import { UserNameValidationPipe } from 'src/common/pipes/validate-user-name.pipe';
 
 @ApiTags('auth')
 @Controller('/auth')
@@ -45,6 +46,7 @@ export class AuthController {
     description: 'Internal Server Error',
   })
   @Public()
+  @UsePipes(new UserNameValidationPipe())
   @Post('/register')
   async register(@Body() dto: UserRegisterDto) {
     try {
