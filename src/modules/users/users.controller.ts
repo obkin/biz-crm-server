@@ -26,6 +26,7 @@ import { ChangeUserPasswordDto } from './dto/change-user-password.dto';
 import { Request } from 'express';
 import { AssignRoleDto } from './dto/assign-role.dto';
 import { RemoveRoleDto } from './dto/remove-role.dto';
+import { UserNameValidationPipe } from 'src/common/pipes/validate-user-name.pipe';
 
 @ApiTags('users')
 // @UseGuards(RolesGuard)
@@ -48,6 +49,7 @@ export class UsersController {
     status: 500,
     description: 'Internal Server Error',
   })
+  @UsePipes(new UserNameValidationPipe())
   @Post('/create')
   async createUser(@Body() dto: UserRegisterDto) {
     try {
@@ -82,6 +84,7 @@ export class UsersController {
     status: 500,
     description: 'Internal Server Error',
   })
+  @UsePipes(new UserNameValidationPipe())
   @Put('/change-name')
   async chaneUserName(@Body() dto: ChangeUserNameDto, @Req() req: Request) {
     try {
