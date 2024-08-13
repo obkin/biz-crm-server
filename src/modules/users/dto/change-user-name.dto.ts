@@ -4,7 +4,7 @@ import { IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
 export class ChangeUserNameDto {
   @ApiProperty({
     example: 'Michael',
-    description: 'The new username for the user',
+    description: 'A new username for the user',
   })
   @IsNotEmpty()
   @IsString()
