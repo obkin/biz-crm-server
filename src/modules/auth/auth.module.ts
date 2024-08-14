@@ -33,7 +33,7 @@ import { AuthEventListener } from './events/auth-event.listener';
       }),
       inject: [ConfigService],
     }),
-    EventEmitterModule.forRoot(),
+    EventEmitterModule,
     UsersModule,
     RedisModule,
   ],

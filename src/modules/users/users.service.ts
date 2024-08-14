@@ -103,6 +103,11 @@ export class UsersService {
       this.logger.log(
         `User email changed (userId: ${user.id}, oldEmail: ${oldEmail}, newEmail: ${changeUserEmailDto.newEmail})`,
       );
+      this.eventEmitter.emit('auth.userLogout', { userId: user.id });
+      this.eventEmitter.emit('user.emailChanged', {
+        userId: user.id,
+        newEmail: changeUserEmailDto.newEmail,
+      });
       return updatedUser;
     } catch (e) {
       throw e;
