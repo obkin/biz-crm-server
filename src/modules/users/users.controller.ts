@@ -124,7 +124,7 @@ export class UsersController {
     description: 'Internal Server Error',
   })
   @Put('/change-email')
-  async chaneUserEmail(@Body() dto: ChangeUserEmailDto, @Req() req: Request) {
+  async changeUserEmail(@Body() dto: ChangeUserEmailDto, @Req() req: Request) {
     try {
       return await this.usersService.changeUserEmail(Number(req.user.id), dto);
     } catch (e) {

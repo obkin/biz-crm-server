@@ -52,11 +52,11 @@ export class UsersService {
   }
 
   async changeUserName(
-    id: number,
+    userId: number,
     changeUserNameDto: ChangeUserNameDto,
   ): Promise<UserEntity> {
     try {
-      const user = await this.usersRepository.getUserById(id);
+      const user = await this.usersRepository.getUserById(userId);
       if (!user) {
         throw new NotFoundException('User not found');
       }
@@ -64,41 +64,46 @@ export class UsersService {
       if (oldName === changeUserNameDto.newName) {
         throw new BadRequestException('Enter a new name');
       }
-      const userWithNewName = await this.usersRepository.changeUserName(
+      const updatedUser = await this.usersRepository.changeUserName(
         user,
         changeUserNameDto,
       );
       this.logger.log(
         `User name changed (userId: ${user.id}, oldName: ${oldName}, newName: ${changeUserNameDto.newName})`,
       );
-      return userWithNewName;
+      return updatedUser;
     } catch (e) {
       throw e;
     }
   }
 
   async changeUserEmail(
-    id: number,
-    chaneUserEmailDto: ChangeUserEmailDto,
+    userId: number,
+    changeUserEmailDto: ChangeUserEmailDto,
   ): Promise<UserEntity> {
     try {
-      const user = await this.usersRepository.getUserById(id);
+      const user = await this.usersRepository.getUserById(userId);
       if (!user) {
         throw new NotFoundException('User not found');
       }
-      if (user.email === chaneUserEmailDto.newEmail) {
+      const oldEmail = user.email;
+      if (oldEmail === changeUserEmailDto.newEmail) {
         throw new BadRequestException('Enter a new email');
       }
       const emailTaken = await this.usersRepository.getUserByEmail(
-        chaneUserEmailDto.newEmail,
+        changeUserEmailDto.newEmail,
       );
       if (emailTaken) {
         throw new ConflictException('User with such email already exists');
       }
-      return await this.usersRepository.changeUserEmail(
+      const updatedUser = await this.usersRepository.changeUserEmail(
         user,
-        chaneUserEmailDto,
+        changeUserEmailDto,
       );
+      this.logger.log(
+        `User email changed (userId: ${user.id}, oldEmail: ${oldEmail}, newEmail: ${changeUserEmailDto.newEmail})`,
+      );
+      return updatedUser;
     } catch (e) {
       throw e;
     }
