@@ -4,6 +4,7 @@ import { EmailController } from './email.controller';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EmailCodeGenerator } from 'utils/email-code-generator';
+import { RedisModule } from '../redis/redis.module';
 
 @Module({
   providers: [EmailService, EmailCodeGenerator],
@@ -28,6 +29,7 @@ import { EmailCodeGenerator } from 'utils/email-code-generator';
       }),
       inject: [ConfigService],
     }),
+    RedisModule,
   ],
 })
 export class EmailModule {}

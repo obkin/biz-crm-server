@@ -7,7 +7,8 @@ import {
   Post,
 } from '@nestjs/common';
 import { EmailService } from './email.service';
-import { EmailDto } from './dto/email.dto';
+import { SendConfirmationCodeDto } from './dto/send-confirmation-code.dto';
+import { VerifyConfirmationCodeDto } from './dto/verify-confirmation-code.dto';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('email')
@@ -17,7 +18,7 @@ export class EmailController {
 
   @HttpCode(200)
   @Post('/send-code')
-  async sendCode(@Body() dto: EmailDto) {
+  async sendCode(@Body() dto: SendConfirmationCodeDto) {
     try {
       const generatedCode = await this.emailService.sendConfirmationCode(dto);
       return {
@@ -36,18 +37,20 @@ export class EmailController {
     }
   }
 
-  // async compareCodes(@Body() dto: string) {
-  //   try {
-  //     // ...
-  //   } catch (e) {
-  //     if (e instanceof ConflictException) {
-  //       throw new HttpException(`${e.message}`, HttpStatus.CONFLICT);
-  //     } else {
-  //       throw new HttpException(
-  //         `Failed to send confirmation code: ${e}`,
-  //         HttpStatus.INTERNAL_SERVER_ERROR,
-  //       );
-  //     }
-  //   }
-  // }
+  @HttpCode(200)
+  @Post('/verify-code')
+  async verifyConfirmationCode(@Body() dto: VerifyConfirmationCodeDto) {
+    try {
+      return await this.emailService.verifyConfirmationCode(dto);
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to verify confirmation code. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
 }
