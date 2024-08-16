@@ -72,6 +72,7 @@ export class EmailService {
       if (storedCode !== dto.code) {
         throw new BadRequestException('Invalid confirmation code');
       }
+
       await this.redisService.del(`confirmation_code:${dto.email}`);
       this.logger.log(
         `Confirmation code verified and deleted (email: ${dto.email})`,

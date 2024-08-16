@@ -17,8 +17,8 @@ export class EmailController {
   constructor(private readonly emailService: EmailService) {}
 
   @HttpCode(200)
-  @Post('/send-code')
-  async sendCode(@Body() dto: SendConfirmationCodeDto) {
+  @Post('/send-confirm-code')
+  async sendConfirmationCode(@Body() dto: SendConfirmationCodeDto) {
     try {
       const generatedCode = await this.emailService.sendConfirmationCode(dto);
       return {
@@ -38,10 +38,14 @@ export class EmailController {
   }
 
   @HttpCode(200)
-  @Post('/verify-code')
+  @Post('/verify-confirm-code')
   async verifyConfirmationCode(@Body() dto: VerifyConfirmationCodeDto) {
     try {
-      return await this.emailService.verifyConfirmationCode(dto);
+      await this.emailService.verifyConfirmationCode(dto);
+      return {
+        user: dto.email,
+        message: 'Confirmation code verified successfully',
+      };
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;
