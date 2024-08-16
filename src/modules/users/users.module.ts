@@ -10,6 +10,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { UserBlockHistoryEntity } from './entities/user-block-history.entity';
 import { ResponseLogger } from 'src/common/interceptors/response-logger.interceptor';
 import { UsersEventListener } from './events/users-event.listener';
+import { EmailModule } from '../email/email.module';
 
 @Module({
   controllers: [UsersController],
@@ -25,6 +26,7 @@ import { UsersEventListener } from './events/users-event.listener';
     TypeOrmModule.forFeature([UserEntity, UserBlockHistoryEntity]),
     JwtModule,
     RolesModule,
+    EmailModule,
   ],
   exports: [UsersService],
 })

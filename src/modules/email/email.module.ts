@@ -31,5 +31,6 @@ import { RedisModule } from '../redis/redis.module';
     }),
     RedisModule,
   ],
+  exports: [EmailService, EmailCodeGenerator],
 })
 export class EmailModule {}
