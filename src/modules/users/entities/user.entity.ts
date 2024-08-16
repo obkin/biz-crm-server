@@ -26,6 +26,13 @@ export class UserEntity {
   public email: string;
 
   @ApiProperty({
+    example: false,
+    description: 'Indicates if the user email is confirmed',
+  })
+  @Column({ default: false })
+  public isEmailConfirmed: boolean;
+
+  @ApiProperty({
     example: '$2b$10$fWHZ.JcwITaj9M.bJJLaDuPK399J3LnEirrJMSuLRt9F8LeyltXRu',
     description: 'The secret password of the user',
   })

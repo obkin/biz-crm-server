@@ -45,6 +45,10 @@ export class UsersService {
       this.logger.log(
         `New user created (email: ${newUser.email} / userId: ${newUser.id})`,
       );
+      this.eventEmitter.emit('user.registered', {
+        userId: newUser.id,
+        newEmail: newUser.email,
+      });
       return newUser;
     } catch (e) {
       throw e;

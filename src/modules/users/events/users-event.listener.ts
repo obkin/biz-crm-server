@@ -11,13 +11,13 @@ export class UsersEventListener {
   @OnEvent('user.emailChanged')
   async handleEmailConfirmationEvent(payload: {
     userId: number;
-    newEmail: string;
+    email: string;
   }) {
-    const { userId, newEmail } = payload;
+    const { userId, email } = payload;
 
-    await this.emailService.sendConfirmationCode({ email: newEmail });
+    await this.emailService.sendConfirmationCode({ email });
     this.logger.log(
-      `Confirmation email sent to ${newEmail} for user ID ${userId}`,
+      `Confirmation email sent to ${email} for user ID ${userId}`,
     );
   }
 }
