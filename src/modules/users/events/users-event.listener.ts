@@ -8,24 +8,34 @@ export class UsersEventListener {
   private readonly logger = new Logger(UsersEventListener.name);
   constructor(
     private readonly emailService: EmailService,
-    private readonly usersService: UsersService,
+    private readonly userService: UsersService,
   ) {}
 
   @OnEvent('user.registered')
-  @OnEvent('user.emailChanged')
-  async handleEmailConfirmationEvent(payload: {
-    userId: number;
-    email: string;
-  }) {
+  async handleUserRegistredEvent(payload: { userId: number; email: string }) {
     const { userId, email } = payload;
 
     await this.emailService.sendConfirmationCode({ email });
-    this.logger.log(
-      `Confirmation email sent to ${email} for user ID ${userId}`,
-    );
+    this.logger.log(`Event: user.registered (userId: ${userId})`);
   }
 
-  //   async handleEmailConfirmedEvent(payload: { userId: number; email: string }) {
-  //     const { userId, email } = payload;
-  //   }
+  @OnEvent('user.emailChanged')
+  async handleUserChangedEmailEvent(payload: {
+    userId: number;
+    newEmail: string;
+  }) {
+    const { userId, newEmail } = payload;
+
+    await this.emailService.sendConfirmationCode({ email: newEmail });
+    this.logger.log(`Event: user.emailChanged (userId: ${userId})`);
+  }
+
+  @OnEvent('user.emailVerified')
+  async handleEmailConfirmedEvent(payload: { userEmail: string }) {
+    const { userEmail } = payload;
+
+    await this.userService.updateEmailConfirmationStatus(userEmail, true);
+    this.logger.log(`Event: user.emailVerified (user: ${userEmail})`);
+    this.logger.debug(`user updated`);
+  }
 }

@@ -47,7 +47,7 @@ export class UsersService {
       );
       this.eventEmitter.emit('user.registered', {
         userId: newUser.id,
-        newEmail: newUser.email,
+        email: newUser.email,
       });
       return newUser;
     } catch (e) {
@@ -65,10 +65,12 @@ export class UsersService {
         throw new NotFoundException(`User ${userEmail} not found`);
       }
 
-      if (user.isEmailConfirmed === isConfirmed) {
-        throw new ConflictException(
-          `User email is already ${isConfirmed ? 'confirmed' : 'unconfirmed'}`,
-        );
+      if (isConfirmed && user.isEmailConfirmed) {
+        throw new ConflictException(`User email is already confirmed`);
+      }
+
+      if (!isConfirmed && !user.isEmailConfirmed) {
+        this.logger.debug('User email is already unconfirmed');
       }
 
       return await this.usersRepository.saveUser({
@@ -131,6 +133,10 @@ export class UsersService {
       );
       this.logger.log(
         `User email changed (userId: ${user.id}, oldEmail: ${oldEmail}, newEmail: ${changeUserEmailDto.newEmail})`,
+      );
+      await this.updateEmailConfirmationStatus(
+        changeUserEmailDto.newEmail,
+        false,
       );
       this.eventEmitter.emit('auth.userLogout', { userId: user.id });
       this.eventEmitter.emit('user.emailChanged', {

@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { RedisService } from '../redis/redis.service';
 import { VerifyConfirmationCodeDto } from './dto/verify-confirmation-code.dto';
 import { SendConfirmationCodeDto } from './dto/send-confirmation-code.dto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class EmailService {
@@ -15,10 +16,14 @@ export class EmailService {
     private readonly emailCodeGenerator: EmailCodeGenerator,
     private readonly configService: ConfigService,
     private readonly redisService: RedisService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   // --- Service logic ---
   async sendConfirmationCode(dto: SendConfirmationCodeDto): Promise<string> {
+    if (!dto.email) {
+      throw new BadRequestException('Email address is required');
+    }
     try {
       const redisClient = this.redisService.getClient();
       const confirmationCode =
@@ -77,6 +82,9 @@ export class EmailService {
       this.logger.log(
         `Confirmation code verified and deleted (email: ${dto.email})`,
       );
+      this.eventEmitter.emit('user.emailVerified', {
+        userEmail: dto.email,
+      });
       return true;
     } catch (e) {
       throw e;
