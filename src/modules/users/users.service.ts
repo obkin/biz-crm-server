@@ -55,6 +55,31 @@ export class UsersService {
     }
   }
 
+  async updateEmailConfirmationStatus(
+    userEmail: string,
+    isConfirmed: boolean,
+  ): Promise<UserEntity> {
+    try {
+      const user = await this.usersRepository.getUserByEmail(userEmail);
+      if (!user) {
+        throw new NotFoundException(`User ${userEmail} not found`);
+      }
+
+      if (user.isEmailConfirmed === isConfirmed) {
+        throw new ConflictException(
+          `User email is already ${isConfirmed ? 'confirmed' : 'unconfirmed'}`,
+        );
+      }
+
+      return await this.usersRepository.saveUser({
+        ...user,
+        isEmailConfirmed: isConfirmed,
+      });
+    } catch (e) {
+      throw e;
+    }
+  }
+
   async changeUserName(
     userId: number,
     changeUserNameDto: ChangeUserNameDto,
