@@ -150,15 +150,14 @@ export class UsersService {
   }
 
   async changeUserPassword(
-    id: number,
+    userId: number,
     changeUserPasswordDto: ChangeUserPasswordDto,
   ): Promise<UserEntity> {
     try {
-      const user = await this.usersRepository.getUserById(id);
+      const user = await this.usersRepository.getUserById(userId);
       if (!user) {
         throw new NotFoundException('User not found');
       }
-
       const isOldPasswordCorrect = await compare(
         changeUserPasswordDto.oldPassword,
         user.password,
@@ -166,18 +165,19 @@ export class UsersService {
       if (!isOldPasswordCorrect) {
         throw new BadRequestException('Wrong old password');
       }
-
       if (await compare(changeUserPasswordDto.newPassword, user.password)) {
         throw new BadRequestException('Enter a new password');
       }
-
       const hashedNewPassword = await this.hashPassword(
         changeUserPasswordDto.newPassword,
       );
-      return await this.usersRepository.changeUserPassword(
+      const updatedUser = await this.usersRepository.changeUserPassword(
         user,
         hashedNewPassword,
       );
+      this.logger.log(`User password changed (userId: ${user.id})`);
+      this.eventEmitter.emit('auth.userLogout', { userId: user.id });
+      return updatedUser;
     } catch (e) {
       throw e;
     }
