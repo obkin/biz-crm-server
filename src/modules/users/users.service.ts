@@ -70,7 +70,7 @@ export class UsersService {
       }
 
       if (!isConfirmed && !user.isEmailConfirmed) {
-        this.logger.debug('User email is already unconfirmed');
+        this.logger.warn('User email is already unconfirmed');
       }
 
       return await this.usersRepository.saveUser({

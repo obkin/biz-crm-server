@@ -36,6 +36,5 @@ export class UsersEventListener {
 
     await this.userService.updateEmailConfirmationStatus(userEmail, true);
     this.logger.log(`Event: user.emailVerified (user: ${userEmail})`);
-    this.logger.debug(`user updated`);
   }
 }
