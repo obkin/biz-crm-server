@@ -230,12 +230,12 @@ export class UsersController {
     description: 'Enter a new password',
   })
   @ApiResponse({
-    status: 404,
-    description: 'User not found',
+    status: 400,
+    description: 'Wrong old password',
   })
   @ApiResponse({
-    status: 409,
-    description: 'Wrong old password',
+    status: 404,
+    description: 'User not found',
   })
   @ApiResponse({
     status: 500,
