@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UsersService } from './users.service';
-import { UsersController } from './users.controller';
-import { UsersRepository } from './users.repository';
+import { UsersService } from './services/users.service';
+import { UsersController } from './controllers/users.controller';
+import { UsersRepository } from './repositories/users.repository';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
 import { RolesModule } from '../roles/roles.module';
@@ -12,16 +12,17 @@ import { ResponseLogger } from 'src/common/interceptors/response-logger.intercep
 import { UsersEventListener } from './events/users-event.listener';
 import { EmailModule } from '../email/email.module';
 import { UserDeletionEntity } from './entities/user-deletion.entity';
-import { UsersDeletionService } from './services/users-deletion.service';
-import { UsersDeletionRepository } from './repositories/users-deletion.repository';
+import { UsersManagementController } from './controllers/users-management.controller';
+import { UsersManagementService } from './services/users-management.service';
+import { UsersManagementRepository } from './repositories/users-management.repository';
 
 @Module({
-  controllers: [UsersController],
+  controllers: [UsersController, UsersManagementController],
   providers: [
     UsersService,
     UsersRepository,
-    UsersDeletionService,
-    UsersDeletionRepository,
+    UsersManagementService,
+    UsersManagementRepository,
     ConfigService,
     ResponseLogger,
     UsersEventListener,

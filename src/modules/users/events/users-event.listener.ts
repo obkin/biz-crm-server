@@ -1,9 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { EmailService } from 'src/modules/email/email.service';
-import { UsersService } from '../users.service';
+import { UsersService } from '../services/users.service';
 import { UserEntity } from '../entities/user.entity';
-import { UsersDeletionService } from '../services/users-deletion.service';
+import { UsersManagementService } from '../services/users-management.service';
 import { UserDeleteDto } from '../dto/user-delete.dto';
 
 @Injectable()
@@ -13,7 +13,7 @@ export class UsersEventListener {
   constructor(
     private readonly emailService: EmailService,
     private readonly userService: UsersService,
-    private readonly usersDeletionService: UsersDeletionService,
+    private readonly usersManagementService: UsersManagementService,
   ) {}
 
   @OnEvent('user.registered')
@@ -51,7 +51,7 @@ export class UsersEventListener {
   }) {
     const { adminId, user, dto } = payload;
 
-    await this.usersDeletionService.saveDeletionRecord(
+    await this.usersManagementService.saveDeletionRecord(
       adminId,
       user,
       dto,

@@ -7,17 +7,17 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { UserRegisterDto } from '../auth/dto/user-register.dto';
-import { UsersRepository } from './users.repository';
-import { UserEntity } from './entities/user.entity';
-import { RolesService } from '../roles/roles.service';
-import { ChangeUserNameDto } from './dto/change-user-name.dto';
-import { ChangeUserEmailDto } from './dto/change-user-email.dto';
-import { ChangeUserPasswordDto } from './dto/change-user-password.dto';
+import { UserRegisterDto } from '../../auth/dto/user-register.dto';
+import { UsersRepository } from '../repositories/users.repository';
+import { UserEntity } from '../entities/user.entity';
+import { RolesService } from '../../roles/roles.service';
+import { ChangeUserNameDto } from '../dto/change-user-name.dto';
+import { ChangeUserEmailDto } from '../dto/change-user-email.dto';
+import { ChangeUserPasswordDto } from '../dto/change-user-password.dto';
 import { genSalt, hash, compare } from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { UserDeleteDto } from './dto/user-delete.dto';
+import { UserDeleteDto } from '../dto/user-delete.dto';
 
 @Injectable()
 export class UsersService {

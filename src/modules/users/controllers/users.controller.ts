@@ -14,21 +14,21 @@ import {
   Req,
   UsePipes,
 } from '@nestjs/common';
-import { UserRegisterDto } from '../auth/dto/user-register.dto';
+import { UserRegisterDto } from '../../auth/dto/user-register.dto';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { UsersService } from './users.service';
+import { UsersService } from '../services/users.service';
 import { EmailValidationPipe } from 'src/common/pipes/validate-email.pipe';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
 import { idValidationPipe } from 'src/common/pipes/validate-id.pipe';
-import { UserBlockDto } from './dto/user-block.dto';
-import { ChangeUserNameDto } from './dto/change-user-name.dto';
-import { ChangeUserEmailDto } from './dto/change-user-email.dto';
-import { ChangeUserPasswordDto } from './dto/change-user-password.dto';
+import { UserBlockDto } from '../dto/user-block.dto';
+import { ChangeUserNameDto } from '../dto/change-user-name.dto';
+import { ChangeUserEmailDto } from '../dto/change-user-email.dto';
+import { ChangeUserPasswordDto } from '../dto/change-user-password.dto';
 import { Request } from 'express';
-import { AssignRoleDto } from './dto/assign-role.dto';
-import { RemoveRoleDto } from './dto/remove-role.dto';
+import { AssignRoleDto } from '../dto/assign-role.dto';
+import { RemoveRoleDto } from '../dto/remove-role.dto';
 import { UserNameValidationPipe } from 'src/common/pipes/validate-user-name.pipe';
-import { UserDeleteDto } from './dto/user-delete.dto';
+import { UserDeleteDto } from '../dto/user-delete.dto';
 
 @ApiTags('users')
 // @UseGuards(RolesGuard)

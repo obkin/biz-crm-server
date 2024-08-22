@@ -15,9 +15,10 @@ export class AuthEventListener {
     if (isUserLoggined) {
       await this.authService.userLogout(userId);
       this.logger.log(`Event: auth.userLogout (userId: ${userId})`);
+    } else {
+      this.logger.log(
+        `Event: auth.userLogout (user #${userId} was not logged in)`,
+      );
     }
-    this.logger.log(
-      `Event: auth.userLogout (user #${userId} was not logged in)`,
-    );
   }
 }
