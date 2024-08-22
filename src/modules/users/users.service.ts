@@ -184,7 +184,7 @@ export class UsersService {
     }
   }
 
-  async deleteUser(dto: UserDeleteDto): Promise<void> {
+  async deleteUser(adminId: number, dto: UserDeleteDto): Promise<void> {
     try {
       const user = await this.usersRepository.getUserById(dto.userId);
       if (!user) {
@@ -194,6 +194,11 @@ export class UsersService {
         throw new ForbiddenException('This user is admin');
       }
       this.eventEmitter.emit('auth.userLogout', { userId: user.id });
+      this.eventEmitter.emit('user.deleted', {
+        adminId,
+        user,
+        dto,
+      });
       await this.usersRepository.deleteUser(user.id);
     } catch (e) {
       throw e;

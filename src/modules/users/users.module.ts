@@ -11,13 +11,17 @@ import { UserBlockHistoryEntity } from './entities/user-block-history.entity';
 import { ResponseLogger } from 'src/common/interceptors/response-logger.interceptor';
 import { UsersEventListener } from './events/users-event.listener';
 import { EmailModule } from '../email/email.module';
-import { UserDeletionHistoryEntity } from './entities/user-delete-history.entity';
+import { UserDeletionEntity } from './entities/user-deletion.entity';
+import { UsersDeletionService } from './services/users-deletion.service';
+import { UsersDeletionRepository } from './repositories/users-deletion.repository';
 
 @Module({
   controllers: [UsersController],
   providers: [
     UsersService,
     UsersRepository,
+    UsersDeletionService,
+    UsersDeletionRepository,
     ConfigService,
     ResponseLogger,
     UsersEventListener,
@@ -27,7 +31,7 @@ import { UserDeletionHistoryEntity } from './entities/user-delete-history.entity
     TypeOrmModule.forFeature([
       UserEntity,
       UserBlockHistoryEntity,
-      UserDeletionHistoryEntity,
+      UserDeletionEntity,
     ]),
     JwtModule,
     RolesModule,

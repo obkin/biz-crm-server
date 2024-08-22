@@ -7,7 +7,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 
 @Entity('users_deletion_history')
-export class UserDeletionHistoryEntity {
+export class UserDeletionEntity {
   @ApiProperty({
     example: 1,
     description: 'The unique identifier for each deletion record',
@@ -70,6 +70,9 @@ export class UserDeletionHistoryEntity {
     example: '2024-08-19T12:34:56.789Z',
     description: 'Date and time when the user was deleted',
   })
-  @CreateDateColumn()
+  @CreateDateColumn({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
   public deletedAt: Date;
 }

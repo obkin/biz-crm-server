@@ -2,13 +2,18 @@ import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { EmailService } from 'src/modules/email/email.service';
 import { UsersService } from '../users.service';
+import { UserEntity } from '../entities/user.entity';
+import { UsersDeletionService } from '../services/users-deletion.service';
+import { UserDeleteDto } from '../dto/user-delete.dto';
 
 @Injectable()
 export class UsersEventListener {
   private readonly logger = new Logger(UsersEventListener.name);
+
   constructor(
     private readonly emailService: EmailService,
     private readonly userService: UsersService,
+    private readonly usersDeletionService: UsersDeletionService,
   ) {}
 
   @OnEvent('user.registered')
@@ -36,5 +41,22 @@ export class UsersEventListener {
 
     await this.userService.updateEmailConfirmationStatus(userEmail, true);
     this.logger.log(`Event: user.emailVerified (user: ${userEmail})`);
+  }
+
+  @OnEvent('user.deleted')
+  async handleUserDeletionEvent(payload: {
+    adminId: number;
+    user: UserEntity;
+    dto: UserDeleteDto;
+  }) {
+    const { adminId, user, dto } = payload;
+
+    await this.usersDeletionService.saveDeletionRecord(
+      adminId,
+      user,
+      dto,
+      false,
+    );
+    this.logger.log(`Event: user.deleted (user: ${user.id})`);
   }
 }
