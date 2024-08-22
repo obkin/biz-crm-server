@@ -6,6 +6,7 @@ import { RefreshTokenEntity } from 'src/modules/auth/entities/refresh-token.enti
 import { RoleEntity } from 'src/modules/roles/entities/role.entity';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
 import { UserBlockHistoryEntity } from '../users/entities/user-block-history.entity';
+import { UserDeletionHistoryEntity } from '../users/entities/user-delete-history.entity';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { UserBlockHistoryEntity } from '../users/entities/user-block-history.ent
         entities: [
           UserEntity,
           UserBlockHistoryEntity,
+          UserDeletionHistoryEntity,
           RefreshTokenEntity,
           AccessTokenEntity,
           RoleEntity,

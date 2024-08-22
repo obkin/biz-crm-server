@@ -11,6 +11,7 @@ import { UserBlockHistoryEntity } from './entities/user-block-history.entity';
 import { ResponseLogger } from 'src/common/interceptors/response-logger.interceptor';
 import { UsersEventListener } from './events/users-event.listener';
 import { EmailModule } from '../email/email.module';
+import { UserDeletionHistoryEntity } from './entities/user-delete-history.entity';
 
 @Module({
   controllers: [UsersController],
@@ -23,7 +24,11 @@ import { EmailModule } from '../email/email.module';
   ],
   imports: [
     ConfigModule,
-    TypeOrmModule.forFeature([UserEntity, UserBlockHistoryEntity]),
+    TypeOrmModule.forFeature([
+      UserEntity,
+      UserBlockHistoryEntity,
+      UserDeletionHistoryEntity,
+    ]),
     JwtModule,
     RolesModule,
     EmailModule,

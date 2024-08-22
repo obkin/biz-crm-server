@@ -28,6 +28,7 @@ import { Request } from 'express';
 import { AssignRoleDto } from './dto/assign-role.dto';
 import { RemoveRoleDto } from './dto/remove-role.dto';
 import { UserNameValidationPipe } from 'src/common/pipes/validate-user-name.pipe';
+import { UserDeleteDto } from './dto/user-delete.dto';
 
 @ApiTags('users')
 // @UseGuards(RolesGuard)
@@ -51,7 +52,7 @@ export class UsersController {
     description: 'Internal Server Error',
   })
   @UsePipes(new UserNameValidationPipe())
-  @Post('/create')
+  @Post('/create-user')
   async createUser(@Body() dto: UserRegisterDto) {
     try {
       return await this.usersService.createUser(dto);
@@ -280,14 +281,13 @@ export class UsersController {
     status: 500,
     description: 'Internal Server Error',
   })
-  @ApiQuery({ name: 'id', required: true, description: 'ID of the user' })
   @HttpCode(200)
   @UsePipes(new idValidationPipe())
-  @Delete('/delete/:id')
-  async deleteUser(@Param('id') id: number) {
+  @Delete('/delete-user')
+  async deleteUser(@Body() dto: UserDeleteDto) {
     try {
-      await this.usersService.deleteUser(Number(id));
-      return { userId: id, message: 'User deleted' };
+      await this.usersService.deleteUser(Number(dto.userId));
+      return { userId: dto.userId, message: 'User deleted' };
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;
