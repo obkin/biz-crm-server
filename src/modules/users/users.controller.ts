@@ -286,7 +286,7 @@ export class UsersController {
   @Delete('/delete-user')
   async deleteUser(@Body() dto: UserDeleteDto) {
     try {
-      await this.usersService.deleteUser(Number(dto.userId));
+      await this.usersService.deleteUser(dto);
       return { userId: dto.userId, message: 'User deleted' };
     } catch (e) {
       if (e instanceof HttpException) {

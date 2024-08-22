@@ -16,7 +16,7 @@ export class UserDeletionHistoryEntity {
   public id: number;
 
   @ApiProperty({
-    example: 99,
+    example: 123,
     description: 'ID of the deleted user',
   })
   @Column()

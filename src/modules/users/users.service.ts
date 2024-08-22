@@ -17,6 +17,7 @@ import { ChangeUserPasswordDto } from './dto/change-user-password.dto';
 import { genSalt, hash, compare } from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { UserDeleteDto } from './dto/user-delete.dto';
 
 @Injectable()
 export class UsersService {
@@ -183,17 +184,17 @@ export class UsersService {
     }
   }
 
-  async deleteUser(id: number): Promise<void> {
-    const user = await this.usersRepository.getUserById(id);
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-    if (await this.checkIsUserAdmin(user.id)) {
-      throw new ForbiddenException('This user is admin');
-    }
+  async deleteUser(dto: UserDeleteDto): Promise<void> {
     try {
-      this.eventEmitter.emit('auth.userLogout', { userId: id });
-      await this.usersRepository.deleteUser(id);
+      const user = await this.usersRepository.getUserById(dto.userId);
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+      if (await this.checkIsUserAdmin(user.id)) {
+        throw new ForbiddenException('This user is admin');
+      }
+      this.eventEmitter.emit('auth.userLogout', { userId: user.id });
+      await this.usersRepository.deleteUser(user.id);
     } catch (e) {
       throw e;
     }
