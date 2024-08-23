@@ -21,22 +21,21 @@ export class UsersManagementService {
   // --- User's deleting ---
 
   public async saveDeletionRecord(
-    adminId: number,
+    admin: UserEntity,
     user: UserEntity,
     dto: UserDeleteDto,
-    initiatedBySystem: boolean,
   ): Promise<UserDeletionEntity> {
     try {
       const deletionRecord = new UserDeletionEntity();
       deletionRecord.userId = dto.userId;
       deletionRecord.userEmail = user.email;
       deletionRecord.username = user.username;
-      deletionRecord.createdAt = user.createdAt;
-      deletionRecord.deletedBy = adminId;
       deletionRecord.deletionReason = dto.deletionReason;
-      deletionRecord.initiatedBySystem = initiatedBySystem;
+      deletionRecord.createdAt = user.createdAt;
 
-      console.log(deletionRecord);
+      deletionRecord.adminId = admin.id;
+      deletionRecord.adminEmail = admin.email;
+
       return await this.usersManagementRepository.saveDeletionRecord(
         deletionRecord,
       );

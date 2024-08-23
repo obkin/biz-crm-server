@@ -285,9 +285,12 @@ export class UsersController {
   @Delete('/delete-user')
   async deleteUser(@Body() dto: UserDeleteDto, @Req() req: Request) {
     try {
-      const adminId = Number(req.user.id);
-      await this.usersService.deleteUser(adminId, dto);
-      return { admin: adminId, userId: dto.userId, message: 'User deleted' };
+      const admin: UserEntity = req.user;
+      await this.usersService.deleteUser(admin, dto);
+      return {
+        userId: dto.userId,
+        message: 'User deleted',
+      };
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;

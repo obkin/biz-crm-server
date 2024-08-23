@@ -5,7 +5,7 @@ import {
   HttpStatus,
   Param,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UsersManagementService } from '../services/users-management.service';
 import { UserDeletionEntity } from '../entities/user-deletion.entity';
 
@@ -30,6 +30,7 @@ export class UsersManagementController {
     status: 500,
     description: 'Internal Server Error',
   })
+  @ApiQuery({ name: 'id', required: true, description: 'ID of the user' })
   @Get('/get-deletion-record-by-userId/:id')
   async getDelitionRecordByUserId(@Param('id') id: number) {
     try {

@@ -184,7 +184,7 @@ export class UsersService {
     }
   }
 
-  async deleteUser(adminId: number, dto: UserDeleteDto): Promise<void> {
+  async deleteUser(admin: UserEntity, dto: UserDeleteDto): Promise<void> {
     try {
       const user = await this.usersRepository.getUserById(dto.userId);
       if (!user) {
@@ -195,7 +195,7 @@ export class UsersService {
       }
       this.eventEmitter.emit('auth.userLogout', { userId: user.id });
       this.eventEmitter.emit('user.deleted', {
-        adminId,
+        admin,
         user,
         dto,
       });

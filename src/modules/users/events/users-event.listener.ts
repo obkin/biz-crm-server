@@ -45,18 +45,13 @@ export class UsersEventListener {
 
   @OnEvent('user.deleted')
   async handleUserDeletionEvent(payload: {
-    adminId: number;
+    admin: UserEntity;
     user: UserEntity;
     dto: UserDeleteDto;
   }) {
-    const { adminId, user, dto } = payload;
+    const { admin, user, dto } = payload;
 
-    await this.usersManagementService.saveDeletionRecord(
-      adminId,
-      user,
-      dto,
-      false,
-    );
+    await this.usersManagementService.saveDeletionRecord(admin, user, dto);
     this.logger.log(`Event: user.deleted (user: ${user.id})`);
   }
 }

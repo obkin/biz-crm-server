@@ -37,27 +37,12 @@ export class UserDeletionEntity {
   public username: string;
 
   @ApiProperty({
-    example: 1,
-    description: 'ID of the admin who deleted the user',
-  })
-  @Column()
-  public deletedBy: number;
-
-  @ApiProperty({
     example: 'Violation of terms of service',
     description: 'Reason for deleting the user',
     maxLength: 200,
   })
   @Column({ length: 200 })
   public deletionReason: string;
-
-  @ApiProperty({
-    example: false,
-    description:
-      'Indicates if the deletion was initiated automatically by the system',
-  })
-  @Column({ default: false })
-  public initiatedBySystem: boolean;
 
   @ApiProperty({
     example: '2022-04-12T08:44:37.025Z',
@@ -75,4 +60,18 @@ export class UserDeletionEntity {
     default: () => 'CURRENT_TIMESTAMP',
   })
   public deletedAt: Date;
+
+  @ApiProperty({
+    example: 1,
+    description: 'ID of the admin who deleted the user',
+  })
+  @Column()
+  public adminId: number;
+
+  @ApiProperty({
+    example: 'admin@gmail.com',
+    description: 'Email of the admin who deleted the user',
+  })
+  @Column()
+  public adminEmail: string;
 }
