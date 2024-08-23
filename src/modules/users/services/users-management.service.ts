@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserDeleteDto } from '../dto/user-delete.dto';
 import { UsersManagementRepository } from '../repositories/users-management.repository';
 import { UserDeletionEntity } from '../entities/user-deletion.entity';
@@ -12,9 +12,15 @@ export class UsersManagementService {
 
   // --- User's blocking ---
 
+  async saveBlockRecord() {}
+
+  async getBlockRecordByUserId() {}
+
+  async getAllBlockRecords() {}
+
   // --- User's deleting ---
 
-  async saveDeletionRecord(
+  public async saveDeletionRecord(
     adminId: number,
     user: UserEntity,
     dto: UserDeleteDto,
@@ -41,9 +47,13 @@ export class UsersManagementService {
 
   async getDelitionRecordByUserId(userId: number): Promise<UserDeletionEntity> {
     try {
-      return await this.usersManagementRepository.getDelitionRecordByUserId(
-        userId,
-      );
+      const deletionRecord =
+        await this.usersManagementRepository.getDelitionRecordByUserId(userId);
+      if (!deletionRecord) {
+        throw new NotFoundException('Deletion record not found');
+      } else {
+        return deletionRecord;
+      }
     } catch (e) {
       throw e;
     }
@@ -51,7 +61,13 @@ export class UsersManagementService {
 
   async getAllDeletionRecords(): Promise<UserDeletionEntity[]> {
     try {
-      return await this.usersManagementRepository.getAllDeletionRecords();
+      const deletionRecords =
+        await this.usersManagementRepository.getAllDeletionRecords();
+      if (!deletionRecords) {
+        throw new NotFoundException('Deletion records not found');
+      } else {
+        return deletionRecords;
+      }
     } catch (e) {
       throw e;
     }
