@@ -7,7 +7,7 @@ import {
   UpdateDateColumn,
   OneToMany,
 } from 'typeorm';
-import { UserBlockHistoryEntity } from './user-block-history.entity';
+import { UserBlockEntity } from './user-block.entity';
 
 @Entity('users')
 export class UserEntity {
@@ -61,8 +61,8 @@ export class UserEntity {
   public isBlocked: boolean;
 
   // add Swagger here
-  @OneToMany(() => UserBlockHistoryEntity, (blockHistory) => blockHistory.user)
-  public blockedEntries: UserBlockHistoryEntity[];
+  @OneToMany(() => UserBlockEntity, (blockHistory) => blockHistory.user)
+  public blockedEntries: UserBlockEntity[];
 
   @ApiProperty({
     example: '2024-04-12T08:44:37.025Z',

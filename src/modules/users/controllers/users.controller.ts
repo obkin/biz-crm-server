@@ -322,9 +322,10 @@ export class UsersController {
   })
   @HttpCode(200)
   @Post('/block')
-  async blockUser(@Body() dto: UserBlockDto) {
+  async blockUser(@Body() dto: UserBlockDto, @Req() req: Request) {
     try {
-      await this.usersService.blockUser(Number(dto.userId));
+      const admin: UserEntity = req.user;
+      await this.usersService.blockUser(admin, dto);
       return { userId: dto.userId, message: 'User blocked' };
     } catch (e) {
       if (e instanceof HttpException) {

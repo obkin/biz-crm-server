@@ -7,14 +7,17 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
 import { RolesModule } from '../roles/roles.module';
 import { JwtModule } from '@nestjs/jwt';
-import { UserBlockHistoryEntity } from './entities/user-block-history.entity';
+import { UserBlockEntity } from './entities/user-block.entity';
 import { ResponseLogger } from 'src/common/interceptors/response-logger.interceptor';
 import { UsersEventListener } from './events/users-event.listener';
 import { EmailModule } from '../email/email.module';
 import { UserDeletionEntity } from './entities/user-deletion.entity';
 import { UsersManagementController } from './controllers/users-management.controller';
 import { UsersManagementService } from './services/users-management.service';
-import { UsersManagementRepository } from './repositories/users-management.repository';
+import {
+  UsersBlockRepository,
+  UsersDelitionRepository,
+} from './repositories/users-management.repository';
 
 @Module({
   controllers: [UsersController, UsersManagementController],
@@ -22,18 +25,15 @@ import { UsersManagementRepository } from './repositories/users-management.repos
     UsersService,
     UsersRepository,
     UsersManagementService,
-    UsersManagementRepository,
+    UsersBlockRepository,
+    UsersDelitionRepository,
     ConfigService,
     ResponseLogger,
     UsersEventListener,
   ],
   imports: [
     ConfigModule,
-    TypeOrmModule.forFeature([
-      UserEntity,
-      UserBlockHistoryEntity,
-      UserDeletionEntity,
-    ]),
+    TypeOrmModule.forFeature([UserEntity, UserBlockEntity, UserDeletionEntity]),
     JwtModule,
     RolesModule,
     EmailModule,

@@ -5,7 +5,7 @@ import { AccessTokenEntity } from 'src/modules/auth/entities/access-token.entity
 import { RefreshTokenEntity } from 'src/modules/auth/entities/refresh-token.entity';
 import { RoleEntity } from 'src/modules/roles/entities/role.entity';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
-import { UserBlockHistoryEntity } from '../users/entities/user-block-history.entity';
+import { UserBlockEntity } from '../users/entities/user-block.entity';
 import { UserDeletionEntity } from '../users/entities/user-deletion.entity';
 
 @Module({
@@ -22,7 +22,7 @@ import { UserDeletionEntity } from '../users/entities/user-deletion.entity';
         database: configService.get<string>('POSTGRES_DATABASE'),
         entities: [
           UserEntity,
-          UserBlockHistoryEntity,
+          UserBlockEntity,
           UserDeletionEntity,
           RefreshTokenEntity,
           AccessTokenEntity,

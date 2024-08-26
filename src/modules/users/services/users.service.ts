@@ -18,6 +18,7 @@ import { genSalt, hash, compare } from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { UserDeleteDto } from '../dto/user-delete.dto';
+import { UserBlockDto } from '../dto/user-block.dto';
 
 @Injectable()
 export class UsersService {
@@ -208,9 +209,9 @@ export class UsersService {
     }
   }
 
-  async blockUser(id: number): Promise<void> {
+  async blockUser(admin: UserEntity, dto: UserBlockDto): Promise<void> {
     try {
-      const user = await this.getUserById(id);
+      const user = await this.getUserById(dto.userId);
       if (!user) {
         throw new NotFoundException('User not found');
       }
@@ -220,6 +221,11 @@ export class UsersService {
       if (await this.checkIsUserAdmin(user.id)) {
         throw new ForbiddenException('This user is admin');
       }
+      this.eventEmitter.emit('user.blocked', {
+        admin,
+        user,
+        dto,
+      });
       await this.usersRepository.blockUser(user);
     } catch (e) {
       throw e;

@@ -1,22 +1,79 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserDeleteDto } from '../dto/user-delete.dto';
-import { UsersManagementRepository } from '../repositories/users-management.repository';
+import {
+  UsersBlockRepository,
+  UsersDelitionRepository,
+} from '../repositories/users-management.repository';
+import { UserBlockDto } from '../dto/user-block.dto';
+import { UserBlockEntity } from '../entities/user-block.entity';
 import { UserDeletionEntity } from '../entities/user-deletion.entity';
 import { UserEntity } from '../entities/user.entity';
 
 @Injectable()
 export class UsersManagementService {
   constructor(
-    private readonly usersManagementRepository: UsersManagementRepository,
+    private readonly usersBlockRepository: UsersBlockRepository,
+    private readonly usersDelitionRepository: UsersDelitionRepository,
   ) {}
 
   // --- User's blocking ---
 
-  async saveBlockRecord() {}
+  async saveBlockRecord(
+    admin: UserEntity,
+    user: UserEntity,
+    dto: UserBlockDto,
+  ): Promise<UserBlockEntity> {
+    try {
+      const blockRecord = new UserBlockEntity();
+      blockRecord.user = user;
+      blockRecord.blockReason = dto.blockReason;
+      blockRecord.notes = dto.notes;
+      blockRecord.isActive = true;
+      blockRecord.blockDuration = dto.blockDuration;
+      blockRecord.unblockedAt = this.calculateUnblockDate(dto.blockDuration);
 
-  async getBlockRecordByUserId() {}
+      blockRecord.adminId = admin.id;
+      blockRecord.adminEmail = admin.email;
 
-  async getAllBlockRecords() {}
+      return await this.usersBlockRepository.saveBlockRecord(blockRecord);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async getBlockRecordByUserId(userId: number): Promise<UserBlockEntity> {
+    try {
+      const blockRecord =
+        await this.usersBlockRepository.getBlockRecordByUserId(userId);
+      if (!blockRecord) {
+        throw new NotFoundException('Block record not found');
+      } else {
+        return blockRecord;
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async getAllBlockRecords(): Promise<UserBlockEntity[]> {
+    try {
+      const blockRecords = await this.usersBlockRepository.getAllBlockRecords();
+      if (!blockRecords) {
+        throw new NotFoundException('Block records not found');
+      } else {
+        return blockRecords;
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  private calculateUnblockDate(blockDuration: number): Date {
+    const currentDate = new Date();
+    return new Date(
+      currentDate.getTime() + blockDuration * 24 * 60 * 60 * 1000,
+    );
+  }
 
   // --- User's deleting ---
 
@@ -36,7 +93,7 @@ export class UsersManagementService {
       deletionRecord.adminId = admin.id;
       deletionRecord.adminEmail = admin.email;
 
-      return await this.usersManagementRepository.saveDeletionRecord(
+      return await this.usersDelitionRepository.saveDeletionRecord(
         deletionRecord,
       );
     } catch (e) {
@@ -47,7 +104,7 @@ export class UsersManagementService {
   async getDelitionRecordByUserId(userId: number): Promise<UserDeletionEntity> {
     try {
       const deletionRecord =
-        await this.usersManagementRepository.getDelitionRecordByUserId(userId);
+        await this.usersDelitionRepository.getDelitionRecordByUserId(userId);
       if (!deletionRecord) {
         throw new NotFoundException('Deletion record not found');
       } else {
@@ -61,7 +118,7 @@ export class UsersManagementService {
   async getAllDeletionRecords(): Promise<UserDeletionEntity[]> {
     try {
       const deletionRecords =
-        await this.usersManagementRepository.getAllDeletionRecords();
+        await this.usersDelitionRepository.getAllDeletionRecords();
       if (!deletionRecords) {
         throw new NotFoundException('Deletion records not found');
       } else {

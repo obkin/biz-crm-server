@@ -10,7 +10,11 @@ import { UserEntity } from './user.entity';
 import { ApiProperty } from '@nestjs/swagger';
 
 @Entity('users_block_history')
-export class UserBlockHistoryEntity {
+export class UserBlockEntity {
+  @ApiProperty({
+    example: 1,
+    description: 'The unique identifier for each block record',
+  })
   @PrimaryGeneratedColumn()
   public id: number;
 
@@ -18,33 +22,28 @@ export class UserBlockHistoryEntity {
   public user: UserEntity;
 
   @ApiProperty({
-    example: 456,
-    description: 'The ID of the admin who blocked the user',
-  })
-  @Column()
-  public adminId: number;
-
-  @ApiProperty({
     example: 'Violation of terms of service',
     description: 'The reason for blocking the user',
+    maxLength: 200,
   })
-  @Column()
+  @Column({ length: 200 })
   public blockReason: string;
-
-  @ApiProperty({
-    example: 'temporary',
-    description: 'The type of block (temporary or permanent)',
-  })
-  @Column({ type: 'varchar', length: 50 })
-  public blockType: string; // do you need it? you can just block the user for 3000 days
 
   @ApiProperty({
     example: 'User was repeatedly posting spam content',
     description: 'Additional notes or comments regarding the block',
     nullable: true,
+    maxLength: 300,
   })
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: 'varchar', length: 300, nullable: true })
   public notes: string;
+
+  @ApiProperty({
+    example: true,
+    description: 'Indicates if the block is currently active',
+  })
+  @Column({ default: true })
+  public isActive: boolean;
 
   @ApiProperty({
     example: '2024-04-12T08:44:37.025Z',
@@ -57,14 +56,6 @@ export class UserBlockHistoryEntity {
   public blockedAt: Date;
 
   @ApiProperty({
-    example: '2024-04-20T08:44:37.025Z',
-    description: 'The date and time when the account was unblocked',
-    nullable: true,
-  })
-  @UpdateDateColumn({ nullable: true })
-  public unblockedAt: Date;
-
-  @ApiProperty({
     example: 7,
     description: 'The duration (in days) for which the user was blocked',
     nullable: true,
@@ -73,9 +64,24 @@ export class UserBlockHistoryEntity {
   public blockDuration: number;
 
   @ApiProperty({
-    example: true,
-    description: 'Indicates if the block is currently active',
+    example: '2024-04-20T08:44:37.025Z',
+    description: 'The date and time when the account was unblocked',
+    nullable: true,
   })
-  @Column({ default: true })
-  public isActive: boolean;
+  @UpdateDateColumn({ nullable: true })
+  public unblockedAt: Date;
+
+  @ApiProperty({
+    example: 1,
+    description: 'ID of the admin who blocked the user',
+  })
+  @Column()
+  public adminId: number;
+
+  @ApiProperty({
+    example: 'admin@gmail.com',
+    description: 'Email of the admin who blocked the user',
+  })
+  @Column()
+  public adminEmail: string;
 }
