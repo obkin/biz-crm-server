@@ -414,26 +414,28 @@ export class AuthService {
       let accessToken = await redisClient.get(`access_token:${userId}`);
       if (!accessToken) {
         this.logger.warn(
-          'Access token not found in Redis, fetching from database',
+          `Access token not found in Redis, fetching from database (userId: ${userId})`,
         );
         const dbAccessToken =
           await this.accessTokenRepository.findAccessTokenByUserId(userId);
         if (!dbAccessToken) {
           this.logger.warn(
-            'Access token not found in database, fetching refresh token',
+            `Access token not found in database, fetching refresh token (userId: ${userId})`,
           );
 
           let refreshToken = await redisClient.get(`refresh_token:${userId}`);
           if (!refreshToken) {
             this.logger.warn(
-              'Refresh token not found in Redis, fetching from database',
+              `Refresh token not found in Redis, fetching from database (userId: ${userId})`,
             );
             const dbRefreshToken =
               await this.refreshTokenRepository.findRefreshTokenByUserId(
                 userId,
               );
             if (!dbRefreshToken) {
-              this.logger.warn('Refresh token not found in database');
+              this.logger.warn(
+                `Refresh token not found in database (userId: ${userId})`,
+              );
               return false;
             } else {
               refreshToken = dbRefreshToken.refreshToken;
@@ -446,11 +448,13 @@ export class AuthService {
                 ),
               );
               this.logger.log(
-                'Refresh token found in database, saved into Redis',
+                `Refresh token found in database, saved into Redis (userId: ${userId})`,
               );
             }
           } else {
-            this.logger.log('Refresh token has taken from Redis');
+            this.logger.log(
+              `Refresh token has taken from Redis (userId: ${userId})`,
+            );
           }
         } else {
           accessToken = dbAccessToken.accessToken;
@@ -460,10 +464,14 @@ export class AuthService {
             'EX',
             Number(this.configService.get<number>('REDIS_ACCESS_TOKEN_LIFE')),
           );
-          this.logger.log('Access token found in database, saved into Redis');
+          this.logger.log(
+            `Access token found in database, saved into Redis (userId: ${userId})`,
+          );
         }
       } else {
-        this.logger.log('Access token has taken from Redis');
+        this.logger.log(
+          `Access token has taken from Redis (userId: ${userId})`,
+        );
       }
 
       return true;
