@@ -200,6 +200,9 @@ export class UsersService {
         dto,
       });
       await this.usersRepository.deleteUser(user.id);
+      this.logger.log(
+        `User successfully deleted (userId: ${user.id}, email: ${user.email})`,
+      );
     } catch (e) {
       throw e;
     }
