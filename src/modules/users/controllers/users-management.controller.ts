@@ -19,6 +19,7 @@ import { UserEntity } from '../entities/user.entity';
 import { Request } from 'express';
 import { UserBlockDto } from '../dto/user-block.dto';
 import { UserUnblockDto } from '../dto/user-unblock.dto';
+import { UserUnblockEntity } from '../entities/user-unblock.entity';
 
 @ApiTags('users-management')
 @Controller('/users/management')
@@ -26,6 +27,8 @@ export class UsersManagementController {
   constructor(
     private readonly usersManagementService: UsersManagementService,
   ) {}
+
+  // --- User's blocking ---
 
   @ApiOperation({ summary: 'Block user' })
   @ApiResponse({
@@ -57,42 +60,6 @@ export class UsersManagementController {
       } else {
         throw new HttpException(
           `Failed to block the user. ${e}`,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-    }
-  }
-
-  @ApiOperation({ summary: 'Unblock user' })
-  @ApiResponse({
-    status: 200,
-    description: 'User unblocked',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'User not found',
-  })
-  @ApiResponse({
-    status: 409,
-    description: 'This user is not blocked',
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Internal Server Error',
-  })
-  @HttpCode(200)
-  @Post('/unblock-user')
-  async unblockUser(@Body() dto: UserUnblockDto, @Req() req: Request) {
-    try {
-      const admin: UserEntity = req.user;
-      await this.usersManagementService.unblockUser(admin, dto);
-      return { userId: dto.userId, message: 'User unblocked' };
-    } catch (e) {
-      if (e instanceof HttpException) {
-        throw e;
-      } else {
-        throw new HttpException(
-          `Failed to unblock the user. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
@@ -161,6 +128,109 @@ export class UsersManagementController {
       }
     }
   }
+
+  // --- User's unblocking ---
+
+  @ApiOperation({ summary: 'Unblock user' })
+  @ApiResponse({
+    status: 200,
+    description: 'User unblocked',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'This user is not blocked',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @HttpCode(200)
+  @Post('/unblock-user')
+  async unblockUser(@Body() dto: UserUnblockDto, @Req() req: Request) {
+    try {
+      const admin: UserEntity = req.user;
+      await this.usersManagementService.unblockUser(admin, dto);
+      return { userId: dto.userId, message: 'User unblocked' };
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to unblock the user. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  @ApiOperation({ summary: 'Get unblock record by userId' })
+  @ApiResponse({
+    status: 200,
+    description: 'Unblock record retrieved',
+    type: UserUnblockEntity,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Unblock record not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @ApiQuery({ name: 'id', required: true, description: 'ID of the user' })
+  @Get('/get-unblock-record-by-userId/:id')
+  async getUnblockRecordByUserId(@Param('id') id: number) {
+    try {
+      return await this.usersManagementService.getUnblockRecordByUserId(
+        Number(id),
+      );
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to get unblock record by user ID. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  @ApiOperation({ summary: 'Get all unblock records' })
+  @ApiResponse({
+    status: 200,
+    description: 'Retrieved all unblock records',
+    type: [UserUnblockEntity],
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Unblock records not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @Get('/get-all-unblock-records')
+  async getAllUnblockRecords() {
+    try {
+      return await this.usersManagementService.getAllUnblockRecords();
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to get all unblock records. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  // --- User's delition ---
 
   @ApiOperation({ summary: 'Delete user' })
   @ApiResponse({

@@ -11,6 +11,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import {
   UsersBlockRepository,
   UsersDelitionRepository,
+  UsersUnblockRepository,
 } from '../repositories/users-management.repository';
 import { UserBlockDto } from '../dto/user-block.dto';
 import { UserBlockEntity } from '../entities/user-block.entity';
@@ -18,6 +19,7 @@ import { UserDeletionEntity } from '../entities/user-deletion.entity';
 import { UserEntity } from '../entities/user.entity';
 import { UsersService } from './users.service';
 import { UserUnblockDto } from '../dto/user-unblock.dto';
+import { UserUnblockEntity } from '../entities/user-unblock.entity';
 
 @Injectable()
 export class UsersManagementService {
@@ -28,6 +30,7 @@ export class UsersManagementService {
     private readonly usersService: UsersService,
     private readonly eventEmitter: EventEmitter2,
     private readonly usersBlockRepository: UsersBlockRepository,
+    private readonly usersUnblockRepository: UsersUnblockRepository,
     private readonly usersDelitionRepository: UsersDelitionRepository,
   ) {}
 
@@ -101,7 +104,7 @@ export class UsersManagementService {
   async getAllBlockRecords(): Promise<UserBlockEntity[]> {
     try {
       const blockRecords = await this.usersBlockRepository.getAllBlockRecords();
-      if (!blockRecords) {
+      if (!blockRecords || blockRecords.length === 0) {
         throw new NotFoundException('Block records not found');
       } else {
         return blockRecords;
@@ -130,6 +133,9 @@ export class UsersManagementService {
         throw new ConflictException('This user is not blocked');
       }
       await this.usersRepository.unblockUser(user);
+      if (dto.unblockReason || dto.notes) {
+        await this.saveUnblockRecord(admin, user, dto);
+      }
       this.logger.log(
         `User successfully unblocked (userId: ${user.id}, email: ${user.email}, adminId: ${admin.id})`,
       );
@@ -139,9 +145,58 @@ export class UsersManagementService {
     }
   }
 
-  async saveUnblockingRecord() {}
-  async getUnblockingRecordByUserId() {}
-  async getAllUnblockingRecords() {}
+  async saveUnblockRecord(
+    admin: UserEntity,
+    user: UserEntity,
+    dto: UserUnblockDto,
+  ) {
+    try {
+      const unblockRecord = new UserUnblockEntity();
+      unblockRecord.user = user;
+      unblockRecord.unblockReason = dto.unblockReason;
+      unblockRecord.notes = dto.notes;
+
+      unblockRecord.adminId = admin.id;
+      unblockRecord.adminEmail = admin.email;
+
+      const newUnblockEntity =
+        await this.usersUnblockRepository.saveUnblockingRecord(unblockRecord);
+      this.logger.log(
+        `Saved new unblock record (adminId: ${admin.id}, userId: ${user.id})`,
+      );
+      return newUnblockEntity;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async getUnblockRecordByUserId(userId: number): Promise<UserUnblockEntity> {
+    try {
+      const unblockRecord =
+        await this.usersUnblockRepository.getUnblockRecordByUserId(userId);
+      if (!unblockRecord) {
+        throw new NotFoundException('Unblocking record not found');
+      } else {
+        return unblockRecord;
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async getAllUnblockRecords(): Promise<UserUnblockEntity[]> {
+    try {
+      const unblockRecords =
+        await this.usersUnblockRepository.getAllUnblockRecords();
+      if (!unblockRecords || unblockRecords.length === 0) {
+        throw new NotFoundException('Unblock records not found');
+      } else {
+        return unblockRecords;
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
 
   // --- User's deleting ---
 
@@ -210,7 +265,7 @@ export class UsersManagementService {
     try {
       const deletionRecords =
         await this.usersDelitionRepository.getAllDeletionRecords();
-      if (!deletionRecords) {
+      if (!deletionRecords || deletionRecords.length === 0) {
         throw new NotFoundException('Deletion records not found');
       } else {
         return deletionRecords;

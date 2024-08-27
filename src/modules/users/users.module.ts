@@ -17,7 +17,9 @@ import { UsersManagementService } from './services/users-management.service';
 import {
   UsersBlockRepository,
   UsersDelitionRepository,
+  UsersUnblockRepository,
 } from './repositories/users-management.repository';
+import { UserUnblockEntity } from './entities/user-unblock.entity';
 
 @Module({
   controllers: [UsersController, UsersManagementController],
@@ -26,6 +28,7 @@ import {
     UsersRepository,
     UsersManagementService,
     UsersBlockRepository,
+    UsersUnblockRepository,
     UsersDelitionRepository,
     ConfigService,
     ResponseLogger,
@@ -33,7 +36,12 @@ import {
   ],
   imports: [
     ConfigModule,
-    TypeOrmModule.forFeature([UserEntity, UserBlockEntity, UserDeletionEntity]),
+    TypeOrmModule.forFeature([
+      UserEntity,
+      UserBlockEntity,
+      UserUnblockEntity,
+      UserDeletionEntity,
+    ]),
     JwtModule,
     RolesModule,
     EmailModule,

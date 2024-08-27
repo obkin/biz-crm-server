@@ -7,6 +7,7 @@ import { RoleEntity } from 'src/modules/roles/entities/role.entity';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
 import { UserBlockEntity } from '../users/entities/user-block.entity';
 import { UserDeletionEntity } from '../users/entities/user-deletion.entity';
+import { UserUnblockEntity } from '../users/entities/user-unblock.entity';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { UserDeletionEntity } from '../users/entities/user-deletion.entity';
         entities: [
           UserEntity,
           UserBlockEntity,
+          UserUnblockEntity,
           UserDeletionEntity,
           RefreshTokenEntity,
           AccessTokenEntity,

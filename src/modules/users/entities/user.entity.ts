@@ -8,6 +8,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { UserBlockEntity } from './user-block.entity';
+import { UserUnblockEntity } from './user-unblock.entity';
 
 @Entity('users')
 export class UserEntity {
@@ -60,9 +61,11 @@ export class UserEntity {
   @Column({ default: false })
   public isBlocked: boolean;
 
-  // add Swagger here
   @OneToMany(() => UserBlockEntity, (blockHistory) => blockHistory.user)
-  public blockedEntries: UserBlockEntity[];
+  public blockEntries: UserBlockEntity[];
+
+  @OneToMany(() => UserUnblockEntity, (unblockHistory) => unblockHistory.user)
+  public unblockEntries: UserUnblockEntity[];
 
   @ApiProperty({
     example: '2024-04-12T08:44:37.025Z',

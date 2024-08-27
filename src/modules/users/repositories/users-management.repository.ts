@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserDeletionEntity } from '../entities/user-deletion.entity';
 import { UserBlockEntity } from '../entities/user-block.entity';
+import { UserUnblockEntity } from '../entities/user-unblock.entity';
 
 @Injectable()
 export class UsersBlockRepository {
@@ -42,6 +43,46 @@ export class UsersBlockRepository {
     }
   }
 }
+
+@Injectable()
+export class UsersUnblockRepository {
+  constructor(
+    @InjectRepository(UserUnblockEntity)
+    private readonly usersUnblockRepository: Repository<UserUnblockEntity>,
+  ) {}
+
+  async saveUnblockingRecord(
+    unblockRecord: UserUnblockEntity,
+  ): Promise<UserUnblockEntity> {
+    try {
+      return await this.usersUnblockRepository.save(unblockRecord);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async getUnblockRecordByUserId(
+    userId: number,
+  ): Promise<UserUnblockEntity | undefined> {
+    try {
+      return await this.usersUnblockRepository.findOne({
+        where: { user: { id: userId } },
+        order: { unblockedAt: 'DESC' },
+      });
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async getAllUnblockRecords(): Promise<UserUnblockEntity[]> {
+    try {
+      return await this.usersUnblockRepository.find();
+    } catch (e) {
+      throw e;
+    }
+  }
+}
+
 @Injectable()
 export class UsersDelitionRepository {
   constructor(

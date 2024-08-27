@@ -18,7 +18,7 @@ export class UserBlockEntity {
   @PrimaryGeneratedColumn()
   public id: number;
 
-  @ManyToOne(() => UserEntity, (user) => user.blockedEntries)
+  @ManyToOne(() => UserEntity, (user) => user.blockEntries, { eager: true })
   public user: UserEntity;
 
   @ApiProperty({
