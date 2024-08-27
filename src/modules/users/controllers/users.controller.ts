@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   HttpCode,
   HttpException,
@@ -20,7 +19,6 @@ import { UsersService } from '../services/users.service';
 import { EmailValidationPipe } from 'src/common/pipes/validate-email.pipe';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
 import { idValidationPipe } from 'src/common/pipes/validate-id.pipe';
-import { UserBlockDto } from '../dto/user-block.dto';
 import { ChangeUserNameDto } from '../dto/change-user-name.dto';
 import { ChangeUserEmailDto } from '../dto/change-user-email.dto';
 import { ChangeUserPasswordDto } from '../dto/change-user-password.dto';
@@ -28,7 +26,6 @@ import { Request } from 'express';
 import { AssignRoleDto } from '../dto/assign-role.dto';
 import { RemoveRoleDto } from '../dto/remove-role.dto';
 import { UserNameValidationPipe } from 'src/common/pipes/validate-user-name.pipe';
-import { UserDeleteDto } from '../dto/user-delete.dto';
 
 @ApiTags('users')
 // @UseGuards(RolesGuard)
@@ -258,81 +255,6 @@ export class UsersController {
       } else {
         throw new HttpException(
           `Failed to change user password. ${e}`,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-    }
-  }
-
-  @ApiOperation({ summary: 'Delete user' })
-  @ApiResponse({
-    status: 200,
-    description: 'User deleted',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'User not found',
-  })
-  @ApiResponse({
-    status: 409,
-    description: 'This user is admin',
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Internal Server Error',
-  })
-  @HttpCode(200)
-  @Delete('/delete-user')
-  async deleteUser(@Body() dto: UserDeleteDto, @Req() req: Request) {
-    try {
-      const admin: UserEntity = req.user;
-      await this.usersService.deleteUser(admin, dto);
-      return {
-        userId: dto.userId,
-        message: 'User deleted',
-      };
-    } catch (e) {
-      if (e instanceof HttpException) {
-        throw e;
-      } else {
-        throw new HttpException(
-          `Failed to delete the user. ${e}`,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-    }
-  }
-
-  @ApiOperation({ summary: 'Block user' })
-  @ApiResponse({
-    status: 200,
-    description: 'User blocked',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'User not found',
-  })
-  @ApiResponse({
-    status: 409,
-    description: 'User is already blocked',
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Internal Server Error',
-  })
-  @HttpCode(200)
-  @Post('/block')
-  async blockUser(@Body() dto: UserBlockDto, @Req() req: Request) {
-    try {
-      const admin: UserEntity = req.user;
-      await this.usersService.blockUser(admin, dto);
-      return { userId: dto.userId, message: 'User blocked' };
-    } catch (e) {
-      if (e instanceof HttpException) {
-        throw e;
-      } else {
-        throw new HttpException(
-          `Failed to block the user. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }

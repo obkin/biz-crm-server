@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   ConflictException,
-  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -17,8 +16,6 @@ import { ChangeUserPasswordDto } from '../dto/change-user-password.dto';
 import { genSalt, hash, compare } from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { UserDeleteDto } from '../dto/user-delete.dto';
-import { UserBlockDto } from '../dto/user-block.dto';
 
 @Injectable()
 export class UsersService {
@@ -180,53 +177,6 @@ export class UsersService {
       this.logger.log(`User password changed (userId: ${user.id})`);
       this.eventEmitter.emit('auth.userLogout', { userId: user.id });
       return updatedUser;
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  async deleteUser(admin: UserEntity, dto: UserDeleteDto): Promise<void> {
-    try {
-      const user = await this.usersRepository.getUserById(dto.userId);
-      if (!user) {
-        throw new NotFoundException('User not found');
-      }
-      if (await this.checkIsUserAdmin(user.id)) {
-        throw new ForbiddenException('This user is admin');
-      }
-      this.eventEmitter.emit('auth.userLogout', { userId: user.id });
-      this.eventEmitter.emit('user.deleted', {
-        admin,
-        user,
-        dto,
-      });
-      await this.usersRepository.deleteUser(user.id);
-      this.logger.log(
-        `User successfully deleted (userId: ${user.id}, email: ${user.email})`,
-      );
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  async blockUser(admin: UserEntity, dto: UserBlockDto): Promise<void> {
-    try {
-      const user = await this.getUserById(dto.userId);
-      if (!user) {
-        throw new NotFoundException('User not found');
-      }
-      if (user.isBlocked) {
-        throw new ConflictException('This user is already blocked');
-      }
-      if (await this.checkIsUserAdmin(user.id)) {
-        throw new ForbiddenException('This user is admin');
-      }
-      this.eventEmitter.emit('user.blocked', {
-        admin,
-        user,
-        dto,
-      });
-      await this.usersRepository.blockUser(user);
     } catch (e) {
       throw e;
     }

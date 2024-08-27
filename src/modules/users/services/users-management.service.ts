@@ -1,5 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { UserDeleteDto } from '../dto/user-delete.dto';
+import { UsersRepository } from '../repositories/users.repository';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import {
   UsersBlockRepository,
   UsersDelitionRepository,
@@ -8,15 +16,47 @@ import { UserBlockDto } from '../dto/user-block.dto';
 import { UserBlockEntity } from '../entities/user-block.entity';
 import { UserDeletionEntity } from '../entities/user-deletion.entity';
 import { UserEntity } from '../entities/user.entity';
+import { UsersService } from './users.service';
 
 @Injectable()
 export class UsersManagementService {
+  private readonly logger = new Logger(UsersManagementService.name);
+
   constructor(
+    private readonly usersRepository: UsersRepository,
+    private readonly usersService: UsersService,
+    private readonly eventEmitter: EventEmitter2,
     private readonly usersBlockRepository: UsersBlockRepository,
     private readonly usersDelitionRepository: UsersDelitionRepository,
   ) {}
 
   // --- User's blocking ---
+
+  async blockUser(admin: UserEntity, dto: UserBlockDto): Promise<void> {
+    try {
+      const user = await this.usersService.getUserById(dto.userId);
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+      if (user.isBlocked) {
+        throw new ConflictException('This user is already blocked');
+      }
+      if (await this.usersService.checkIsUserAdmin(user.id)) {
+        throw new ForbiddenException('This user is admin');
+      }
+      this.eventEmitter.emit('user.blocked', {
+        admin,
+        user,
+        dto,
+      });
+      await this.usersRepository.blockUser(user);
+      this.logger.log(
+        `User successfully blocked (userId: ${user.id}, email: ${user.email})`,
+      );
+    } catch (e) {
+      throw e;
+    }
+  }
 
   async saveBlockRecord(
     admin: UserEntity,
@@ -77,7 +117,31 @@ export class UsersManagementService {
 
   // --- User's deleting ---
 
-  public async saveDeletionRecord(
+  async deleteUser(admin: UserEntity, dto: UserDeleteDto): Promise<void> {
+    try {
+      const user = await this.usersRepository.getUserById(dto.userId);
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+      if (await this.usersService.checkIsUserAdmin(user.id)) {
+        throw new ForbiddenException('This user is admin');
+      }
+      this.eventEmitter.emit('auth.userLogout', { userId: user.id });
+      this.eventEmitter.emit('user.deleted', {
+        admin,
+        user,
+        dto,
+      });
+      await this.usersRepository.deleteUser(user.id);
+      this.logger.log(
+        `User successfully deleted (userId: ${user.id}, email: ${user.email})`,
+      );
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async saveDeletionRecord(
     admin: UserEntity,
     user: UserEntity,
     dto: UserDeleteDto,

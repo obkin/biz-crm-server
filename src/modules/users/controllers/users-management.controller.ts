@@ -1,14 +1,23 @@
 import {
+  Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
   HttpException,
   HttpStatus,
   Param,
+  Post,
+  Req,
 } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UsersManagementService } from '../services/users-management.service';
 import { UserDeletionEntity } from '../entities/user-deletion.entity';
 import { UserBlockEntity } from '../entities/user-block.entity';
+import { UserDeleteDto } from '../dto/user-delete.dto';
+import { UserEntity } from '../entities/user.entity';
+import { Request } from 'express';
+import { UserBlockDto } from '../dto/user-block.dto';
 
 @ApiTags('users-management')
 @Controller('/users/management')
@@ -16,6 +25,42 @@ export class UsersManagementController {
   constructor(
     private readonly usersManagementService: UsersManagementService,
   ) {}
+
+  @ApiOperation({ summary: 'Block user' })
+  @ApiResponse({
+    status: 200,
+    description: 'User blocked',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'User is already blocked',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @HttpCode(200)
+  @Post('/block-user')
+  async blockUser(@Body() dto: UserBlockDto, @Req() req: Request) {
+    try {
+      const admin: UserEntity = req.user;
+      await this.usersManagementService.blockUser(admin, dto);
+      return { userId: dto.userId, message: 'User blocked' };
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to block the user. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
 
   @ApiOperation({ summary: 'Get block record by userId' })
   @ApiResponse({
@@ -74,6 +119,45 @@ export class UsersManagementController {
       } else {
         throw new HttpException(
           `Failed to get all block records. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  @ApiOperation({ summary: 'Delete user' })
+  @ApiResponse({
+    status: 200,
+    description: 'User deleted',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'This user is admin',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @HttpCode(200)
+  @Delete('/delete-user')
+  async deleteUser(@Body() dto: UserDeleteDto, @Req() req: Request) {
+    try {
+      const admin: UserEntity = req.user;
+      await this.usersManagementService.deleteUser(admin, dto);
+      return {
+        userId: dto.userId,
+        message: 'User deleted',
+      };
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to delete the user. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
