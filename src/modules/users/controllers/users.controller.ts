@@ -261,42 +261,6 @@ export class UsersController {
     }
   }
 
-  @ApiOperation({ summary: 'Unblock user' })
-  @ApiResponse({
-    status: 200,
-    description: 'User unblocked',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'User not found',
-  })
-  @ApiResponse({
-    status: 409,
-    description: 'This user is not blocked',
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Internal Server Error',
-  })
-  @HttpCode(200)
-  @UsePipes(new idValidationPipe())
-  @Post('/unblock/:id')
-  async unblockUser(@Param('id') id: number) {
-    try {
-      await this.usersService.unblockUser(Number(id));
-      return { id, message: 'User unblocked' };
-    } catch (e) {
-      if (e instanceof HttpException) {
-        throw e;
-      } else {
-        throw new HttpException(
-          `Failed to unblock the user. ${e}`,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-    }
-  }
-
   @ApiOperation({ summary: 'Get user by email' })
   @ApiResponse({
     status: 200,

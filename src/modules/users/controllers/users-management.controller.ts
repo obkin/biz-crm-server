@@ -18,6 +18,7 @@ import { UserDeleteDto } from '../dto/user-delete.dto';
 import { UserEntity } from '../entities/user.entity';
 import { Request } from 'express';
 import { UserBlockDto } from '../dto/user-block.dto';
+import { UserUnblockDto } from '../dto/user-unblock.dto';
 
 @ApiTags('users-management')
 @Controller('/users/management')
@@ -56,6 +57,42 @@ export class UsersManagementController {
       } else {
         throw new HttpException(
           `Failed to block the user. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  @ApiOperation({ summary: 'Unblock user' })
+  @ApiResponse({
+    status: 200,
+    description: 'User unblocked',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'This user is not blocked',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @HttpCode(200)
+  @Post('/unblock-user')
+  async unblockUser(@Body() dto: UserUnblockDto, @Req() req: Request) {
+    try {
+      const admin: UserEntity = req.user;
+      await this.usersManagementService.unblockUser(admin, dto);
+      return { userId: dto.userId, message: 'User unblocked' };
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to unblock the user. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }

@@ -182,21 +182,6 @@ export class UsersService {
     }
   }
 
-  async unblockUser(id: number): Promise<void> {
-    try {
-      const user = await this.getUserById(id);
-      if (!user) {
-        throw new NotFoundException('User not found');
-      }
-      if (!user.isBlocked) {
-        throw new ConflictException('This user is not blocked');
-      }
-      await this.usersRepository.unblockUser(user);
-    } catch (e) {
-      throw e;
-    }
-  }
-
   async getUserByEmail(email: string): Promise<UserEntity> {
     try {
       const user = await this.usersRepository.getUserByEmail(email);

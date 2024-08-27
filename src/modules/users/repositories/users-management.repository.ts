@@ -26,7 +26,7 @@ export class UsersBlockRepository {
   ): Promise<UserBlockEntity | undefined> {
     try {
       return await this.usersBlockRepository.findOne({
-        where: { user: { id: userId }, isActive: true },
+        where: { user: { id: userId } },
         order: { blockedAt: 'DESC' },
       });
     } catch (e) {

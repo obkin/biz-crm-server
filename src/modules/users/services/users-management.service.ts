@@ -17,6 +17,7 @@ import { UserBlockEntity } from '../entities/user-block.entity';
 import { UserDeletionEntity } from '../entities/user-deletion.entity';
 import { UserEntity } from '../entities/user.entity';
 import { UsersService } from './users.service';
+import { UserUnblockDto } from '../dto/user-unblock.dto';
 
 @Injectable()
 export class UsersManagementService {
@@ -44,15 +45,12 @@ export class UsersManagementService {
       if (await this.usersService.checkIsUserAdmin(user.id)) {
         throw new ForbiddenException('This user is admin');
       }
-      this.eventEmitter.emit('user.blocked', {
-        admin,
-        user,
-        dto,
-      });
       await this.usersRepository.blockUser(user);
+      await this.saveBlockRecord(admin, user, dto);
       this.logger.log(
         `User successfully blocked (userId: ${user.id}, email: ${user.email})`,
       );
+      this.logger.log(`Blocked by: ${admin.email} (adminId: ${admin.id})`);
     } catch (e) {
       throw e;
     }
@@ -75,7 +73,12 @@ export class UsersManagementService {
       blockRecord.adminId = admin.id;
       blockRecord.adminEmail = admin.email;
 
-      return await this.usersBlockRepository.saveBlockRecord(blockRecord);
+      const newBlockRecord =
+        await this.usersBlockRepository.saveBlockRecord(blockRecord);
+      this.logger.log(
+        `Saved new block record (adminId: ${admin.id}, userId: ${user.id})`,
+      );
+      return newBlockRecord;
     } catch (e) {
       throw e;
     }
@@ -115,6 +118,31 @@ export class UsersManagementService {
     );
   }
 
+  // --- User's unblocking ---
+
+  async unblockUser(admin: UserEntity, dto: UserUnblockDto): Promise<void> {
+    try {
+      const user = await this.usersService.getUserById(dto.userId);
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+      if (!user.isBlocked) {
+        throw new ConflictException('This user is not blocked');
+      }
+      await this.usersRepository.unblockUser(user);
+      this.logger.log(
+        `User successfully unblocked (userId: ${user.id}, email: ${user.email}, adminId: ${admin.id})`,
+      );
+      this.logger.log(`Unblocked by: ${admin.email} (adminId: ${admin.id})`);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async saveUnblockingRecord() {}
+  async getUnblockingRecordByUserId() {}
+  async getAllUnblockingRecords() {}
+
   // --- User's deleting ---
 
   async deleteUser(admin: UserEntity, dto: UserDeleteDto): Promise<void> {
@@ -127,12 +155,8 @@ export class UsersManagementService {
         throw new ForbiddenException('This user is admin');
       }
       this.eventEmitter.emit('auth.userLogout', { userId: user.id });
-      this.eventEmitter.emit('user.deleted', {
-        admin,
-        user,
-        dto,
-      });
       await this.usersRepository.deleteUser(user.id);
+      await this.saveDeletionRecord(admin, user, dto);
       this.logger.log(
         `User successfully deleted (userId: ${user.id}, email: ${user.email})`,
       );
@@ -157,9 +181,12 @@ export class UsersManagementService {
       deletionRecord.adminId = admin.id;
       deletionRecord.adminEmail = admin.email;
 
-      return await this.usersDelitionRepository.saveDeletionRecord(
-        deletionRecord,
+      const newDeletionRecord =
+        await this.usersDelitionRepository.saveDeletionRecord(deletionRecord);
+      this.logger.log(
+        `Saved new deletion record (adminId: ${admin.id}, userId: ${user.id})`,
       );
+      return newDeletionRecord;
     } catch (e) {
       throw e;
     }
