@@ -27,6 +27,7 @@ import { ResponseLogger } from './common/interceptors/response-logger.intercepto
 import { RequestLogger } from './common/middlewares/request-logger.middleware';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { ThrottlerConfigService } from './common/config/throttler-config.service';
+import { UserBlockGuard } from './common/guards/user-block.guard';
 
 @Module({
   controllers: [],
@@ -42,6 +43,10 @@ import { ThrottlerConfigService } from './common/config/throttler-config.service
     {
       provide: APP_GUARD,
       useClass: RolesGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: UserBlockGuard,
     },
     {
       provide: APP_FILTER,
