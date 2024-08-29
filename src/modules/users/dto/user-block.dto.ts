@@ -5,6 +5,7 @@ import {
   IsString,
   IsOptional,
   Max,
+  Min,
 } from 'class-validator';
 
 export class UserBlockDto {
@@ -34,11 +35,12 @@ export class UserBlockDto {
   readonly notes: string;
 
   @ApiProperty({
-    example: 7,
-    description: 'The duration (in days) for which the user is blocked',
+    example: 1,
+    description: 'The duration (in hours) for which the user is blocked',
   })
   @IsNumber()
   @IsNotEmpty()
-  @Max(3650)
+  @Min(1)
+  @Max(87600)
   readonly blockDuration: number;
 }

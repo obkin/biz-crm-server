@@ -22,11 +22,11 @@ export class UsersBlockRepository {
     }
   }
 
-  async getBlockRecordByUserId(
+  async getAllBlockRecordsByUserId(
     userId: number,
-  ): Promise<UserBlockEntity | undefined> {
+  ): Promise<UserBlockEntity[] | undefined> {
     try {
-      return await this.usersBlockRepository.findOne({
+      return await this.usersBlockRepository.find({
         where: { user: { id: userId } },
         order: { blockedAt: 'DESC' },
       });

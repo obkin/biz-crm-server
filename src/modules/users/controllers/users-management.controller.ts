@@ -81,12 +81,13 @@ export class UsersManagementController {
     description: 'Internal Server Error',
   })
   @ApiQuery({ name: 'id', required: true, description: 'ID of the user' })
-  @Get('/get-block-record-by-userId/:id')
-  async getBlockRecordByUserId(@Param('id') id: number) {
+  @Get('/get-all-block-records-by-userId/:id')
+  async getAllBlockRecordsByUserId(@Param('id') id: number) {
     try {
-      return await this.usersManagementService.getBlockRecordByUserId(
+      const blockRecords = await this.usersManagementService.getAllBlockRecords(
         Number(id),
       );
+      return { amount: blockRecords.length, blockRecords };
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;
@@ -116,7 +117,9 @@ export class UsersManagementController {
   @Get('/get-all-block-records')
   async getAllBlockRecords() {
     try {
-      return await this.usersManagementService.getAllBlockRecords();
+      const blockRecords =
+        await this.usersManagementService.getAllBlockRecords();
+      return { amount: blockRecords.length, blockRecords };
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;

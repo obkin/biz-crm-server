@@ -56,8 +56,8 @@ export class UserBlockEntity {
   public blockedAt: Date;
 
   @ApiProperty({
-    example: 7,
-    description: 'The duration (in days) for which the user was blocked',
+    example: 1,
+    description: 'The duration (in hours) for which the user was blocked',
     nullable: true,
   })
   @Column({ type: 'int', nullable: true })
@@ -69,7 +69,7 @@ export class UserBlockEntity {
     nullable: true,
   })
   @UpdateDateColumn({ nullable: true })
-  public unblockedAt: Date;
+  public unblockAt: Date;
 
   @ApiProperty({
     example: 1,

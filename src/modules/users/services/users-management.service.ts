@@ -71,7 +71,7 @@ export class UsersManagementService {
       blockRecord.notes = dto.notes;
       blockRecord.isActive = true;
       blockRecord.blockDuration = dto.blockDuration;
-      blockRecord.unblockedAt = this.calculateUnblockDate(dto.blockDuration);
+      blockRecord.unblockAt = this.calculateUnblockDate(dto.blockDuration);
 
       blockRecord.adminId = admin.id;
       blockRecord.adminEmail = admin.email;
@@ -87,23 +87,15 @@ export class UsersManagementService {
     }
   }
 
-  async getBlockRecordByUserId(userId: number): Promise<UserBlockEntity> {
+  async getAllBlockRecords(userId?: number): Promise<UserBlockEntity[]> {
     try {
-      const blockRecord =
-        await this.usersBlockRepository.getBlockRecordByUserId(userId);
-      if (!blockRecord) {
-        throw new NotFoundException('Block record not found');
+      let blockRecords: UserBlockEntity[];
+      if (userId) {
+        blockRecords =
+          await this.usersBlockRepository.getAllBlockRecordsByUserId(userId);
       } else {
-        return blockRecord;
+        blockRecords = await this.usersBlockRepository.getAllBlockRecords();
       }
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  async getAllBlockRecords(): Promise<UserBlockEntity[]> {
-    try {
-      const blockRecords = await this.usersBlockRepository.getAllBlockRecords();
       if (!blockRecords || blockRecords.length === 0) {
         throw new NotFoundException('Block records not found');
       } else {
@@ -114,11 +106,35 @@ export class UsersManagementService {
     }
   }
 
+  async getAllActiveBlockRecords(userId: number): Promise<UserBlockEntity[]> {
+    try {
+      const blockRecords = await this.getAllBlockRecords(userId);
+      return blockRecords.filter(
+        (record: { isActive: boolean }) => record.isActive,
+      );
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async isBlockStillValid(userId: number): Promise<boolean> {
+    try {
+      const activeBlockRecords = await this.getAllActiveBlockRecords(userId);
+      const currentDate = new Date();
+      return activeBlockRecords.some((record) => {
+        if (record.unblockAt) {
+          return record.unblockAt > currentDate;
+        }
+        return true;
+      });
+    } catch (e) {
+      throw e;
+    }
+  }
+
   private calculateUnblockDate(blockDuration: number): Date {
     const currentDate = new Date();
-    return new Date(
-      currentDate.getTime() + blockDuration * 24 * 60 * 60 * 1000,
-    );
+    return new Date(currentDate.getTime() + blockDuration * 60 * 60 * 1000);
   }
 
   // --- User's unblocking ---
