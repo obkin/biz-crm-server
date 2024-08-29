@@ -1,16 +1,29 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserDeletionEntity } from '../entities/user-deletion.entity';
 import { UserBlockEntity } from '../entities/user-block.entity';
 import { UserUnblockEntity } from '../entities/user-unblock.entity';
+import { UserEntity } from '../entities/user.entity';
 
 @Injectable()
 export class UsersBlockRepository {
   constructor(
     @InjectRepository(UserBlockEntity)
     private readonly usersBlockRepository: Repository<UserBlockEntity>,
+
+    @InjectRepository(UserEntity)
+    private readonly usersRepository: Repository<UserEntity>,
   ) {}
+
+  async blockUser(user: UserEntity): Promise<void> {
+    try {
+      user.isBlocked = true;
+      await this.usersRepository.save(user);
+    } catch (e) {
+      throw e;
+    }
+  }
 
   async saveBlockRecord(
     blockRecord: UserBlockEntity,
@@ -49,7 +62,19 @@ export class UsersUnblockRepository {
   constructor(
     @InjectRepository(UserUnblockEntity)
     private readonly usersUnblockRepository: Repository<UserUnblockEntity>,
+
+    @InjectRepository(UserEntity)
+    private readonly usersRepository: Repository<UserEntity>,
   ) {}
+
+  async unblockUser(user: UserEntity): Promise<void> {
+    try {
+      user.isBlocked = false;
+      await this.usersRepository.save(user);
+    } catch (e) {
+      throw e;
+    }
+  }
 
   async saveUnblockingRecord(
     unblockRecord: UserUnblockEntity,
@@ -88,7 +113,21 @@ export class UsersDelitionRepository {
   constructor(
     @InjectRepository(UserDeletionEntity)
     private readonly usersDelitionRepository: Repository<UserDeletionEntity>,
+
+    @InjectRepository(UserEntity)
+    private readonly usersRepository: Repository<UserEntity>,
   ) {}
+
+  async deleteUser(id: number): Promise<void> {
+    try {
+      const result = await this.usersRepository.delete(id);
+      if (result.affected === 0) {
+        throw new NotFoundException('User not found');
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
 
   async saveDeletionRecord(
     deletionRecord: UserDeletionEntity,

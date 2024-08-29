@@ -48,7 +48,7 @@ export class UsersManagementService {
       if (await this.usersService.checkIsUserAdmin(user.id)) {
         throw new ForbiddenException('This user is admin');
       }
-      await this.usersRepository.blockUser(user);
+      await this.usersBlockRepository.blockUser(user);
       await this.saveBlockRecord(admin, user, dto);
       this.logger.log(
         `User successfully blocked (userId: ${user.id}, email: ${user.email})`,
@@ -148,7 +148,7 @@ export class UsersManagementService {
       if (!user.isBlocked) {
         throw new ConflictException('This user is not blocked');
       }
-      await this.usersRepository.unblockUser(user);
+      await this.usersUnblockRepository.unblockUser(user);
       if (dto.unblockReason || dto.notes) {
         await this.saveUnblockRecord(admin, user, dto);
       }
@@ -226,7 +226,7 @@ export class UsersManagementService {
         throw new ForbiddenException('This user is admin');
       }
       this.eventEmitter.emit('auth.userLogout', { userId: user.id });
-      await this.usersRepository.deleteUser(user.id);
+      await this.usersDelitionRepository.deleteUser(user.id);
       await this.saveDeletionRecord(admin, user, dto);
       this.logger.log(
         `User successfully deleted (userId: ${user.id}, email: ${user.email})`,

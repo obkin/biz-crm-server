@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { UserRegisterDto } from '../../auth/dto/user-register.dto';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -57,35 +53,6 @@ export class UsersRepository {
     try {
       user.password = newPassword;
       return await this.usersRepository.save(user);
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  async deleteUser(id: number): Promise<void> {
-    try {
-      const result = await this.usersRepository.delete(id);
-      if (result.affected === 0) {
-        throw new NotFoundException('User not found');
-      }
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  async blockUser(user: UserEntity): Promise<void> {
-    try {
-      user.isBlocked = true;
-      await this.usersRepository.save(user);
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  async unblockUser(user: UserEntity): Promise<void> {
-    try {
-      user.isBlocked = false;
-      await this.usersRepository.save(user);
     } catch (e) {
       throw e;
     }
