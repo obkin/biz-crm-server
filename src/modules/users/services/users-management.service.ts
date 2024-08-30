@@ -106,9 +106,14 @@ export class UsersManagementService {
     }
   }
 
-  async getAllActiveBlockRecords(userId: number): Promise<UserBlockEntity[]> {
+  async getAllActiveBlockRecords(userId?: number): Promise<UserBlockEntity[]> {
     try {
-      const blockRecords = await this.getAllBlockRecords(userId);
+      let blockRecords: UserBlockEntity[];
+      if (userId) {
+        blockRecords = await this.getAllBlockRecords(userId);
+      } else {
+        blockRecords = await this.getAllBlockRecords();
+      }
       if (!blockRecords || blockRecords.length === 0) {
         throw new NotFoundException('Block records not found');
       }
@@ -125,22 +130,22 @@ export class UsersManagementService {
       const activeBlockRecords = await this.getAllActiveBlockRecords(userId);
       const user = await this.usersService.getUserById(userId);
       const currentDate = new Date();
-      let hasValidBlock = false;
+      let isBlockValid = false;
 
       for (const record of activeBlockRecords) {
         if (record.unblockAt && record.unblockAt <= currentDate) {
           await this.changeBlockRecordStatus(record.id, false);
           return false;
         } else {
-          hasValidBlock = true;
+          isBlockValid = true;
         }
       }
 
-      if (!hasValidBlock) {
+      if (!isBlockValid) {
         await this.usersUnblockRepository.unblockUser(user);
       }
 
-      return hasValidBlock;
+      return isBlockValid;
     } catch (e) {
       throw e;
     }

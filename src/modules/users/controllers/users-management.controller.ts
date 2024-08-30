@@ -134,6 +134,72 @@ export class UsersManagementController {
     }
   }
 
+  @ApiOperation({ summary: 'Get all active block records' })
+  @ApiResponse({
+    status: 200,
+    description: 'Retrieved all active block records',
+    type: [UserBlockEntity],
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Block records not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @Get('/get-all-active-block-records')
+  async getAllActiveBlockRecords() {
+    try {
+      const blockRecords =
+        await this.usersManagementService.getAllActiveBlockRecords();
+      return { amount: blockRecords.length, blockRecords };
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to get all active block records. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  @ApiOperation({ summary: 'Get all active block records by user ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Retrieved all active block records',
+    type: [UserBlockEntity],
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Block records not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @Get('/get-all-active-block-records-by-userId/:id')
+  async getAllActiveBlockRecordsByUserId(@Param('id') userId: number) {
+    try {
+      const blockRecords =
+        await this.usersManagementService.getAllActiveBlockRecords(
+          Number(userId),
+        );
+      return { amount: blockRecords.length, blockRecords };
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to get user all active blocks. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
   // === User's blocking - debug ===
 
   @ApiOperation({ summary: 'Get block record by ID' })

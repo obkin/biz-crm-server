@@ -16,27 +16,6 @@ export class UsersBlockRepository {
     private readonly usersRepository: Repository<UserEntity>,
   ) {}
 
-  // Метод updateInactiveBlocks можна викликати періодично через CRON задачу або з
-  // іншого місця у програмі, де потрібно перевіряти та оновлювати статус блокувань.
-  async TESTupdateInactiveBlocks(): Promise<void> {
-    try {
-      const currentDate = new Date();
-      const expiredBlocks = await this.usersBlockRepository
-        .createQueryBuilder('block')
-        .where('block.isActive = :isActive', { isActive: true })
-        .andWhere('block.unblockAt IS NOT NULL')
-        .andWhere('block.unblockAt <= :currentDate', { currentDate })
-        .getMany();
-
-      for (const block of expiredBlocks) {
-        block.isActive = false;
-        await this.usersBlockRepository.save(block);
-      }
-    } catch (e) {
-      throw e;
-    }
-  }
-
   async blockUser(user: UserEntity): Promise<void> {
     try {
       user.isBlocked = true;
