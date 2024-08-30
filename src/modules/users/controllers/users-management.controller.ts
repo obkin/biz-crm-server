@@ -174,7 +174,7 @@ export class UsersManagementController {
   })
   @ApiResponse({
     status: 404,
-    description: 'Block records not found',
+    description: 'Active block records not found',
   })
   @ApiResponse({
     status: 500,

@@ -36,6 +36,7 @@ export class UserBlockGuard implements CanActivate {
       this.logger.warn('User is not authorized');
       throw new UnauthorizedException('User is not authorized');
     }
+
     const existingUser = await this.usersService.getUserById(user.id);
     if (existingUser.isBlocked) {
       const isBlockValid = await this.usersManagementService.isBlockStillValid(
@@ -46,6 +47,14 @@ export class UserBlockGuard implements CanActivate {
         throw new ForbiddenException('This account is blocked');
       } else {
         this.logger.log('User is not blocked anymore');
+      }
+    } else {
+      const activeBlocks =
+        await this.usersManagementService.countActiveBlocksForUser(
+          Number(user.id),
+        );
+      if (activeBlocks > 0) {
+        this.logger.warn(`This user (#${user.id}) has active block records!`);
       }
     }
     return true;

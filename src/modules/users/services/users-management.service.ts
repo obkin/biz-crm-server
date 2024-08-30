@@ -115,7 +115,7 @@ export class UsersManagementService {
         blockRecords = await this.getAllBlockRecords();
       }
       if (!blockRecords || blockRecords.length === 0) {
-        throw new NotFoundException('Block records not found');
+        throw new NotFoundException('Active block records not found');
       }
       return blockRecords.filter(
         (record: { isActive: boolean }) => record.isActive,
@@ -148,6 +148,15 @@ export class UsersManagementService {
       return isBlockValid;
     } catch (e) {
       throw e;
+    }
+  }
+
+  async countActiveBlocksForUser(userId: number): Promise<number> {
+    try {
+      const activeBlocks = await this.getAllActiveBlockRecords(userId);
+      return activeBlocks.length;
+    } catch (e) {
+      return 0;
     }
   }
 
