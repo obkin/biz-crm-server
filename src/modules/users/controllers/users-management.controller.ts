@@ -7,6 +7,7 @@ import {
   HttpException,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Req,
 } from '@nestjs/common';
@@ -20,6 +21,7 @@ import { Request } from 'express';
 import { UserBlockDto } from '../dto/user-block.dto';
 import { UserUnblockDto } from '../dto/user-unblock.dto';
 import { UserUnblockEntity } from '../entities/user-unblock.entity';
+import { ChangeBlockRecordStatusDto } from '../dto/change-block-record-status.dto';
 
 @ApiTags('users-management')
 @Controller('/users/management')
@@ -126,6 +128,81 @@ export class UsersManagementController {
       } else {
         throw new HttpException(
           `Failed to get all block records. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  // === User's blocking - debug ===
+
+  @ApiOperation({ summary: 'Get block record by ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Block record retrieved ',
+    type: UserBlockEntity,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Block record not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @Get('/get-block-record-by-id/:id')
+  async getBlockRecordById(@Param('id') blockRecordId: number) {
+    try {
+      return await this.usersManagementService.getBlockRecordById(
+        Number(blockRecordId),
+      );
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to get block record by ID. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  @ApiOperation({ summary: 'Change block record status' })
+  @ApiResponse({
+    status: 200,
+    description: 'Block record status changed',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Block record not found',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Block record status is already changed',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @Patch('/change-block-record-status')
+  async changeBlockRecordStatus(@Body() dto: ChangeBlockRecordStatusDto) {
+    try {
+      await this.usersManagementService.changeBlockRecordStatus(
+        dto.blockRecordId,
+        dto.isActive,
+      );
+      return {
+        blockRecordId: dto.blockRecordId,
+        newStatus: dto.isActive,
+        message: 'Status successfully changed',
+      };
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to update block record status. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }

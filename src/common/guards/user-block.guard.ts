@@ -41,10 +41,11 @@ export class UserBlockGuard implements CanActivate {
       const isBlockValid = await this.usersManagementService.isBlockStillValid(
         user.id,
       );
-      this.logger.log('User is not blocked anymore');
       if (isBlockValid) {
         this.logger.warn('User is blocked');
         throw new ForbiddenException('This account is blocked');
+      } else {
+        this.logger.log('User is not blocked anymore');
       }
     }
     return true;

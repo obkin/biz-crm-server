@@ -109,6 +109,9 @@ export class UsersManagementService {
   async getAllActiveBlockRecords(userId: number): Promise<UserBlockEntity[]> {
     try {
       const blockRecords = await this.getAllBlockRecords(userId);
+      if (!blockRecords || blockRecords.length === 0) {
+        throw new NotFoundException('Block records not found');
+      }
       return blockRecords.filter(
         (record: { isActive: boolean }) => record.isActive,
       );
@@ -120,13 +123,24 @@ export class UsersManagementService {
   async isBlockStillValid(userId: number): Promise<boolean> {
     try {
       const activeBlockRecords = await this.getAllActiveBlockRecords(userId);
+      const user = await this.usersService.getUserById(userId);
       const currentDate = new Date();
-      return activeBlockRecords.some((record) => {
-        if (record.unblockAt) {
-          return record.unblockAt > currentDate;
+      let hasValidBlock = false;
+
+      for (const record of activeBlockRecords) {
+        if (record.unblockAt && record.unblockAt <= currentDate) {
+          await this.changeBlockRecordStatus(record.id, false);
+          return false;
+        } else {
+          hasValidBlock = true;
         }
-        return true;
-      });
+      }
+
+      if (!hasValidBlock) {
+        await this.usersUnblockRepository.unblockUser(user);
+      }
+
+      return hasValidBlock;
     } catch (e) {
       throw e;
     }
@@ -136,6 +150,43 @@ export class UsersManagementService {
     const currentDate = new Date();
     return new Date(currentDate.getTime() + blockDuration * 60 * 60 * 1000);
   }
+
+  // === User's blocking - debug ===
+
+  async getBlockRecordById(blockRecordId: number): Promise<UserBlockEntity> {
+    try {
+      const blockRecord =
+        await this.usersBlockRepository.getBlockRecordById(blockRecordId);
+      if (!blockRecord) {
+        throw new NotFoundException('Block record not found');
+      }
+      return blockRecord;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async changeBlockRecordStatus(
+    blockRecordId: number,
+    isActive: boolean,
+  ): Promise<void> {
+    try {
+      const blockRecord = await this.getBlockRecordById(blockRecordId);
+      if (blockRecord.isActive === isActive) {
+        throw new ConflictException(
+          `This block record is already ${isActive ? 'active' : 'inactive'}`,
+        );
+      }
+      await this.usersBlockRepository.changeBlockRecordStatus(
+        blockRecordId,
+        isActive,
+      );
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async deleteBlockRecord(): Promise<void> {}
 
   // --- User's unblocking ---
 
