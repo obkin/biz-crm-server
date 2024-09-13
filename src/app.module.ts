@@ -28,6 +28,9 @@ import { RequestLogger } from './common/middlewares/request-logger.middleware';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { ThrottlerConfigService } from './common/config/throttler-config.service';
 import { UserBlockGuard } from './common/guards/user-block.guard';
+import { ScheduleModule } from '@nestjs/schedule';
+import { BlockStatusUpdaterService } from './common/tasks/users-block-updater.service';
+import { UsersManagementService } from './modules/users/services/users-management.service';
 
 @Module({
   controllers: [],
@@ -62,6 +65,8 @@ import { UserBlockGuard } from './common/guards/user-block.guard';
     },
     Reflector,
     LoggerService,
+    BlockStatusUpdaterService,
+    UsersManagementService,
   ],
   imports: [
     ConfigModule.forRoot({
@@ -73,6 +78,7 @@ import { UserBlockGuard } from './common/guards/user-block.guard';
       useClass: ThrottlerConfigService,
     }),
     EventEmitterModule.forRoot(),
+    ScheduleModule.forRoot(),
     DatabaseModule,
     RedisModule,
     UsersModule,

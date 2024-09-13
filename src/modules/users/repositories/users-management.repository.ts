@@ -78,6 +78,32 @@ export class UsersBlockRepository {
       throw e;
     }
   }
+
+  async getAllExpiredBlockRecords(
+    activeStatus: boolean,
+  ): Promise<UserBlockEntity[]> {
+    try {
+      const currentDate = new Date();
+
+      console.log(`Searching for blocks with activeStatus: ${activeStatus}`);
+
+      return this.usersBlockRepository
+        .createQueryBuilder('block')
+        .where('block.isActive = :isActive', { isActive: activeStatus })
+        .andWhere('block.blockedAt IS NOT NULL')
+        .andWhere('block.unblockAt IS NULL OR block.unblockAt < :currentDate', {
+          currentDate,
+        })
+        .andWhere('block.blockDuration IS NOT NULL')
+        .andWhere(
+          "block.blockedAt + INTERVAL '1 hour' * block.blockDuration < :currentDate",
+          { currentDate },
+        )
+        .getMany();
+    } catch (e) {
+      throw e;
+    }
+  }
 }
 
 @Injectable()

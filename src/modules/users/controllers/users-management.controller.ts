@@ -166,6 +166,70 @@ export class UsersManagementController {
     }
   }
 
+  @ApiOperation({ summary: 'Get all expired block records' })
+  @ApiResponse({
+    status: 200,
+    description: 'Retrieved all expired block records',
+    type: [UserBlockEntity],
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Expired block records not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @Get('/get-all-expired-block-records')
+  async getAllExpiredBlockRecords() {
+    try {
+      const blockRecords =
+        await this.usersManagementService.getAllExpiredBlockRecords(false);
+      return { amount: blockRecords.length, blockRecords };
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to get all expired block records. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  @ApiOperation({ summary: 'Get all active expired block records' })
+  @ApiResponse({
+    status: 200,
+    description: 'Retrieved all active expired block records',
+    type: [UserBlockEntity],
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Active expired block records not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @Get('/get-all-active-expired-block-records')
+  async getAllActiveExpiredBlockRecords() {
+    try {
+      const blockRecords =
+        await this.usersManagementService.getAllExpiredBlockRecords(true);
+      return { amount: blockRecords.length, blockRecords };
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to get all active expired block records. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
   @ApiOperation({ summary: 'Get all active block records by user ID' })
   @ApiResponse({
     status: 200,

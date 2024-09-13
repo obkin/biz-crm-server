@@ -125,6 +125,23 @@ export class UsersManagementService {
     }
   }
 
+  async getAllExpiredBlockRecords(
+    activeStatus: boolean,
+  ): Promise<UserBlockEntity[]> {
+    try {
+      const blockRecords =
+        await this.usersBlockRepository.getAllExpiredBlockRecords(activeStatus);
+      if (!blockRecords) {
+        throw new NotFoundException(
+          `Expired ${activeStatus ? 'active' : ''} block records not found`,
+        );
+      }
+      return blockRecords;
+    } catch (e) {
+      throw e;
+    }
+  }
+
   async isBlockStillValid(userId: number): Promise<boolean> {
     try {
       const activeBlockRecords = await this.getAllActiveBlockRecords(userId);

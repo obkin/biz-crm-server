@@ -46,6 +46,13 @@ import { UserUnblockEntity } from './entities/user-unblock.entity';
     RolesModule,
     EmailModule,
   ],
-  exports: [UsersService, UsersManagementService],
+  exports: [
+    UsersService,
+    UsersManagementService,
+    UsersRepository,
+    UsersBlockRepository,
+    UsersUnblockRepository,
+    UsersDelitionRepository,
+  ],
 })
 export class UsersModule {}
