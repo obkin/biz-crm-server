@@ -22,6 +22,7 @@ import { UserBlockDto } from '../dto/user-block.dto';
 import { UserUnblockDto } from '../dto/user-unblock.dto';
 import { UserUnblockEntity } from '../entities/user-unblock.entity';
 import { ChangeBlockRecordStatusDto } from '../dto/change-block-record-status.dto';
+import { ChangeBlockRecordDateDto } from '../dto/change-block-record-date.dto';
 
 @ApiTags('users-management')
 @Controller('/users/management')
@@ -184,7 +185,7 @@ export class UsersManagementController {
   async getAllExpiredBlockRecords() {
     try {
       const blockRecords =
-        await this.usersManagementService.getAllExpiredBlockRecords(false);
+        await this.usersManagementService.getAllExpiredBlockRecords();
       return { amount: blockRecords.length, blockRecords };
     } catch (e) {
       if (e instanceof HttpException) {
@@ -216,7 +217,7 @@ export class UsersManagementController {
   async getAllActiveExpiredBlockRecords() {
     try {
       const blockRecords =
-        await this.usersManagementService.getAllExpiredBlockRecords(true);
+        await this.usersManagementService.getAllActiveExpiredBlockRecords();
       return { amount: blockRecords.length, blockRecords };
     } catch (e) {
       if (e instanceof HttpException) {
@@ -333,6 +334,30 @@ export class UsersManagementController {
       } else {
         throw new HttpException(
           `Failed to update block record status. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  @Patch('/change-unblock-date')
+  async changeUnblockDate(@Body() dto: ChangeBlockRecordDateDto) {
+    try {
+      await this.usersManagementService.changeUnblockDate(
+        dto.blockRecordId,
+        dto.date,
+      );
+      return {
+        blockRecordId: dto.blockRecordId,
+        newDate: dto.date,
+        message: 'Unblock date successfully changed',
+      };
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to change unblock date. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }

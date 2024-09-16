@@ -57,7 +57,7 @@ export class UserBlockEntity {
 
   @ApiProperty({
     example: 1,
-    description: 'The duration (in hours) for which the user was blocked',
+    description: 'The duration (in minutes) for which the user was blocked',
     nullable: true,
   })
   @Column({ type: 'int', nullable: true })

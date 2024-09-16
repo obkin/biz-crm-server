@@ -10,11 +10,11 @@ export class BlockStatusUpdaterService {
     private readonly usersManagementService: UsersManagementService,
   ) {}
 
-  @Cron(CronExpression.EVERY_MINUTE)
+  @Cron(CronExpression.EVERY_10_HOURS)
   async handleCron() {
     try {
       const expiredBlocks =
-        await this.usersManagementService.getAllExpiredBlockRecords(true);
+        await this.usersManagementService.getAllActiveExpiredBlockRecords();
 
       if (expiredBlocks.length === 0) {
         this.logger.log('No expired block records found');

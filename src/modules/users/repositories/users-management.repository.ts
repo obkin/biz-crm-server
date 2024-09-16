@@ -56,6 +56,38 @@ export class UsersBlockRepository {
     }
   }
 
+  async getAllExpiredBlockRecords(): Promise<UserBlockEntity[]> {
+    const currentDate = new Date();
+
+    return this.usersBlockRepository
+      .createQueryBuilder('block')
+      .where('block.blockedAt IS NOT NULL')
+      .andWhere('block.blockDuration IS NOT NULL')
+      .andWhere(
+        "block.blockedAt + INTERVAL '1 minute' * block.blockDuration < :currentDate",
+        { currentDate },
+      )
+      .getMany();
+  }
+
+  async getAllActiveExpiredBlockRecords(): Promise<UserBlockEntity[]> {
+    try {
+      const currentDate = new Date();
+      return this.usersBlockRepository
+        .createQueryBuilder('block')
+        .where('block.blockedAt IS NOT NULL')
+        .andWhere('block.blockDuration IS NOT NULL')
+        .andWhere(
+          "block.blockedAt + INTERVAL '1 minute' * block.blockDuration < :currentDate",
+          { currentDate },
+        )
+        .andWhere('block.isActive = :isActive', { isActive: true })
+        .getMany();
+    } catch (e) {
+      throw e;
+    }
+  }
+
   async getBlockRecordById(blockRecordId: number): Promise<UserBlockEntity> {
     try {
       return await this.usersBlockRepository.findOne({
@@ -79,27 +111,14 @@ export class UsersBlockRepository {
     }
   }
 
-  async getAllExpiredBlockRecords(
-    activeStatus: boolean,
-  ): Promise<UserBlockEntity[]> {
+  async changeUnblockDate(
+    blockRecordId: number,
+    unblockAt: string,
+  ): Promise<void> {
     try {
-      const currentDate = new Date();
-
-      console.log(`Searching for blocks with activeStatus: ${activeStatus}`);
-
-      return this.usersBlockRepository
-        .createQueryBuilder('block')
-        .where('block.isActive = :isActive', { isActive: activeStatus })
-        .andWhere('block.blockedAt IS NOT NULL')
-        .andWhere('block.unblockAt IS NULL OR block.unblockAt < :currentDate', {
-          currentDate,
-        })
-        .andWhere('block.blockDuration IS NOT NULL')
-        .andWhere(
-          "block.blockedAt + INTERVAL '1 hour' * block.blockDuration < :currentDate",
-          { currentDate },
-        )
-        .getMany();
+      await this.usersBlockRepository.update(blockRecordId, {
+        unblockAt,
+      });
     } catch (e) {
       throw e;
     }

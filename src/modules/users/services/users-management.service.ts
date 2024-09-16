@@ -125,16 +125,25 @@ export class UsersManagementService {
     }
   }
 
-  async getAllExpiredBlockRecords(
-    activeStatus: boolean,
-  ): Promise<UserBlockEntity[]> {
+  async getAllExpiredBlockRecords(): Promise<UserBlockEntity[]> {
     try {
       const blockRecords =
-        await this.usersBlockRepository.getAllExpiredBlockRecords(activeStatus);
-      if (!blockRecords) {
-        throw new NotFoundException(
-          `Expired ${activeStatus ? 'active' : ''} block records not found`,
-        );
+        await this.usersBlockRepository.getAllExpiredBlockRecords();
+      if (!blockRecords && blockRecords.length === 0) {
+        throw new NotFoundException(`Expired block records not found`);
+      }
+      return blockRecords;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async getAllActiveExpiredBlockRecords(): Promise<UserBlockEntity[]> {
+    try {
+      const blockRecords =
+        await this.usersBlockRepository.getAllActiveExpiredBlockRecords();
+      if (!blockRecords && blockRecords.length === 0) {
+        throw new NotFoundException(`Active expired block records not found`);
       }
       return blockRecords;
     } catch (e) {
@@ -179,7 +188,7 @@ export class UsersManagementService {
 
   private calculateUnblockDate(blockDuration: number): Date {
     const currentDate = new Date();
-    return new Date(currentDate.getTime() + blockDuration * 60 * 60 * 1000);
+    return new Date(currentDate.getTime() + blockDuration * 60 * 1000);
   }
 
   // === User's blocking - debug ===
@@ -212,6 +221,14 @@ export class UsersManagementService {
         blockRecordId,
         isActive,
       );
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async changeUnblockDate(blockRecordId: number, date: string): Promise<void> {
+    try {
+      await this.usersBlockRepository.changeUnblockDate(blockRecordId, date);
     } catch (e) {
       throw e;
     }

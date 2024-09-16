@@ -45,9 +45,8 @@ export class UserBlockGuard implements CanActivate {
       if (isBlockValid) {
         this.logger.warn('User is blocked');
         throw new ForbiddenException('This account is blocked');
-      } else {
-        this.logger.log('User is not blocked anymore');
       }
+      this.logger.log('User is not blocked anymore');
     } else {
       const activeBlocks =
         await this.usersManagementService.countActiveBlocksForUser(
