@@ -244,7 +244,14 @@ export class UsersManagementService {
     }
   }
 
-  async deleteBlockRecord(): Promise<void> {}
+  async deleteBlockRecord(blockRecordId: number): Promise<void> {
+    try {
+      const blockRecord = await this.getBlockRecordById(blockRecordId);
+      await this.usersBlockRepository.deleteBlockRecord(blockRecord);
+    } catch (e) {
+      throw e;
+    }
+  }
 
   // --- User's unblocking ---
 

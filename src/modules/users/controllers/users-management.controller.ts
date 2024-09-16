@@ -382,6 +382,40 @@ export class UsersManagementController {
     }
   }
 
+  @ApiOperation({ summary: 'Delete block record' })
+  @ApiResponse({
+    status: 200,
+    description: 'Block record deleted',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Block record not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @HttpCode(200)
+  @Delete('/delete-block-record/:id')
+  async deleteBlockRecord(@Param('id') id: number) {
+    try {
+      await this.usersManagementService.deleteBlockRecord(id);
+      return {
+        recordId: id,
+        message: 'Block record successfully deleted',
+      };
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to delete block record. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
   // --- User's unblocking ---
 
   @ApiOperation({ summary: 'Unblock user' })

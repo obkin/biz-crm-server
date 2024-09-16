@@ -123,6 +123,14 @@ export class UsersBlockRepository {
       throw e;
     }
   }
+
+  async deleteBlockRecord(blockRecord: UserBlockEntity): Promise<void> {
+    try {
+      await this.usersBlockRepository.remove(blockRecord);
+    } catch (e) {
+      throw e;
+    }
+  }
 }
 
 @Injectable()
