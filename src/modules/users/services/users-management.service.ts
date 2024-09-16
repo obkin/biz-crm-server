@@ -228,7 +228,17 @@ export class UsersManagementService {
 
   async changeUnblockDate(blockRecordId: number, date: string): Promise<void> {
     try {
-      await this.usersBlockRepository.changeUnblockDate(blockRecordId, date);
+      const blockRecord = await this.getBlockRecordById(blockRecordId);
+      const newUnblockDate = new Date(date);
+      if (
+        blockRecord.unblockAt &&
+        blockRecord.unblockAt.getTime() === newUnblockDate.getTime()
+      ) {
+        throw new ConflictException(
+          'The new unblock date cannot be the same as the current unblock date',
+        );
+      }
+      await this.usersBlockRepository.changeUnblockDate(blockRecord.id, date);
     } catch (e) {
       throw e;
     }

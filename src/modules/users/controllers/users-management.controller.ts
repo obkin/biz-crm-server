@@ -340,6 +340,24 @@ export class UsersManagementController {
     }
   }
 
+  @ApiOperation({ summary: 'Change unblock date' })
+  @ApiResponse({
+    status: 200,
+    description: 'Unblock date changed',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Block record not found',
+  })
+  @ApiResponse({
+    status: 409,
+    description:
+      'The new unblock date cannot be the same as the current unblock date',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
   @Patch('/change-unblock-date')
   async changeUnblockDate(@Body() dto: ChangeBlockRecordDateDto) {
     try {
