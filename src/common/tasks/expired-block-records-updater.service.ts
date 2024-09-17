@@ -10,7 +10,7 @@ export class ExpiredBlockRecordsUpdaterService {
     private readonly usersManagementService: UsersManagementService,
   ) {}
 
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  @Cron(CronExpression.EVERY_5_MINUTES) // default: EVERY_DAY_AT_MIDNIGHT
   async deactivateExpiredBlocks() {
     try {
       const expiredBlocks =
