@@ -29,7 +29,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { ThrottlerConfigService } from './common/config/throttler-config.service';
 import { UserBlockGuard } from './common/guards/user-block.guard';
 import { ScheduleModule } from '@nestjs/schedule';
-import { BlockStatusUpdaterService } from './common/tasks/users-block-updater.service';
+import { ExpiredBlockRecordsUpdaterService } from './common/tasks/expired-block-records-updater.service';
 import { UsersManagementService } from './modules/users/services/users-management.service';
 
 @Module({
@@ -65,7 +65,7 @@ import { UsersManagementService } from './modules/users/services/users-managemen
     },
     Reflector,
     LoggerService,
-    BlockStatusUpdaterService,
+    ExpiredBlockRecordsUpdaterService,
     UsersManagementService,
   ],
   imports: [

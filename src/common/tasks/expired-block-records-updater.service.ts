@@ -3,19 +3,18 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { UsersManagementService } from 'src/modules/users/services/users-management.service';
 
 @Injectable()
-export class BlockStatusUpdaterService {
-  private readonly logger = new Logger(BlockStatusUpdaterService.name);
+export class ExpiredBlockRecordsUpdaterService {
+  private readonly logger = new Logger(ExpiredBlockRecordsUpdaterService.name);
 
   constructor(
     private readonly usersManagementService: UsersManagementService,
   ) {}
 
-  @Cron(CronExpression.EVERY_10_HOURS)
-  async handleCron() {
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async deactivateExpiredBlocks() {
     try {
       const expiredBlocks =
         await this.usersManagementService.getAllActiveExpiredBlockRecords();
-
       if (expiredBlocks.length === 0) {
         this.logger.log('No expired block records found');
         return;
@@ -42,7 +41,7 @@ export class BlockStatusUpdaterService {
           }
         }
       }
-      this.logger.log('Block records checked for expiration'); // do you need it??
+      this.logger.log('Block records checked for expiration');
     } catch (e) {
       this.logger.error('Failed to update block records status:', e.message);
     }
