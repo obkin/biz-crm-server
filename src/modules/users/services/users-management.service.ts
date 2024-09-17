@@ -97,11 +97,7 @@ export class UsersManagementService {
       } else {
         blockRecords = await this.usersBlockRepository.getAllBlockRecords();
       }
-      if (!blockRecords || blockRecords.length === 0) {
-        throw new NotFoundException('Block records not found');
-      } else {
-        return blockRecords;
-      }
+      return blockRecords;
     } catch (e) {
       throw e;
     }
@@ -285,7 +281,8 @@ export class UsersManagementService {
   ) {
     try {
       const unblockRecord = new UserUnblockEntity();
-      unblockRecord.user = user;
+      unblockRecord.userId = user.id;
+      unblockRecord.userEmail = user.email;
       unblockRecord.unblockReason = dto.unblockReason;
       unblockRecord.notes = dto.notes;
 
@@ -303,29 +300,19 @@ export class UsersManagementService {
     }
   }
 
-  async getUnblockRecordByUserId(userId: number): Promise<UserUnblockEntity> {
+  async getAllUnblockRecords(userId?: number): Promise<UserUnblockEntity[]> {
     try {
-      const unblockRecord =
-        await this.usersUnblockRepository.getUnblockRecordByUserId(userId);
-      if (!unblockRecord) {
-        throw new NotFoundException('Unblocking record not found');
+      let unblockRecords: UserUnblockEntity[];
+      if (userId) {
+        unblockRecords =
+          await this.usersUnblockRepository.getAllUnblockRecordsByUserId(
+            userId,
+          );
       } else {
-        return unblockRecord;
+        unblockRecords =
+          await this.usersUnblockRepository.getAllUnblockRecords();
       }
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  async getAllUnblockRecords(): Promise<UserUnblockEntity[]> {
-    try {
-      const unblockRecords =
-        await this.usersUnblockRepository.getAllUnblockRecords();
-      if (!unblockRecords || unblockRecords.length === 0) {
-        throw new NotFoundException('Unblock records not found');
-      } else {
-        return unblockRecords;
-      }
+      return unblockRecords;
     } catch (e) {
       throw e;
     }

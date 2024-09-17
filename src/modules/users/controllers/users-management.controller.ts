@@ -69,15 +69,15 @@ export class UsersManagementController {
     }
   }
 
-  @ApiOperation({ summary: 'Get block record by userId' })
+  @ApiOperation({ summary: 'Get all block records by userId' })
   @ApiResponse({
     status: 200,
-    description: 'Block record retrieved',
-    type: UserBlockEntity,
+    description: 'Block records retrieved',
+    type: [UserBlockEntity],
   })
   @ApiResponse({
     status: 404,
-    description: 'Block record not found',
+    description: 'Block records not found',
   })
   @ApiResponse({
     status: 500,
@@ -96,7 +96,7 @@ export class UsersManagementController {
         throw e;
       } else {
         throw new HttpException(
-          `Failed to get block record by user ID. ${e}`,
+          `Failed to get all block records by user ID. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
@@ -454,33 +454,33 @@ export class UsersManagementController {
     }
   }
 
-  @ApiOperation({ summary: 'Get unblock record by userId' })
+  @ApiOperation({ summary: 'Get all unblock records by userId' })
   @ApiResponse({
     status: 200,
-    description: 'Unblock record retrieved',
-    type: UserUnblockEntity,
+    description: 'Unblock records retrieved',
+    type: [UserUnblockEntity],
   })
   @ApiResponse({
     status: 404,
-    description: 'Unblock record not found',
+    description: 'Unblock records not found',
   })
   @ApiResponse({
     status: 500,
     description: 'Internal Server Error',
   })
   @ApiQuery({ name: 'id', required: true, description: 'ID of the user' })
-  @Get('/get-unblock-record-by-userId/:id')
-  async getUnblockRecordByUserId(@Param('id') id: number) {
+  @Get('/get-all-unblock-records-by-userId/:id')
+  async getAllUnblockRecordsByUserId(@Param('id') id: number) {
     try {
-      return await this.usersManagementService.getUnblockRecordByUserId(
-        Number(id),
-      );
+      const unblockRecords =
+        await this.usersManagementService.getAllUnblockRecords(Number(id));
+      return { amount: unblockRecords.length, unblockRecords };
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;
       } else {
         throw new HttpException(
-          `Failed to get unblock record by user ID. ${e}`,
+          `Failed to get all unblock records by user ID. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
@@ -504,7 +504,9 @@ export class UsersManagementController {
   @Get('/get-all-unblock-records')
   async getAllUnblockRecords() {
     try {
-      return await this.usersManagementService.getAllUnblockRecords();
+      const unblockRecords =
+        await this.usersManagementService.getAllUnblockRecords();
+      return { amount: unblockRecords.length, unblockRecords };
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;

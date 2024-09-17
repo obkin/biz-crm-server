@@ -162,12 +162,12 @@ export class UsersUnblockRepository {
     }
   }
 
-  async getUnblockRecordByUserId(
+  async getAllUnblockRecordsByUserId(
     userId: number,
-  ): Promise<UserUnblockEntity | undefined> {
+  ): Promise<UserUnblockEntity[] | undefined> {
     try {
-      return await this.usersUnblockRepository.findOne({
-        where: { user: { id: userId } },
+      return await this.usersUnblockRepository.find({
+        where: { userId },
         order: { unblockedAt: 'DESC' },
       });
     } catch (e) {

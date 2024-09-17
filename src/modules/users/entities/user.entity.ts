@@ -64,7 +64,7 @@ export class UserEntity {
   @OneToMany(() => UserBlockEntity, (blockHistory) => blockHistory.userId)
   public blockEntries: UserBlockEntity[];
 
-  @OneToMany(() => UserUnblockEntity, (unblockHistory) => unblockHistory.user)
+  @OneToMany(() => UserUnblockEntity, (unblockHistory) => unblockHistory.userId)
   public unblockEntries: UserUnblockEntity[];
 
   @ApiProperty({

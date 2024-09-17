@@ -2,11 +2,9 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
-import { UserEntity } from './user.entity';
 
 @Entity('users_unblock_history')
 export class UserUnblockEntity {
@@ -17,8 +15,19 @@ export class UserUnblockEntity {
   @PrimaryGeneratedColumn()
   public id: number;
 
-  @ManyToOne(() => UserEntity, (user) => user.unblockEntries, { eager: true })
-  public user: UserEntity;
+  @ApiProperty({
+    example: 123,
+    description: 'The unique identifier of the user who was unblocked',
+  })
+  @Column()
+  public userId: number;
+
+  @ApiProperty({
+    example: 'john_dope@gmail.com',
+    description: 'The email of the user who was unblocked',
+  })
+  @Column()
+  public userEmail: string;
 
   @ApiProperty({
     example: 'The user has appealed successfully',
