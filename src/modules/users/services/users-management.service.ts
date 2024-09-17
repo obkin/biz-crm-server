@@ -66,7 +66,8 @@ export class UsersManagementService {
   ): Promise<UserBlockEntity> {
     try {
       const blockRecord = new UserBlockEntity();
-      blockRecord.user = user;
+      blockRecord.userId = user.id;
+      blockRecord.userEmail = user.email;
       blockRecord.blockReason = dto.blockReason;
       blockRecord.notes = dto.notes;
       blockRecord.isActive = true;

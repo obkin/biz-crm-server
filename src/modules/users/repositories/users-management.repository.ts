@@ -40,7 +40,7 @@ export class UsersBlockRepository {
   ): Promise<UserBlockEntity[] | undefined> {
     try {
       return await this.usersBlockRepository.find({
-        where: { user: { id: userId } },
+        where: { userId },
         order: { blockedAt: 'DESC' },
       });
     } catch (e) {

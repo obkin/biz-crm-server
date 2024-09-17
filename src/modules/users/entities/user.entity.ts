@@ -61,7 +61,7 @@ export class UserEntity {
   @Column({ default: false })
   public isBlocked: boolean;
 
-  @OneToMany(() => UserBlockEntity, (blockHistory) => blockHistory.user)
+  @OneToMany(() => UserBlockEntity, (blockHistory) => blockHistory.userId)
   public blockEntries: UserBlockEntity[];
 
   @OneToMany(() => UserUnblockEntity, (unblockHistory) => unblockHistory.user)

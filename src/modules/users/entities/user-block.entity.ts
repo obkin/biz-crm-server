@@ -2,11 +2,9 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { UserEntity } from './user.entity';
 import { ApiProperty } from '@nestjs/swagger';
 
 @Entity('users_block_history')
@@ -18,8 +16,19 @@ export class UserBlockEntity {
   @PrimaryGeneratedColumn()
   public id: number;
 
-  @ManyToOne(() => UserEntity, (user) => user.blockEntries, { eager: true })
-  public user: UserEntity;
+  @ApiProperty({
+    example: 123,
+    description: 'The ID of the blocked user',
+  })
+  @Column()
+  public userId: number;
+
+  @ApiProperty({
+    example: 'john_dope@gmail.com',
+    description: 'The email of the blocked user',
+  })
+  @Column()
+  public userEmail: string;
 
   @ApiProperty({
     example: 'Violation of terms of service',
