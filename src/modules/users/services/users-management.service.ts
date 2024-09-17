@@ -161,7 +161,7 @@ export class UsersManagementService {
       for (const record of activeBlockRecords) {
         if (record.unblockAt && record.unblockAt <= currentDate) {
           await this.changeBlockRecordStatus(record.id, false);
-          return false;
+          isBlockValid = false;
         } else {
           isBlockValid = true;
         }
