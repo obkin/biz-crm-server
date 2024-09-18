@@ -263,7 +263,7 @@ export class UsersManagementService {
       }
       await this.usersUnblockRepository.unblockUser(user);
       if (dto.unblockReason || dto.notes) {
-        await this.saveUnblockRecord(admin, user, dto);
+        await this.saveUnblockRecord(user, dto, admin);
       }
       this.logger.log(
         `User successfully unblocked (userId: ${user.id}, email: ${user.email}, adminId: ${admin.id})`,
@@ -275,9 +275,9 @@ export class UsersManagementService {
   }
 
   async saveUnblockRecord(
-    admin: UserEntity,
     user: UserEntity,
     dto: UserUnblockDto,
+    admin?: UserEntity,
   ) {
     try {
       const unblockRecord = new UserUnblockEntity();
@@ -286,8 +286,8 @@ export class UsersManagementService {
       unblockRecord.unblockReason = dto.unblockReason;
       unblockRecord.notes = dto.notes;
 
-      unblockRecord.adminId = admin.id;
-      unblockRecord.adminEmail = admin.email;
+      unblockRecord.adminId = admin ? admin.id : 0;
+      unblockRecord.adminEmail = admin ? admin.email : 'system@brm.com';
 
       const newUnblockEntity =
         await this.usersUnblockRepository.saveUnblockingRecord(unblockRecord);
