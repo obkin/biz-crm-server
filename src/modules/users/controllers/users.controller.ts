@@ -264,7 +264,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Get user by email' })
   @ApiResponse({
     status: 200,
-    description: 'User found and returned',
+    description: 'Retrieved user by email',
     type: UserEntity,
   })
   @ApiResponse({

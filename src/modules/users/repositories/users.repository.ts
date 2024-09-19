@@ -58,7 +58,7 @@ export class UsersRepository {
     }
   }
 
-  async getUserByEmail(email: string): Promise<UserEntity | undefined> {
+  async getUserByEmail(email: string): Promise<UserEntity> {
     try {
       return await this.usersRepository.findOne({ where: { email } });
     } catch (e) {
