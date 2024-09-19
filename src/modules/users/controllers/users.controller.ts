@@ -366,18 +366,14 @@ export class UsersController {
     type: [UserEntity],
   })
   @ApiResponse({
-    status: 404,
-    description: 'There are no admins',
-  })
-  @ApiResponse({
     status: 500,
     description: 'Internal Server Error',
   })
   @Get('/get-all-admins')
   async getAllAdmins() {
     try {
-      const adminsArray = await this.usersService.getAllAdmins();
-      return { adminsAmount: adminsArray.length, adminsArray };
+      const admins = await this.usersService.getAllAdmins();
+      return { amount: admins.length, admins };
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;

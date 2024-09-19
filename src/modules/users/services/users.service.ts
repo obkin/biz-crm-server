@@ -220,11 +220,7 @@ export class UsersService {
 
   async getAllAdmins(): Promise<UserEntity[]> {
     try {
-      const admins = await this.usersRepository.getAllAdmins();
-      if (!admins || admins.length === 0) {
-        throw new NotFoundException('There are no admins');
-      }
-      return admins;
+      return await this.usersRepository.getAllAdmins();
     } catch (e) {
       throw e;
     }
