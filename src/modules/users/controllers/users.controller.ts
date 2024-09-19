@@ -393,21 +393,14 @@ export class UsersController {
     type: [UserEntity],
   })
   @ApiResponse({
-    status: 404,
-    description: 'There are no blocked users',
-  })
-  @ApiResponse({
     status: 500,
     description: 'Internal Server Error',
   })
   @Get('/get-all-blocked')
   async getAllBlockedUsers() {
     try {
-      const blockedUsersArray = await this.usersService.getAllBlockedUsers();
-      return {
-        blockedUsersAmount: blockedUsersArray.length,
-        blockedUsersArray,
-      };
+      const blockedUsers = await this.usersService.getAllBlockedUsers();
+      return { amount: blockedUsers.length, blockedUsers };
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;

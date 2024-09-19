@@ -228,11 +228,7 @@ export class UsersService {
 
   async getAllBlockedUsers(): Promise<UserEntity[]> {
     try {
-      const blockedUsers = await this.usersRepository.getAllBlockedUsers();
-      if (!blockedUsers || blockedUsers.length === 0) {
-        throw new NotFoundException('There are no blocked users');
-      }
-      return blockedUsers;
+      return await this.usersRepository.getAllBlockedUsers();
     } catch (e) {
       throw e;
     }
