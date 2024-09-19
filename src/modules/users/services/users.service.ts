@@ -212,11 +212,7 @@ export class UsersService {
 
   async getAllUsers(): Promise<UserEntity[]> {
     try {
-      const users = await this.usersRepository.getAllUsers();
-      if (!users || users.length === 0) {
-        throw new NotFoundException('There are no users');
-      }
-      return users;
+      return await this.usersRepository.getAllUsers();
     } catch (e) {
       throw e;
     }

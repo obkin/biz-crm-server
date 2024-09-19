@@ -339,18 +339,14 @@ export class UsersController {
     type: [UserEntity],
   })
   @ApiResponse({
-    status: 404,
-    description: 'There are no users',
-  })
-  @ApiResponse({
     status: 500,
     description: 'Internal Server Error',
   })
   @Get('/get-all')
   async getAllUsers() {
     try {
-      const usersArray = await this.usersService.getAllUsers();
-      return { usersAmount: usersArray.length, usersArray };
+      const users = await this.usersService.getAllUsers();
+      return { amount: users.length, users };
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;
