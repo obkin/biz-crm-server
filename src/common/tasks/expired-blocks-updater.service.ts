@@ -14,7 +14,7 @@ export class ExpiredBlocksUpdaterService {
     private readonly usersUnblockRepository: UsersUnblockRepository,
   ) {}
 
-  @Cron(CronExpression.EVERY_MINUTE) // default: EVERY_DAY_AT_MIDNIGHT
+  @Cron(CronExpression.EVERY_5_MINUTES) // default: EVERY_DAY_AT_MIDNIGHT
   async deactivateExpiredBlocks() {
     try {
       const expiredBlocks =
