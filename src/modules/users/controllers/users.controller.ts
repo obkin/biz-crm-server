@@ -289,7 +289,7 @@ export class UsersController {
         throw e;
       } else {
         throw new HttpException(
-          `Failed to find user by email. ${e}`,
+          `Failed to get user by email. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
@@ -299,7 +299,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Get user by id' })
   @ApiResponse({
     status: 200,
-    description: 'User found and returned',
+    description: 'Retrieved user by id',
     type: UserEntity,
   })
   @ApiResponse({
@@ -325,7 +325,7 @@ export class UsersController {
         throw e;
       } else {
         throw new HttpException(
-          `Failed to find user by id. ${e}`,
+          `Failed to get user by id. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }

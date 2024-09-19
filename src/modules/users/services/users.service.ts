@@ -186,7 +186,7 @@ export class UsersService {
     try {
       const user = await this.usersRepository.getUserByEmail(email);
       if (!user) {
-        this.logger.warn(`User ${email} not found`);
+        this.logger.warn(`User '${email})' not found`);
         throw new NotFoundException('User with such email not found');
       } else {
         return user;
@@ -200,6 +200,7 @@ export class UsersService {
     try {
       const user = await this.usersRepository.getUserById(id);
       if (!user) {
+        this.logger.warn(`User #${id} not found`);
         throw new NotFoundException('User with such id not found');
       } else {
         return user;

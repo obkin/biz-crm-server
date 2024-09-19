@@ -66,7 +66,7 @@ export class UsersRepository {
     }
   }
 
-  async getUserById(id: number): Promise<UserEntity | undefined> {
+  async getUserById(id: number): Promise<UserEntity> {
     try {
       return await this.usersRepository.findOne({ where: { id } });
     } catch (e) {
