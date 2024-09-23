@@ -113,6 +113,7 @@ export class UsersRepository {
   }
 
   // --- Methods ---
+
   async checkUserExisting(
     email?: string,
     id?: number,
