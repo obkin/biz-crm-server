@@ -102,7 +102,7 @@ export class UsersRepository {
     }
   }
 
-  // --- Roles ---
+  // --- User's roles (UMC & UMS) ---
 
   async saveUser(user: UserEntity): Promise<UserEntity> {
     try {

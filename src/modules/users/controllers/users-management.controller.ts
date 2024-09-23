@@ -23,6 +23,8 @@ import { UserUnblockDto } from '../dto/user-unblock.dto';
 import { UserUnblockEntity } from '../entities/user-unblock.entity';
 import { ChangeBlockRecordStatusDto } from '../dto/change-block-record-status.dto';
 import { ChangeBlockRecordDateDto } from '../dto/change-block-record-date.dto';
+import { AssignRoleDto } from '../dto/assign-role.dto';
+import { RemoveRoleDto } from '../dto/remove-role.dto';
 
 @ApiTags('users-management')
 @Controller('/users/management')
@@ -617,6 +619,94 @@ export class UsersManagementController {
       } else {
         throw new HttpException(
           `Failed to get all deletion records. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  // --- User's roles ---
+
+  @ApiOperation({ summary: 'Assign role to the user' })
+  @ApiResponse({
+    status: 200,
+    description: 'Role assigned',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Role not found',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Role already assigned',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @HttpCode(200)
+  @Post('/assign-role')
+  async assignRoleToUser(@Body() dto: AssignRoleDto) {
+    try {
+      return await this.usersManagementService.assignRoleToUser(
+        dto.userId,
+        dto.roleId,
+      );
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to assign the role to the user. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  @ApiOperation({ summary: 'Remove role from the user' })
+  @ApiResponse({
+    status: 200,
+    description: 'Role removed',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Role not found',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Cannot remove the <user> role',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'User does not have this role',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @HttpCode(200)
+  @Post('/remove-role')
+  async removeRoleFromUser(@Body() dto: RemoveRoleDto) {
+    try {
+      return await this.usersManagementService.removeRoleFromUser(
+        dto.userId,
+        dto.roleId,
+      );
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to remove the role from the user. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }

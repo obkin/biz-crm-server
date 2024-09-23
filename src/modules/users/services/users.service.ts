@@ -9,7 +9,6 @@ import {
 import { UserRegisterDto } from '../../auth/dto/user-register.dto';
 import { UsersRepository } from '../repositories/users.repository';
 import { UserEntity } from '../entities/user.entity';
-import { RolesService } from '../../roles/roles.service';
 import { ChangeUserNameDto } from '../dto/change-user-name.dto';
 import { ChangeUserEmailDto } from '../dto/change-user-email.dto';
 import { ChangeUserPasswordDto } from '../dto/change-user-password.dto';
@@ -23,7 +22,6 @@ export class UsersService {
 
   constructor(
     private readonly usersRepository: UsersRepository,
-    private readonly rolesService: RolesService,
     private readonly configService: ConfigService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
@@ -234,63 +232,8 @@ export class UsersService {
     }
   }
 
-  // --- Roles ---
-
-  async assignRoleToUser(userId: number, roleId: number): Promise<UserEntity> {
-    try {
-      const user = await this.getUserById(userId);
-      if (!user) {
-        throw new NotFoundException('User not found');
-      }
-
-      const role = await this.rolesService.getRoleById(roleId);
-      if (!role) {
-        throw new NotFoundException('Role not found');
-      }
-
-      if (!user.roles.includes(role.name)) {
-        user.roles.push(role.name);
-      } else {
-        throw new ConflictException('Role already assigned to user');
-      }
-      return await this.usersRepository.saveUser(user);
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  async removeRoleFromUser(
-    userId: number,
-    roleId: number,
-  ): Promise<UserEntity> {
-    try {
-      const user = await this.getUserById(userId);
-      if (!user) {
-        throw new NotFoundException('User not found');
-      }
-
-      const role = await this.rolesService.getRoleById(roleId);
-      if (!role) {
-        throw new NotFoundException('Role not found');
-      }
-
-      if (role.name === 'user') {
-        throw new BadRequestException('Cannot remove the <user> role');
-      }
-
-      const roleIndex = user.roles.indexOf(role.name);
-      if (roleIndex > -1) {
-        user.roles.splice(roleIndex, 1);
-        return await this.usersRepository.saveUser(user);
-      } else {
-        throw new ConflictException('User does not have this role');
-      }
-    } catch (e) {
-      throw e;
-    }
-  }
-
   // --- Methods ---
+
   public async checkUserExisting(email: string): Promise<boolean> {
     try {
       const user = await this.usersRepository.checkUserExisting(email);

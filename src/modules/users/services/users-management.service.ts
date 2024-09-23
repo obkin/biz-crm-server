@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   ForbiddenException,
   Injectable,
@@ -20,6 +21,7 @@ import { UserEntity } from '../entities/user.entity';
 import { UsersService } from './users.service';
 import { UserUnblockDto } from '../dto/user-unblock.dto';
 import { UserUnblockEntity } from '../entities/user-unblock.entity';
+import { RolesService } from 'src/modules/roles/roles.service';
 
 @Injectable()
 export class UsersManagementService {
@@ -32,6 +34,7 @@ export class UsersManagementService {
     private readonly usersBlockRepository: UsersBlockRepository,
     private readonly usersUnblockRepository: UsersUnblockRepository,
     private readonly usersDelitionRepository: UsersDelitionRepository,
+    private readonly rolesService: RolesService,
   ) {}
 
   // --- User's blocking ---
@@ -389,6 +392,62 @@ export class UsersManagementService {
         throw new NotFoundException('Deletion records not found');
       } else {
         return deletionRecords;
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  // --- User's roles ---
+
+  async assignRoleToUser(userId: number, roleId: number): Promise<UserEntity> {
+    try {
+      const user = await this.usersService.getUserById(userId);
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      const role = await this.rolesService.getRoleById(roleId);
+      if (!role) {
+        throw new NotFoundException('Role not found');
+      }
+
+      if (!user.roles.includes(role.name)) {
+        user.roles.push(role.name);
+      } else {
+        throw new ConflictException('Role already assigned to user');
+      }
+      return await this.usersRepository.saveUser(user);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async removeRoleFromUser(
+    userId: number,
+    roleId: number,
+  ): Promise<UserEntity> {
+    try {
+      const user = await this.usersService.getUserById(userId);
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      const role = await this.rolesService.getRoleById(roleId);
+      if (!role) {
+        throw new NotFoundException('Role not found');
+      }
+
+      if (role.name === 'user') {
+        throw new BadRequestException('Cannot remove the <user> role');
+      }
+
+      const roleIndex = user.roles.indexOf(role.name);
+      if (roleIndex > -1) {
+        user.roles.splice(roleIndex, 1);
+        return await this.usersRepository.saveUser(user);
+      } else {
+        throw new ConflictException('User does not have this role');
       }
     } catch (e) {
       throw e;
