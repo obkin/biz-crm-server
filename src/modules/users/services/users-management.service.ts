@@ -280,7 +280,7 @@ export class UsersManagementService {
   async saveUnblockRecord(
     user: UserEntity,
     dto: UserUnblockDto,
-    admin?: UserEntity,
+    admin: UserEntity,
   ) {
     try {
       const unblockRecord = new UserUnblockEntity();
@@ -289,8 +289,8 @@ export class UsersManagementService {
       unblockRecord.unblockReason = dto.unblockReason;
       unblockRecord.notes = dto.notes;
 
-      unblockRecord.adminId = admin ? admin.id : 0;
-      unblockRecord.adminEmail = admin ? admin.email : 'system@brm.com';
+      unblockRecord.adminId = admin.id;
+      unblockRecord.adminEmail = admin.email;
 
       const newUnblockEntity =
         await this.usersUnblockRepository.saveUnblockingRecord(unblockRecord);

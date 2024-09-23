@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UserRegisterDto } from '../../auth/dto/user-register.dto';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -118,12 +118,9 @@ export class UsersRepository {
     id?: number,
   ): Promise<UserEntity | undefined> {
     try {
-      if (id) {
-        return await this.usersRepository.findOne({ where: { id } });
-      } else if (email) {
-        return await this.usersRepository.findOne({ where: { email } });
-      }
-      throw new BadRequestException('Enter user name or email');
+      return email
+        ? await this.usersRepository.findOne({ where: { email } })
+        : await this.usersRepository.findOne({ where: { id } });
     } catch (e) {
       throw e;
     }

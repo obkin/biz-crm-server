@@ -246,10 +246,7 @@ export class UsersService {
   public async checkIsUserAdmin(id: number): Promise<boolean> {
     try {
       const user = await this.getUserById(id);
-      if (user.roles && user.roles.some((role) => role === 'admin')) {
-        return true;
-      }
-      return false;
+      return user.roles?.some((role) => role === 'admin') || false;
     } catch (e) {
       throw e;
     }
