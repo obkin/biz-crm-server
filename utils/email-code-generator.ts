@@ -1,7 +1,7 @@
 export class EmailCodeGenerator {
-  public generateConfirmationCode(): string {
+  public generateConfirmationCode(length: number): string {
     const characters = '0123456789';
-    const codeLength = 6;
+    const codeLength = length;
     let code = '';
     for (let i = 0; i < codeLength; i++) {
       code += characters.charAt(Math.floor(Math.random() * characters.length));

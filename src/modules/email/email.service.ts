@@ -19,7 +19,6 @@ export class EmailService {
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
-  // --- Service logic ---
   async sendConfirmationCode(dto: SendConfirmationCodeDto): Promise<string> {
     if (!dto.email) {
       throw new BadRequestException('Email address is required');
@@ -27,7 +26,7 @@ export class EmailService {
     try {
       const redisClient = this.redisService.getClient();
       const confirmationCode =
-        this.emailCodeGenerator.generateConfirmationCode();
+        this.emailCodeGenerator.generateConfirmationCode(6);
 
       await redisClient.set(
         `confirmation_code:${dto.email}`,
@@ -89,10 +88,5 @@ export class EmailService {
     } catch (e) {
       throw e;
     }
-  }
-
-  // --- Methods ---
-  private generateConfirmationCode(): string {
-    return Math.floor(100000 + Math.random() * 900000).toString();
   }
 }
