@@ -23,9 +23,8 @@ import { UserUnblockDto } from '../dto/user-unblock.dto';
 import { UserUnblockEntity } from '../entities/user-unblock.entity';
 import { ChangeBlockRecordStatusDto } from '../dto/change-block-record-status.dto';
 import { ChangeBlockRecordDateDto } from '../dto/change-block-record-date.dto';
-import { AssignRoleDto } from '../dto/assign-role.dto';
-import { RemoveRoleDto } from '../dto/remove-role.dto';
 import { ChangeUserEmailDto } from '../dto/change-user-email.dto';
+import { UserRoleDto } from '../dto/user-role.dto';
 
 @ApiTags('users-management')
 @Controller('/users/management')
@@ -735,7 +734,7 @@ export class UsersManagementController {
   })
   @HttpCode(200)
   @Post('/assign-role')
-  async assignRoleToUser(@Body() dto: AssignRoleDto) {
+  async assignRoleToUser(@Body() dto: UserRoleDto) {
     try {
       return await this.usersManagementService.assignRoleToUser(
         dto.userId,
@@ -780,7 +779,7 @@ export class UsersManagementController {
   })
   @HttpCode(200)
   @Post('/remove-role')
-  async removeRoleFromUser(@Body() dto: RemoveRoleDto) {
+  async removeRoleFromUser(@Body() dto: UserRoleDto) {
     try {
       return await this.usersManagementService.removeRoleFromUser(
         dto.userId,
