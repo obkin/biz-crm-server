@@ -35,20 +35,20 @@ export class UserEntity {
 
   @ApiProperty({
     example: '$2b$10$fWHZ.JcwITaj9M.bJJLaDuPK399J3LnEirrJMSuLRt9F8LeyltXRu',
-    description: 'The secret password of the user',
+    description: 'The secret hashed password of the user',
   })
   @Column()
   public password: string;
 
   @ApiProperty({
-    example: 'John',
+    example: 'John Dope',
     description: 'The name of the user',
   })
   @Column()
   public username: string;
 
   @ApiProperty({
-    example: 'user, moderator',
+    example: '["user", "admin"]',
     description: 'Roles assigned to the user',
   })
   @Column('text', { array: true, default: ['user'] })
