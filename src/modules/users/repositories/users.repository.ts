@@ -102,7 +102,7 @@ export class UsersRepository {
     }
   }
 
-  // --- User's roles (UMC & UMS) ---
+  // --- Methods ---
 
   async saveUser(user: UserEntity): Promise<UserEntity> {
     try {
@@ -111,8 +111,6 @@ export class UsersRepository {
       throw e;
     }
   }
-
-  // --- Methods ---
 
   async checkUserExisting(
     email?: string,

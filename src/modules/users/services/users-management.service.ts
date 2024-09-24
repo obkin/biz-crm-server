@@ -37,6 +37,35 @@ export class UsersManagementService {
     private readonly rolesService: RolesService,
   ) {}
 
+  // --- User's email ---
+
+  public async updateEmailConfirmationStatus(
+    userEmail: string,
+    isConfirmed: boolean,
+  ): Promise<UserEntity> {
+    try {
+      const user = await this.usersRepository.getUserByEmail(userEmail);
+      if (!user) {
+        throw new NotFoundException(`User ${userEmail} not found`);
+      }
+
+      if (isConfirmed && user.isEmailConfirmed) {
+        throw new ConflictException(`User email is already confirmed`);
+      }
+
+      if (!isConfirmed && !user.isEmailConfirmed) {
+        throw new ConflictException('User email is already unconfirmed');
+      }
+
+      return await this.usersRepository.saveUser({
+        ...user,
+        isEmailConfirmed: isConfirmed,
+      });
+    } catch (e) {
+      throw e;
+    }
+  }
+
   // --- User's blocking ---
 
   async blockUser(admin: UserEntity, dto: UserBlockDto): Promise<void> {

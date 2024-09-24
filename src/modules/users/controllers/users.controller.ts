@@ -2,11 +2,9 @@ import {
   Body,
   Controller,
   Get,
-  HttpCode,
   HttpException,
   HttpStatus,
   Param,
-  Patch,
   Post,
   Put,
   Query,
@@ -57,85 +55,6 @@ export class UsersController {
       } else {
         throw new HttpException(
           `Failed to create new user. ${e}`,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-    }
-  }
-
-  @ApiOperation({ summary: 'Confirm user email' })
-  @ApiResponse({
-    status: 200,
-    description: 'User email confirmed',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'User not found',
-  })
-  @ApiResponse({
-    status: 409,
-    description: 'User email is already confirmed',
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Internal Server Error',
-  })
-  @HttpCode(200)
-  @Patch('/confirm-email')
-  async confirmUserEmail(@Body() dto: ChangeUserEmailDto) {
-    try {
-      await this.usersService.updateEmailConfirmationStatus(dto.newEmail, true);
-      return {
-        userEmail: dto.newEmail,
-        message: 'User email confirmed successfully',
-      };
-    } catch (e) {
-      if (e instanceof HttpException) {
-        throw e;
-      } else {
-        throw new HttpException(
-          `Failed to confirm user email. ${e}`,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-    }
-  }
-
-  @ApiOperation({ summary: 'Unconfirm user email' })
-  @ApiResponse({
-    status: 200,
-    description: 'User email unconfirmed',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'User not found',
-  })
-  @ApiResponse({
-    status: 409,
-    description: 'User email is already unconfirmed',
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Internal Server Error',
-  })
-  @HttpCode(200)
-  @Patch('/unconfirm-email')
-  async unconfirmUserEmail(@Body() dto: ChangeUserEmailDto) {
-    try {
-      await this.usersService.updateEmailConfirmationStatus(
-        dto.newEmail,
-        false,
-      );
-      return {
-        userEmail: dto.newEmail,
-        message: 'User email unconfirmed successfully',
-      };
-    } catch (e) {
-      if (e instanceof HttpException) {
-        throw e;
-      } else {
-        throw new HttpException(
-          `Failed to unconfirm user email. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }

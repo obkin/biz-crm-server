@@ -25,6 +25,7 @@ import { ChangeBlockRecordStatusDto } from '../dto/change-block-record-status.dt
 import { ChangeBlockRecordDateDto } from '../dto/change-block-record-date.dto';
 import { AssignRoleDto } from '../dto/assign-role.dto';
 import { RemoveRoleDto } from '../dto/remove-role.dto';
+import { ChangeUserEmailDto } from '../dto/change-user-email.dto';
 
 @ApiTags('users-management')
 @Controller('/users/management')
@@ -32,6 +33,90 @@ export class UsersManagementController {
   constructor(
     private readonly usersManagementService: UsersManagementService,
   ) {}
+
+  // --- User's email ---
+
+  @ApiOperation({ summary: 'Confirm user email' })
+  @ApiResponse({
+    status: 200,
+    description: 'User email confirmed',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'User email is already confirmed',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @HttpCode(200)
+  @Patch('/confirm-user-email')
+  async confirmUserEmail(@Body() dto: ChangeUserEmailDto) {
+    try {
+      await this.usersManagementService.updateEmailConfirmationStatus(
+        dto.newEmail,
+        true,
+      );
+      return {
+        userEmail: dto.newEmail,
+        message: 'User email confirmed successfully',
+      };
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to confirm user email. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  @ApiOperation({ summary: 'Unconfirm user email' })
+  @ApiResponse({
+    status: 200,
+    description: 'User email unconfirmed',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'User email is already unconfirmed',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @HttpCode(200)
+  @Patch('/unconfirm-user-email')
+  async unconfirmUserEmail(@Body() dto: ChangeUserEmailDto) {
+    try {
+      await this.usersManagementService.updateEmailConfirmationStatus(
+        dto.newEmail,
+        false,
+      );
+      return {
+        userEmail: dto.newEmail,
+        message: 'User email unconfirmed successfully',
+      };
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to unconfirm user email. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
 
   // --- User's blocking ---
 

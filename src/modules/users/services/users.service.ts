@@ -52,33 +52,6 @@ export class UsersService {
     }
   }
 
-  async updateEmailConfirmationStatus(
-    userEmail: string,
-    isConfirmed: boolean,
-  ): Promise<UserEntity> {
-    try {
-      const user = await this.usersRepository.getUserByEmail(userEmail);
-      if (!user) {
-        throw new NotFoundException(`User ${userEmail} not found`);
-      }
-
-      if (isConfirmed && user.isEmailConfirmed) {
-        throw new ConflictException(`User email is already confirmed`);
-      }
-
-      if (!isConfirmed && !user.isEmailConfirmed) {
-        this.logger.warn('User email is already unconfirmed');
-      }
-
-      return await this.usersRepository.saveUser({
-        ...user,
-        isEmailConfirmed: isConfirmed,
-      });
-    } catch (e) {
-      throw e;
-    }
-  }
-
   async changeUserName(
     userId: number,
     changeUserNameDto: ChangeUserNameDto,
@@ -131,13 +104,10 @@ export class UsersService {
       this.logger.log(
         `User email changed (userId: ${user.id}, oldEmail: ${oldEmail}, newEmail: ${changeUserEmailDto.newEmail})`,
       );
-      await this.updateEmailConfirmationStatus(
-        changeUserEmailDto.newEmail,
-        false,
-      );
       this.eventEmitter.emit('auth.userLogout', { userId: user.id });
       this.eventEmitter.emit('user.emailChanged', {
         userId: user.id,
+        oldEmail: user.email,
         newEmail: changeUserEmailDto.newEmail,
       });
       return updatedUser;
