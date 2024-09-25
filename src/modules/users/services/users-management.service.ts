@@ -200,15 +200,6 @@ export class UsersManagementService {
     }
   }
 
-  async countActiveBlocksForUser(userId: number): Promise<number> {
-    try {
-      const activeBlocks = await this.getAllActiveBlockRecords(userId);
-      return activeBlocks.length;
-    } catch (e) {
-      return 0;
-    }
-  }
-
   private calculateUnblockDate(blockDuration: number): Date {
     const currentDate = new Date();
     return new Date(currentDate.getTime() + blockDuration * 60 * 1000);
