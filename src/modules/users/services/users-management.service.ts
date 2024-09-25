@@ -185,22 +185,16 @@ export class UsersManagementService {
       const activeBlockRecords = await this.getAllActiveBlockRecords(userId);
       const user = await this.usersService.getUserById(userId);
       const currentDate = new Date();
-      let isBlockValid = false;
 
       for (const record of activeBlockRecords) {
         if (record.unblockAt && record.unblockAt <= currentDate) {
           await this.changeBlockRecordStatus(record.id, false);
-          isBlockValid = false;
         } else {
-          isBlockValid = true;
+          return true;
         }
       }
-
-      if (!isBlockValid) {
-        await this.usersUnblockRepository.unblockUser(user);
-      }
-
-      return isBlockValid;
+      await this.usersUnblockRepository.unblockUser(user);
+      return false;
     } catch (e) {
       throw e;
     }
