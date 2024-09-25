@@ -180,7 +180,7 @@ export class UsersManagementService {
     }
   }
 
-  async isBlockStillValid(userId: number): Promise<boolean> {
+  async validateUserBlockStatus(userId: number): Promise<boolean> {
     try {
       const activeBlockRecords = await this.getAllActiveBlockRecords(userId);
       const user = await this.usersService.getUserById(userId);
