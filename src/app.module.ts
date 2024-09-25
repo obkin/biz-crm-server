@@ -27,7 +27,7 @@ import { ResponseLogger } from './common/interceptors/response-logger.intercepto
 import { RequestLogger } from './common/middlewares/request-logger.middleware';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { ThrottlerConfigService } from './common/config/throttler-config.service';
-import { UserBlockGuard } from './common/guards/user-block.guard';
+import { UsersBlockGuard } from './common/guards/users-block.guard';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ExpiredBlocksUpdaterService } from './common/tasks/expired-blocks-updater.service';
 import { UsersManagementService } from './modules/users/services/users-management.service';
@@ -49,7 +49,7 @@ import { UsersManagementService } from './modules/users/services/users-managemen
     },
     {
       provide: APP_GUARD,
-      useClass: UserBlockGuard,
+      useClass: UsersBlockGuard,
     },
     {
       provide: APP_FILTER,

@@ -12,8 +12,8 @@ import { UsersManagementService } from 'src/modules/users/services/users-managem
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 
 @Injectable()
-export class UserBlockGuard implements CanActivate {
-  private readonly logger = new Logger(UserBlockGuard.name);
+export class UsersBlockGuard implements CanActivate {
+  private readonly logger = new Logger(UsersBlockGuard.name);
 
   constructor(
     private readonly usersService: UsersService,
