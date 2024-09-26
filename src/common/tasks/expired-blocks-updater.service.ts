@@ -17,14 +17,14 @@ export class ExpiredBlocksUpdaterService {
   @Cron(CronExpression.EVERY_5_MINUTES) // default: EVERY_DAY_AT_MIDNIGHT
   async deactivateExpiredBlocks() {
     try {
-      const expiredBlocks =
+      const activeExpiredBlocks =
         await this.usersManagementService.getAllActiveExpiredBlockRecords();
-      if (expiredBlocks.length === 0) {
+      if (activeExpiredBlocks.length === 0) {
         this.logger.log('No expired block records found');
         return;
       }
 
-      for (const block of expiredBlocks) {
+      for (const block of activeExpiredBlocks) {
         if (block.isActive) {
           try {
             await this.usersManagementService.changeBlockRecordStatus(
