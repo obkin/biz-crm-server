@@ -14,9 +14,11 @@ export class ExpiredBlocksUpdaterService {
     private readonly usersUnblockRepository: UsersUnblockRepository,
   ) {}
 
-  @Cron(CronExpression.EVERY_5_MINUTES) // default: EVERY_DAY_AT_MIDNIGHT
+  @Cron(CronExpression.EVERY_MINUTE) // default: EVERY_DAY_AT_MIDNIGHT
   async deactivateExpiredBlocks() {
     try {
+      const unblockedUsers = [];
+      const updatedRecords = [];
       const activeExpiredBlocks =
         await this.usersManagementService.getAllActiveExpiredBlockRecords();
       if (activeExpiredBlocks.length === 0) {
@@ -39,11 +41,13 @@ export class ExpiredBlocksUpdaterService {
               );
             if (expiredUserBlocks.length <= 0) {
               await this.usersUnblockRepository.unblockUser(user);
+              unblockedUsers.push(user);
               this.logger.log(
                 `User #${user.id} unblocked by system after block expiration`,
               );
             }
 
+            updatedRecords.push(block);
             this.logger.log(
               `Block record status changed for block #${block.id}`,
             );
@@ -58,7 +62,9 @@ export class ExpiredBlocksUpdaterService {
           }
         }
       }
-      this.logger.log('Block records checked for expiration');
+      this.logger.log(
+        `Block records checked for expiration (unblocked users: ${unblockedUsers.length}, updated records: ${updatedRecords.length})`,
+      );
     } catch (e) {
       this.logger.error('Failed to update block records status:', e.message);
     }
