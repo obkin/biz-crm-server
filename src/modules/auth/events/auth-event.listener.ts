@@ -10,14 +10,19 @@ export class AuthEventListener {
   @OnEvent('auth.userLogout')
   async handleUserLogout(payload: { userId: number }) {
     const { userId } = payload;
-
-    const isUserLoggined = await this.authService.checkIsUserLoggedIn(userId);
-    if (isUserLoggined) {
-      await this.authService.userLogout(userId);
-      this.logger.log(`Event: auth.userLogout (userId: ${userId})`);
-    } else {
-      this.logger.log(
-        `Event: auth.userLogout (user #${userId} was not logged in)`,
+    try {
+      const isUserLoggedIn = await this.authService.checkIsUserLoggedIn(userId);
+      if (isUserLoggedIn) {
+        await this.authService.userLogout(userId);
+        this.logger.log(`Event: auth.userLogout (userId: ${userId})`);
+      } else {
+        this.logger.log(
+          `Event: auth.userLogout (user #${userId} was not logged in)`,
+        );
+      }
+    } catch (e) {
+      this.logger.error(
+        `Event: auth.userLogout (user: ${userId}). Error: ${e.message}`,
       );
     }
   }
