@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { ConflictException, Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { EmailService } from 'src/modules/email/email.service';
 import { UsersManagementService } from '../services/users-management.service';
@@ -17,16 +17,16 @@ export class UsersEventListener {
     private readonly usersManagementService: UsersManagementService,
   ) {}
 
+  // --- Events ---
+
   @OnEvent('user.registered')
   async handleUserRegistredEvent(payload: UserRegisteredPayload) {
     const { userId, email } = payload;
     try {
       await this.emailService.sendConfirmationCode({ email });
-      this.logger.log(`Event: user.registered (userId: ${userId})`);
+      this.logEvent('user.registered', `userId: ${userId}`);
     } catch (e) {
-      this.logger.error(
-        `Event: user.registered, user: ${email}. Error: ${e.message}`,
-      );
+      this.logError('user.registered', email, e.message);
     }
   }
 
@@ -39,11 +39,20 @@ export class UsersEventListener {
         false,
       );
       await this.emailService.sendConfirmationCode({ email: newEmail });
-      this.logger.log(`Event: user.emailChanged (userId: ${userId})`);
+      this.logEvent('user.emailChanged', `userId: ${userId}`);
     } catch (e) {
-      this.logger.error(
-        `Event: user.emailChanged, user: ${newEmail}. Error: ${e.message}`,
-      );
+      if (e instanceof ConflictException) {
+        try {
+          this.logger.warn('This user did not confirmed the previous email');
+          await this.emailService.sendConfirmationCode({
+            email: newEmail,
+          });
+        } catch (e) {
+          this.logError('user.emailChanged', newEmail, e.message);
+        }
+      } else {
+        this.logError('user.emailChanged', newEmail, e.message);
+      }
     }
   }
 
@@ -55,21 +64,21 @@ export class UsersEventListener {
         userEmail,
         true,
       );
-      this.logger.log(`Event: user.emailVerified (user: ${userEmail})`);
+      this.logEvent('user.emailVerified', `user: ${userEmail}`);
     } catch (e) {
-      this.logger.error(
-        `Event: user.emailVerified, user: ${userEmail}. Error: ${e.message}`,
-      );
+      this.logError('user.emailVerified', userEmail, e.message);
     }
   }
 
-  private logEvent(eventType: string, message: string) {
-    this.logger.log(`Event: ${eventType}. ${message}`);
+  // --- Methods ---
+
+  private logEvent(eventType: string, userIdentifier: string) {
+    this.logger.log(`Event: ${eventType} (${userIdentifier})`);
   }
 
   private logError(eventType: string, userIdentifier: string, error: string) {
     this.logger.error(
-      `Event: ${eventType}, user: ${userIdentifier}. Error: ${error}`,
+      `Event: ${eventType} (user: ${userIdentifier}). Error: ${error}`,
     );
   }
 }
