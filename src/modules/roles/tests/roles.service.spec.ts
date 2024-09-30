@@ -93,4 +93,58 @@ describe('RolesService', () => {
       ).rejects.toThrow(ConflictException);
     });
   });
+
+  describe('deleteRole', () => {
+    it('should delete the role without checking if it exists', async () => {
+      rolesRepository.deleteRole.mockResolvedValue(undefined);
+
+      await rolesService.deleteRole(1);
+
+      expect(rolesRepository.deleteRole).toHaveBeenCalledWith(1);
+    });
+  });
+
+  describe('getRoleById', () => {
+    it('should return the role', async () => {
+      const role = new RoleEntity();
+      rolesRepository.getRoleById.mockResolvedValue(role);
+
+      const result = await rolesService.getRoleById(1);
+
+      expect(rolesRepository.getRoleById).toHaveBeenCalledWith(1);
+      expect(result).toEqual(role);
+    });
+  });
+
+  describe('getRoleByName', () => {
+    it('should return the role by name', async () => {
+      const role = new RoleEntity();
+      rolesRepository.getRoleByName.mockResolvedValue(role);
+
+      const result = await rolesService.getRoleByName('admin');
+
+      expect(rolesRepository.getRoleByName).toHaveBeenCalledWith('admin');
+      expect(result).toEqual(role);
+    });
+  });
+
+  describe('getAllRoles', () => {
+    it('should return all roles', async () => {
+      const roles = [new RoleEntity(), new RoleEntity()];
+      rolesRepository.getAllRoles.mockResolvedValue(roles);
+
+      const result = await rolesService.getAllRoles();
+
+      expect(rolesRepository.getAllRoles).toHaveBeenCalled();
+      expect(result).toEqual(roles);
+    });
+
+    it('should throw NotFoundException if no roles found', async () => {
+      rolesRepository.getAllRoles.mockResolvedValue([]);
+
+      await expect(rolesService.getAllRoles()).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+  });
 });
