@@ -11,4 +11,5 @@ module.exports = {
   moduleNameMapper: {
     '^@src/(.*)$': '<rootDir>/$1',
   },
+  verbose: true,
 };
