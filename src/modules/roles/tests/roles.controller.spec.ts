@@ -100,4 +100,24 @@ describe('RolesController', () => {
       await expect(rolesController.deleteRole(1)).rejects.toThrow(error);
     });
   });
+
+  describe('getAllRoles', () => {
+    it('should return all roles successfully', async () => {
+      mockRolesService.getAllRoles.mockResolvedValue([mockRole]);
+
+      const response = await rolesController.getAllRoles();
+      expect(response).toEqual({ rolesAmount: 1, rolesArray: [mockRole] });
+      expect(rolesService.getAllRoles).toHaveBeenCalled();
+    });
+
+    it('should handle errors while retrieving roles', async () => {
+      const error = new HttpException(
+        'Error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+      mockRolesService.getAllRoles.mockRejectedValue(error);
+
+      await expect(rolesController.getAllRoles()).rejects.toThrow(error);
+    });
+  });
 });
