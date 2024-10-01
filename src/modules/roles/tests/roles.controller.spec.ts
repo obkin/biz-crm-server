@@ -81,4 +81,23 @@ describe('RolesController', () => {
       await expect(rolesController.updateRole(1, dto)).rejects.toThrow(error);
     });
   });
+
+  describe('deleteRole', () => {
+    it('should delete a role successfully', async () => {
+      mockRolesService.deleteRole.mockResolvedValue(undefined);
+      const response = await rolesController.deleteRole(1);
+      expect(response).toEqual({ id: 1, message: 'Role deleted' });
+      expect(rolesService.deleteRole).toHaveBeenCalledWith(1);
+    });
+
+    it('should handle errors while deleting a role', async () => {
+      const error = new HttpException(
+        'Error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+      mockRolesService.deleteRole.mockRejectedValue(error);
+
+      await expect(rolesController.deleteRole(1)).rejects.toThrow(error);
+    });
+  });
 });
