@@ -60,4 +60,25 @@ describe('RolesController', () => {
       await expect(rolesController.createRole(dto)).rejects.toThrow(error);
     });
   });
+  describe('updateRole', () => {
+    it('should update a role successfully', async () => {
+      const updatedRole = { ...mockRole, name: 'user' };
+      mockRolesService.updateRole.mockResolvedValue(updatedRole);
+
+      const dto = { name: 'user' };
+      expect(await rolesController.updateRole(1, dto)).toEqual(updatedRole);
+      expect(rolesService.updateRole).toHaveBeenCalledWith(1, dto);
+    });
+
+    it('should handle errors while updating a role', async () => {
+      const error = new HttpException(
+        'Error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+      mockRolesService.updateRole.mockRejectedValue(error);
+      const dto = { name: 'user' };
+
+      await expect(rolesController.updateRole(1, dto)).rejects.toThrow(error);
+    });
+  });
 });
