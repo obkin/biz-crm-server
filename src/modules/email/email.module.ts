@@ -3,7 +3,7 @@ import { EmailService } from './email.service';
 import { EmailController } from './email.controller';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { EmailCodeGenerator } from 'utils/email-code-generator';
+import { EmailCodeGenerator } from 'src/utils/email-code-generator';
 import { RedisModule } from '../redis/redis.module';
 
 @Module({

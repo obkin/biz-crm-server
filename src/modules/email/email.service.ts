@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
-import { EmailCodeGenerator } from 'utils/email-code-generator';
+import { EmailCodeGenerator } from 'src/utils/email-code-generator';
 import { ConfigService } from '@nestjs/config';
 import { RedisService } from '../redis/redis.service';
 import { VerifyConfirmationCodeDto } from './dto/verify-confirmation-code.dto';
