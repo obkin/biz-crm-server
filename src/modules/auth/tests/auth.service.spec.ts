@@ -17,6 +17,7 @@ import {
 } from '../auth.repository';
 import { RedisService } from 'src/modules/redis/redis.service';
 import { IUserTokens } from '../interfaces';
+import * as bcrypt from 'bcrypt';
 
 describe('AuthService', () => {
   let authService: AuthService;
@@ -236,6 +237,21 @@ describe('AuthService', () => {
         userLoginDto.email,
       );
       expect(result).toEqual(user);
+    });
+  });
+
+  describe('verifyPassword', () => {
+    it('should return true if password is correct', async () => {
+      const password = 'correctPassword';
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const user = { password: hashedPassword };
+
+      jest.spyOn(bcrypt, 'compare').mockResolvedValue(true);
+
+      const result = await (authService as any).verifyPassword(password, user);
+
+      expect(result).toBe(true);
+      expect(bcrypt.compare).toHaveBeenCalledWith(password, user.password);
     });
   });
 });
