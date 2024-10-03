@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
@@ -15,6 +16,7 @@ import {
   RefreshTokenRepository,
 } from '../auth.repository';
 import { RedisService } from 'src/modules/redis/redis.service';
+import { IUserTokens } from '../interfaces';
 
 describe('AuthService', () => {
   let authService: AuthService;
@@ -51,6 +53,16 @@ describe('AuthService', () => {
     del: jest.fn(),
   };
 
+  const mockDataSource = {
+    createQueryRunner: jest.fn().mockReturnValue({
+      connect: jest.fn().mockResolvedValue(undefined),
+      startTransaction: jest.fn().mockResolvedValue(undefined),
+      commitTransaction: jest.fn().mockResolvedValue(undefined),
+      rollbackTransaction: jest.fn().mockResolvedValue(undefined),
+      release: jest.fn().mockResolvedValue(undefined),
+    }),
+  };
+
   const user: UserEntity = {
     id: 1,
     username: 'testuser',
@@ -85,7 +97,7 @@ describe('AuthService', () => {
       mockConfigService as unknown as ConfigService,
       mockRefreshTokenRepository as unknown as RefreshTokenRepository,
       mockAccessTokenRepository as unknown as AccessTokenRepository,
-      {} as any,
+      mockDataSource as any,
       mockRedisService as unknown as RedisService,
     );
   });
@@ -115,6 +127,68 @@ describe('AuthService', () => {
 
       await expect(authService.userRegister(userRegisterDto)).rejects.toThrow(
         InternalServerErrorException,
+      );
+    });
+  });
+
+  describe('userLogin', () => {
+    beforeEach(() => {
+      mockRedisService.getClient.mockReturnValue({
+        get: jest.fn().mockResolvedValue(null),
+      });
+      mockAccessTokenRepository.saveAccessToken.mockResolvedValue({
+        id: 1,
+        userId: user.id,
+        token: 'someAccessToken',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      mockRefreshTokenRepository.saveRefreshToken.mockResolvedValue({
+        id: 1,
+        userId: user.id,
+        token: 'someRefreshToken',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    });
+    it('should successfully log in a user', async () => {
+      const tokens: IUserTokens = {
+        accessToken: 'accessToken',
+        refreshToken: 'refreshToken',
+      };
+
+      mockUsersService.getUserByEmail.mockResolvedValue(user);
+      mockJwtService.sign
+        .mockReturnValueOnce(tokens.accessToken)
+        .mockReturnValueOnce(tokens.refreshToken);
+      mockRefreshTokenRepository.findRefreshTokenByUserId.mockResolvedValue(
+        null,
+      );
+      mockAccessTokenRepository.findAccessTokenByUserId.mockResolvedValue(null);
+
+      const validateUserSpy = jest
+        .spyOn(authService as any, 'validateUser')
+        .mockResolvedValue(user);
+
+      const result = await authService.userLogin(userLoginDto);
+
+      expect(validateUserSpy).toHaveReturned();
+      expect(validateUserSpy.mock.results[0].value).resolves.toEqual(user);
+
+      expect(result).toHaveProperty('accessToken', tokens.accessToken);
+      expect(result).toHaveProperty('refreshToken', tokens.refreshToken);
+      expect(mockUsersService.getUserByEmail).toHaveBeenCalledWith(
+        userLoginDto.email,
+      );
+    });
+
+    it('should throw BadRequestException if password is wrong', async () => {
+      mockUsersService.getUserByEmail.mockResolvedValue(user);
+
+      jest.spyOn(authService as any, 'validateUser').mockResolvedValue(null);
+
+      await expect(authService.userLogin(userLoginDto)).rejects.toThrow(
+        BadRequestException,
       );
     });
   });
