@@ -223,5 +223,19 @@ describe('AuthService', () => {
     });
   });
 
-  // Add more tests for other methods...
+  // --- Methods ---
+
+  describe('validateUser', () => {
+    it('should return user if email and password are correct', async () => {
+      jest.spyOn(authService as any, 'verifyPassword').mockResolvedValue(true);
+      mockUsersService.getUserByEmail.mockResolvedValue(user);
+
+      const result = await (authService as any).validateUser(userLoginDto);
+
+      expect(mockUsersService.getUserByEmail).toHaveBeenCalledWith(
+        userLoginDto.email,
+      );
+      expect(result).toEqual(user);
+    });
+  });
 });
