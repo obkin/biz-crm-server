@@ -91,6 +91,11 @@ describe('AuthService', () => {
     userAgent: 'Mozilla/5.0',
   };
 
+  const tokens = {
+    accessToken: 'accessToken',
+    refreshToken: 'refreshToken',
+  };
+
   beforeEach(() => {
     authService = new AuthService(
       mockUsersService as unknown as UsersService,
@@ -252,6 +257,41 @@ describe('AuthService', () => {
 
       expect(result).toBe(true);
       expect(bcrypt.compare).toHaveBeenCalledWith(password, user.password);
+    });
+  });
+
+  // --- JWT logic ---
+
+  describe('generateTokens', () => {
+    it('should generate access and refresh tokens', async () => {
+      jest
+        .spyOn(authService['jwtService'], 'sign')
+        .mockReturnValueOnce(tokens.accessToken)
+        .mockReturnValueOnce(tokens.refreshToken);
+
+      jest
+        .spyOn(authService['configService'], 'get')
+        .mockReturnValueOnce('3600')
+        .mockReturnValueOnce('86400');
+
+      const result = await (authService as any).generateTokens(user);
+
+      expect(authService['jwtService'].sign).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: user.id,
+          email: user.email,
+          roles: user.roles,
+          iat: expect.any(Number),
+        }),
+        { expiresIn: '3600' },
+      );
+
+      expect(authService['jwtService'].sign).toHaveBeenCalledWith(
+        { sub: user.id },
+        { expiresIn: '86400' },
+      );
+
+      expect(result).toEqual(tokens);
     });
   });
 });
