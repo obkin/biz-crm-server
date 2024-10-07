@@ -44,6 +44,7 @@ describe('AuthService', () => {
     findRefreshTokenByUserId: jest.fn(),
     saveRefreshToken: jest.fn(),
     deleteRefreshToken: jest.fn(),
+    getAllRefreshTokens: jest.fn(),
   };
 
   const mockAccessTokenRepository = {
@@ -543,6 +544,33 @@ describe('AuthService', () => {
         .mockResolvedValue(null);
 
       await expect(authService.getRefreshToken(1)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+  });
+
+  describe('getAllRefreshTokens', () => {
+    it('should return all refresh tokens if found', async () => {
+      const mockTokensArray = [
+        { userId: 1, refreshToken: 'token1' },
+        { userId: 2, refreshToken: 'token2' },
+      ] as RefreshTokenEntity[];
+      jest
+        .spyOn(mockRefreshTokenRepository, 'getAllRefreshTokens')
+        .mockResolvedValue(mockTokensArray);
+
+      const result = await authService.getAllRefreshTokens();
+
+      expect(mockRefreshTokenRepository.getAllRefreshTokens).toHaveBeenCalled();
+      expect(result).toEqual(mockTokensArray);
+    });
+
+    it('should throw NotFoundException if no refresh tokens are found', async () => {
+      jest
+        .spyOn(mockRefreshTokenRepository, 'getAllRefreshTokens')
+        .mockResolvedValue([]);
+
+      await expect(authService.getAllRefreshTokens()).rejects.toThrow(
         NotFoundException,
       );
     });
