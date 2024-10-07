@@ -493,4 +493,29 @@ describe('AuthService', () => {
       expect(queryRunner.rollbackTransaction).toHaveBeenCalled();
     });
   });
+
+  describe('deleteRefreshToken', () => {
+    it('should delete refresh token and log success', async () => {
+      jest
+        .spyOn(mockRefreshTokenRepository, 'deleteRefreshToken')
+        .mockResolvedValue(undefined);
+      jest.spyOn(mockRedisService, 'del').mockResolvedValue(undefined);
+
+      await authService.deleteRefreshToken(1);
+
+      expect(
+        mockRefreshTokenRepository.deleteRefreshToken,
+      ).toHaveBeenCalledWith(1);
+      expect(mockRedisService.del).toHaveBeenCalledWith('refresh_token:1');
+    });
+
+    it('should log a warning if deleting refresh token fails', async () => {
+      const error = new Error('Failed to delete');
+      jest
+        .spyOn(mockRefreshTokenRepository, 'deleteRefreshToken')
+        .mockRejectedValue(error);
+
+      await expect(authService.deleteRefreshToken(1)).rejects.toThrow(error);
+    });
+  });
 });
