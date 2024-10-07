@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
@@ -19,6 +20,7 @@ import { RedisService } from 'src/modules/redis/redis.service';
 import { IUserTokens } from '../interfaces';
 import * as bcrypt from 'bcrypt';
 import { RefreshTokenEntity } from '../entities/refresh-token.entity';
+import { RefreshTokenDto } from '../dto/refresh-token.dto';
 
 describe('AuthService', () => {
   let authService: AuthService;
@@ -359,6 +361,136 @@ describe('AuthService', () => {
         { expiresIn: '3600' },
       );
       expect(result).toBe(newAccessToken);
+    });
+  });
+
+  describe('saveRefreshToken', () => {
+    let refreshTokenDto: RefreshTokenDto;
+    let savedRefreshToken: RefreshTokenEntity;
+    let queryRunner: any;
+
+    beforeEach(() => {
+      refreshTokenDto = {
+        userId: 1,
+        refreshToken: 'newRefreshToken',
+        expiresIn: new Date(),
+        ipAddress: '192.168.01',
+        userAgent: 'Mozila',
+      };
+      savedRefreshToken = {
+        id: 1,
+        userId: 1,
+        refreshToken: 'newRefreshToken',
+        expiresIn: new Date(),
+      } as RefreshTokenEntity;
+
+      queryRunner = {
+        connect: jest.fn(),
+        startTransaction: jest.fn(),
+        commitTransaction: jest.fn(),
+        rollbackTransaction: jest.fn(),
+        release: jest.fn(),
+        manager: jest.fn(),
+      };
+
+      jest
+        .spyOn(authService['dataSource'], 'createQueryRunner')
+        .mockReturnValue(queryRunner);
+    });
+    it('should save refresh token successfully if no existing token found', async () => {
+      jest
+        .spyOn(mockRefreshTokenRepository, 'findRefreshTokenByUserId')
+        .mockResolvedValue(null);
+      jest
+        .spyOn(mockRefreshTokenRepository, 'saveRefreshToken')
+        .mockResolvedValue(savedRefreshToken);
+
+      const result = await authService.saveRefreshToken(refreshTokenDto);
+
+      expect(queryRunner.connect).toHaveBeenCalled();
+      expect(queryRunner.startTransaction).toHaveBeenCalled();
+      expect(
+        mockRefreshTokenRepository.findRefreshTokenByUserId,
+      ).toHaveBeenCalledWith(refreshTokenDto.userId, queryRunner.manager);
+      expect(mockRefreshTokenRepository.saveRefreshToken).toHaveBeenCalledWith(
+        refreshTokenDto,
+        queryRunner.manager,
+      );
+      expect(queryRunner.commitTransaction).toHaveBeenCalled();
+      expect(result).toEqual(savedRefreshToken);
+    });
+
+    it('should delete existing refresh token before saving a new one', async () => {
+      const existingToken = {
+        userId: refreshTokenDto.userId,
+        refreshToken: 'oldToken',
+      };
+      jest
+        .spyOn(mockRefreshTokenRepository, 'findRefreshTokenByUserId')
+        .mockResolvedValue(existingToken);
+      jest
+        .spyOn(mockRefreshTokenRepository, 'deleteRefreshToken')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(mockRefreshTokenRepository, 'saveRefreshToken')
+        .mockResolvedValue(savedRefreshToken);
+
+      const result = await authService.saveRefreshToken(refreshTokenDto);
+
+      expect(
+        mockRefreshTokenRepository.findRefreshTokenByUserId,
+      ).toHaveBeenCalledWith(refreshTokenDto.userId, queryRunner.manager);
+      expect(
+        mockRefreshTokenRepository.deleteRefreshToken,
+      ).toHaveBeenCalledWith(refreshTokenDto.userId, queryRunner.manager);
+      expect(mockRefreshTokenRepository.saveRefreshToken).toHaveBeenCalledWith(
+        refreshTokenDto,
+        queryRunner.manager,
+      );
+      expect(queryRunner.commitTransaction).toHaveBeenCalled();
+      expect(result).toEqual(savedRefreshToken);
+    });
+
+    it('should rollback transaction and throw ConflictException if token already exists', async () => {
+      jest
+        .spyOn(mockRefreshTokenRepository, 'findRefreshTokenByUserId')
+        .mockResolvedValue(null);
+      jest
+        .spyOn(mockRefreshTokenRepository, 'saveRefreshToken')
+        .mockRejectedValue({ code: '23505' });
+
+      await expect(
+        authService.saveRefreshToken(refreshTokenDto),
+      ).rejects.toThrow(ConflictException);
+      expect(queryRunner.rollbackTransaction).toHaveBeenCalled();
+    });
+
+    it('should rollback transaction and throw error for other exceptions', async () => {
+      jest
+        .spyOn(mockRefreshTokenRepository, 'findRefreshTokenByUserId')
+        .mockResolvedValue(null);
+      jest
+        .spyOn(mockRefreshTokenRepository, 'saveRefreshToken')
+        .mockRejectedValue(new Error('Unexpected error'));
+
+      await expect(
+        authService.saveRefreshToken(refreshTokenDto),
+      ).rejects.toThrow(Error);
+      expect(queryRunner.rollbackTransaction).toHaveBeenCalled();
+    });
+
+    it('should throw InternalServerErrorException if savedRefreshToken is not returned', async () => {
+      jest
+        .spyOn(mockRefreshTokenRepository, 'findRefreshTokenByUserId')
+        .mockResolvedValue(null);
+      jest
+        .spyOn(mockRefreshTokenRepository, 'saveRefreshToken')
+        .mockResolvedValue(null);
+
+      await expect(
+        authService.saveRefreshToken(refreshTokenDto),
+      ).rejects.toThrow(InternalServerErrorException);
+      expect(queryRunner.rollbackTransaction).toHaveBeenCalled();
     });
   });
 });
