@@ -18,6 +18,7 @@ import {
 import { RedisService } from 'src/modules/redis/redis.service';
 import { IUserTokens } from '../interfaces';
 import * as bcrypt from 'bcrypt';
+import { RefreshTokenEntity } from '../entities/refresh-token.entity';
 
 describe('AuthService', () => {
   let authService: AuthService;
@@ -292,6 +293,72 @@ describe('AuthService', () => {
       );
 
       expect(result).toEqual(tokens);
+    });
+  });
+
+  describe('refreshAccessToken', () => {
+    let refreshToken: string;
+    let decodedToken: any;
+    let storedToken: RefreshTokenEntity;
+    let newAccessToken: string;
+
+    beforeEach(() => {
+      refreshToken = 'validRefreshToken';
+      decodedToken = { sub: 1 };
+      storedToken = {
+        id: 1,
+        refreshToken,
+        userId: 1,
+        expiresIn: new Date(),
+        ipAddress: '192.168.01',
+        userAgent: 'Mozila',
+        createdAt: new Date(),
+      };
+      newAccessToken = 'newAccessToken';
+    });
+
+    it('should successfully refresh the access token', async () => {
+      jest
+        .spyOn(authService['jwtService'], 'verify')
+        .mockReturnValue(decodedToken);
+      jest
+        .spyOn(
+          authService['refreshTokenRepository'],
+          'findRefreshTokenByUserId',
+        )
+        .mockResolvedValue(storedToken);
+      jest
+        .spyOn(authService['usersService'], 'getUserById')
+        .mockResolvedValue(user);
+      jest
+        .spyOn(authService['jwtService'], 'sign')
+        .mockReturnValue(newAccessToken);
+      jest.spyOn(authService['configService'], 'get').mockReturnValue('3600');
+      jest
+        .spyOn(authService as any, 'saveAccessToken')
+        .mockResolvedValue(undefined);
+
+      const result = await authService.refreshAccessToken(refreshToken);
+
+      expect(authService['jwtService'].verify).toHaveBeenCalledWith(
+        refreshToken,
+      );
+      expect(
+        authService['refreshTokenRepository'].findRefreshTokenByUserId,
+      ).toHaveBeenCalledWith(user.id);
+      expect(authService['usersService'].getUserById).toHaveBeenCalledWith(
+        user.id,
+      );
+      expect(authService['jwtService'].sign).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: user.id,
+          email: user.email,
+          roles: user.roles,
+          iat: expect.any(Number),
+        }),
+        { expiresIn: '3600' },
+      );
+      expect(result).toBe(newAccessToken);
     });
   });
 });
