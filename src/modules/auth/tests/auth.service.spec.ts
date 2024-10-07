@@ -518,4 +518,33 @@ describe('AuthService', () => {
       await expect(authService.deleteRefreshToken(1)).rejects.toThrow(error);
     });
   });
+
+  describe('getRefreshToken', () => {
+    it('should return the refresh token if found', async () => {
+      const mockToken = {
+        userId: 1,
+        refreshToken: 'token',
+      } as RefreshTokenEntity;
+      jest
+        .spyOn(mockRefreshTokenRepository, 'findRefreshTokenByUserId')
+        .mockResolvedValue(mockToken);
+
+      const result = await authService.getRefreshToken(1);
+
+      expect(
+        mockRefreshTokenRepository.findRefreshTokenByUserId,
+      ).toHaveBeenCalledWith(1);
+      expect(result).toEqual(mockToken);
+    });
+
+    it('should throw NotFoundException if refresh token not found', async () => {
+      jest
+        .spyOn(mockRefreshTokenRepository, 'findRefreshTokenByUserId')
+        .mockResolvedValue(null);
+
+      await expect(authService.getRefreshToken(1)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+  });
 });
