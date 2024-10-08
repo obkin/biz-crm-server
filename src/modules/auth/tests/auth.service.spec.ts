@@ -21,6 +21,8 @@ import { IUserTokens } from '../interfaces';
 import * as bcrypt from 'bcrypt';
 import { RefreshTokenEntity } from '../entities/refresh-token.entity';
 import { RefreshTokenDto } from '../dto/refresh-token.dto';
+import { AccessTokenDto } from '../dto/access-token.dto';
+import { AccessTokenEntity } from '../entities/access-token.entity';
 
 describe('AuthService', () => {
   let authService: AuthService;
@@ -67,6 +69,15 @@ describe('AuthService', () => {
       release: jest.fn().mockResolvedValue(undefined),
     }),
   };
+
+  const queryRunner = {
+    connect: jest.fn(),
+    startTransaction: jest.fn(),
+    commitTransaction: jest.fn(),
+    rollbackTransaction: jest.fn(),
+    release: jest.fn(),
+    manager: jest.fn(),
+  } as any;
 
   const user: UserEntity = {
     id: 1,
@@ -365,10 +376,11 @@ describe('AuthService', () => {
     });
   });
 
+  // --- Refresh tokens' logic ---
+
   describe('saveRefreshToken', () => {
     let refreshTokenDto: RefreshTokenDto;
     let savedRefreshToken: RefreshTokenEntity;
-    let queryRunner: any;
 
     beforeEach(() => {
       refreshTokenDto = {
@@ -380,18 +392,10 @@ describe('AuthService', () => {
       };
       savedRefreshToken = {
         id: 1,
-        userId: 1,
         refreshToken: 'newRefreshToken',
+        userId: 1,
         expiresIn: new Date(),
-      } as RefreshTokenEntity;
-
-      queryRunner = {
-        connect: jest.fn(),
-        startTransaction: jest.fn(),
-        commitTransaction: jest.fn(),
-        rollbackTransaction: jest.fn(),
-        release: jest.fn(),
-        manager: jest.fn(),
+        createdAt: new Date(),
       };
 
       jest
@@ -573,6 +577,108 @@ describe('AuthService', () => {
       await expect(authService.getAllRefreshTokens()).rejects.toThrow(
         NotFoundException,
       );
+    });
+  });
+
+  // --- Access tokens' logic ---
+
+  describe('saveAccessToken', () => {
+    let accessTokenDto: AccessTokenDto;
+    let savedAccessToken: AccessTokenEntity;
+
+    beforeEach(() => {
+      accessTokenDto = {
+        userId: 1,
+        accessToken: 'newToken',
+        expiresIn: new Date(),
+      };
+      savedAccessToken = {
+        id: 1,
+        accessToken: 'newToken',
+        userId: 1,
+        expiresIn: new Date(),
+        createdAt: new Date(),
+      };
+
+      jest
+        .spyOn(authService['dataSource'], 'createQueryRunner')
+        .mockReturnValue(queryRunner);
+    });
+
+    it('should delete existing access token before saving a new one', async () => {
+      const existingToken = {
+        userId: accessTokenDto.userId,
+        token: 'oldToken',
+      };
+      jest
+        .spyOn(mockAccessTokenRepository, 'findAccessTokenByUserId')
+        .mockResolvedValue(existingToken);
+      jest
+        .spyOn(mockAccessTokenRepository, 'deleteAccessToken')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(mockAccessTokenRepository, 'saveAccessToken')
+        .mockResolvedValue(savedAccessToken);
+
+      const result = await authService.saveAccessToken(accessTokenDto);
+
+      expect(queryRunner.connect).toHaveBeenCalled();
+      expect(queryRunner.startTransaction).toHaveBeenCalled();
+      expect(
+        mockAccessTokenRepository.findAccessTokenByUserId,
+      ).toHaveBeenCalledWith(accessTokenDto.userId, queryRunner.manager);
+      expect(mockAccessTokenRepository.deleteAccessToken).toHaveBeenCalledWith(
+        accessTokenDto.userId,
+        queryRunner.manager,
+      );
+      expect(mockAccessTokenRepository.saveAccessToken).toHaveBeenCalledWith(
+        accessTokenDto,
+        queryRunner.manager,
+      );
+      expect(queryRunner.commitTransaction).toHaveBeenCalled();
+      expect(result).toEqual(savedAccessToken);
+    });
+
+    it('should rollback transaction and throw ConflictException if token already exists', async () => {
+      jest
+        .spyOn(mockAccessTokenRepository, 'findAccessTokenByUserId')
+        .mockResolvedValue(null);
+      jest
+        .spyOn(mockAccessTokenRepository, 'saveAccessToken')
+        .mockRejectedValue({ code: '23505' });
+
+      await expect(authService.saveAccessToken(accessTokenDto)).rejects.toThrow(
+        ConflictException,
+      );
+      expect(queryRunner.rollbackTransaction).toHaveBeenCalled();
+    });
+
+    it('should rollback transaction and throw error for other exceptions', async () => {
+      jest
+        .spyOn(mockAccessTokenRepository, 'findAccessTokenByUserId')
+        .mockResolvedValue(null);
+      jest
+        .spyOn(mockAccessTokenRepository, 'saveAccessToken')
+        .mockRejectedValue(new Error('Unexpected error'));
+
+      await expect(authService.saveAccessToken(accessTokenDto)).rejects.toThrow(
+        Error,
+      );
+      expect(queryRunner.rollbackTransaction).toHaveBeenCalled();
+    });
+
+    it('should throw InternalServerErrorException if savedAccessToken is not returned', async () => {
+      jest
+        .spyOn(mockAccessTokenRepository, 'findAccessTokenByUserId')
+        .mockResolvedValue(null);
+      jest
+        .spyOn(mockAccessTokenRepository, 'saveAccessToken')
+        .mockResolvedValue(null);
+
+      await expect(authService.saveAccessToken(accessTokenDto)).rejects.toThrow(
+        InternalServerErrorException,
+      );
+      expect(queryRunner.rollbackTransaction).toHaveBeenCalled();
     });
   });
 });
