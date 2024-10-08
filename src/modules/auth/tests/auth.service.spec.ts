@@ -681,4 +681,35 @@ describe('AuthService', () => {
       expect(queryRunner.rollbackTransaction).toHaveBeenCalled();
     });
   });
+
+  describe('deleteAccessToken', () => {
+    const userId = 1;
+
+    it('should delete access token and remove from Redis', async () => {
+      jest
+        .spyOn(mockAccessTokenRepository, 'deleteAccessToken')
+        .mockResolvedValue(undefined);
+      jest.spyOn(mockRedisService, 'del').mockResolvedValue(undefined);
+
+      await authService.deleteAccessToken(userId);
+
+      expect(mockAccessTokenRepository.deleteAccessToken).toHaveBeenCalledWith(
+        userId,
+      );
+      expect(mockRedisService.del).toHaveBeenCalledWith(
+        `access_token:${userId}`,
+      );
+    });
+
+    it('should log a warning and throw an error if delete fails', async () => {
+      const error = new Error('Database error');
+      jest
+        .spyOn(mockAccessTokenRepository, 'deleteAccessToken')
+        .mockRejectedValue(error);
+
+      await expect(authService.deleteAccessToken(userId)).rejects.toThrow(
+        error,
+      );
+    });
+  });
 });
