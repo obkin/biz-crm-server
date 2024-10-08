@@ -53,6 +53,7 @@ describe('AuthService', () => {
     findAccessTokenByUserId: jest.fn(),
     saveAccessToken: jest.fn(),
     deleteAccessToken: jest.fn(),
+    getAllAccessTokens: jest.fn(),
   };
 
   const mockRedisService = {
@@ -737,6 +738,33 @@ describe('AuthService', () => {
         .mockResolvedValue(null);
 
       await expect(authService.getAccessToken(1)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+  });
+
+  describe('getAllAccessTokens', () => {
+    it('should return all access tokens if found', async () => {
+      const mockTokensArray = [
+        { userId: 1, accessToken: 'token1' },
+        { userId: 2, accessToken: 'token2' },
+      ] as AccessTokenEntity[];
+      jest
+        .spyOn(mockAccessTokenRepository, 'getAllAccessTokens')
+        .mockResolvedValue(mockTokensArray);
+
+      const result = await authService.getAllAccessTokens();
+
+      expect(mockAccessTokenRepository.getAllAccessTokens).toHaveBeenCalled();
+      expect(result).toEqual(mockTokensArray);
+    });
+
+    it('should throw NotFoundException if no access tokens found', async () => {
+      jest
+        .spyOn(mockAccessTokenRepository, 'getAllAccessTokens')
+        .mockResolvedValue([]);
+
+      await expect(authService.getAllAccessTokens()).rejects.toThrow(
         NotFoundException,
       );
     });
