@@ -712,4 +712,33 @@ describe('AuthService', () => {
       );
     });
   });
+
+  describe('getAccessToken', () => {
+    it('should return access token if found', async () => {
+      const mockToken = {
+        userId: 1,
+        accessToken: 'token',
+      } as AccessTokenEntity;
+      jest
+        .spyOn(mockAccessTokenRepository, 'findAccessTokenByUserId')
+        .mockResolvedValue(mockToken);
+
+      const result = await authService.getAccessToken(1);
+
+      expect(
+        mockAccessTokenRepository.findAccessTokenByUserId,
+      ).toHaveBeenCalledWith(1);
+      expect(result).toEqual(mockToken);
+    });
+
+    it('should throw NotFoundException if token not found', async () => {
+      jest
+        .spyOn(mockAccessTokenRepository, 'findAccessTokenByUserId')
+        .mockResolvedValue(null);
+
+      await expect(authService.getAccessToken(1)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+  });
 });
