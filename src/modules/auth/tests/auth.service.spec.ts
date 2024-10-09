@@ -769,4 +769,119 @@ describe('AuthService', () => {
       );
     });
   });
+
+  // --- Methods ---
+
+  describe('checkIsUserLoggedIn', () => {
+    const userId = 1;
+    let redisClient;
+
+    beforeEach(() => {
+      redisClient = {
+        get: jest.fn(),
+        set: jest.fn(),
+      };
+      jest.spyOn(mockRedisService, 'getClient').mockReturnValue(redisClient);
+    });
+
+    it('should return true if access token is found in Redis', async () => {
+      redisClient.get.mockResolvedValue('access-token');
+      const result = await authService.checkIsUserLoggedIn(userId);
+
+      expect(redisClient.get).toHaveBeenCalledWith(`access_token:${userId}`);
+      expect(result).toBe(true);
+    });
+
+    it('should fetch access token from the database if not in Redis and store it in Redis', async () => {
+      redisClient.get.mockResolvedValue(null);
+      const dbAccessToken = { accessToken: 'db-access-token' };
+      jest
+        .spyOn(mockAccessTokenRepository, 'findAccessTokenByUserId')
+        .mockResolvedValue(dbAccessToken);
+
+      const result = await authService.checkIsUserLoggedIn(userId);
+
+      expect(redisClient.get).toHaveBeenCalledWith(`access_token:${userId}`);
+      expect(
+        mockAccessTokenRepository.findAccessTokenByUserId,
+      ).toHaveBeenCalledWith(userId);
+      expect(redisClient.set).toHaveBeenCalledWith(
+        `access_token:${userId}`,
+        'db-access-token',
+        'EX',
+        expect.any(Number),
+      );
+      expect(result).toBe(true);
+    });
+
+    it('should fetch refresh token from Redis if access token is not found', async () => {
+      redisClient.get
+        .mockResolvedValueOnce(null)
+        .mockResolvedValue('refresh-token');
+      jest
+        .spyOn(mockAccessTokenRepository, 'findAccessTokenByUserId')
+        .mockResolvedValue(null);
+
+      const result = await authService.checkIsUserLoggedIn(userId);
+
+      expect(redisClient.get).toHaveBeenCalledWith(`access_token:${userId}`);
+      expect(
+        mockAccessTokenRepository.findAccessTokenByUserId,
+      ).toHaveBeenCalledWith(userId);
+      expect(redisClient.get).toHaveBeenCalledWith(`refresh_token:${userId}`);
+      expect(result).toBe(true);
+    });
+
+    it('should fetch refresh token from the database and store it in Redis if not in Redis', async () => {
+      redisClient.get.mockResolvedValueOnce(null).mockResolvedValueOnce(null);
+      jest
+        .spyOn(mockAccessTokenRepository, 'findAccessTokenByUserId')
+        .mockResolvedValue(null);
+      const dbRefreshToken = { refreshToken: 'db-refresh-token' };
+      jest
+        .spyOn(mockRefreshTokenRepository, 'findRefreshTokenByUserId')
+        .mockResolvedValue(dbRefreshToken);
+
+      const result = await authService.checkIsUserLoggedIn(userId);
+
+      expect(redisClient.get).toHaveBeenCalledWith(`access_token:${userId}`);
+      expect(
+        mockAccessTokenRepository.findAccessTokenByUserId,
+      ).toHaveBeenCalledWith(userId);
+      expect(redisClient.get).toHaveBeenCalledWith(`refresh_token:${userId}`);
+      expect(
+        mockRefreshTokenRepository.findRefreshTokenByUserId,
+      ).toHaveBeenCalledWith(userId);
+      expect(redisClient.set).toHaveBeenCalledWith(
+        `refresh_token:${userId}`,
+        'db-refresh-token',
+        'EX',
+        expect.any(Number),
+      );
+      expect(result).toBe(true);
+    });
+
+    it('should return false if neither access token nor refresh token is found in Redis or database', async () => {
+      redisClient.get.mockResolvedValue(null);
+      jest
+        .spyOn(mockAccessTokenRepository, 'findAccessTokenByUserId')
+        .mockResolvedValue(null);
+      jest
+        .spyOn(mockRefreshTokenRepository, 'findRefreshTokenByUserId')
+        .mockResolvedValue(null);
+
+      const result = await authService.checkIsUserLoggedIn(userId);
+
+      expect(result).toBe(false);
+    });
+
+    it('should throw an error if an exception occurs', async () => {
+      const error = new Error('Unexpected error');
+      redisClient.get.mockRejectedValue(error);
+
+      await expect(authService.checkIsUserLoggedIn(userId)).rejects.toThrow(
+        error,
+      );
+    });
+  });
 });
