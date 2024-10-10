@@ -401,6 +401,20 @@ describe('AuthService', () => {
 
       expect(result).toEqual(tokens);
     });
+
+    it('should throw an error if token generation fails', async () => {
+      const error = new Error('Token generation failed');
+
+      jest.spyOn(authService['jwtService'], 'sign').mockImplementation(() => {
+        throw error;
+      });
+
+      await expect((authService as any).generateTokens(user)).rejects.toThrow(
+        error,
+      );
+
+      expect(authService['jwtService'].sign).toHaveBeenCalled();
+    });
   });
 
   describe('refreshAccessToken', () => {
