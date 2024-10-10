@@ -340,6 +340,32 @@ describe('AuthService', () => {
       expect(result).toBe(true);
       expect(bcrypt.compare).toHaveBeenCalledWith(password, user.password);
     });
+
+    it('should return false if password is incorrect', async () => {
+      const password = 'incorrectPassword';
+      const hashedPassword = await bcrypt.hash('correctPassword', 10);
+      const user = { password: hashedPassword };
+
+      jest.spyOn(bcrypt, 'compare').mockResolvedValue(false);
+
+      const result = await (authService as any).verifyPassword(password, user);
+
+      expect(result).toBe(false);
+      expect(bcrypt.compare).toHaveBeenCalledWith(password, user.password);
+    });
+
+    it('should throw an error if comparison fails', async () => {
+      const password = 'somePassword';
+      const user = { password: 'hashedPassword' };
+      const error = new Error('Comparison failed');
+
+      jest.spyOn(bcrypt, 'compare').mockRejectedValue(error);
+
+      await expect(
+        (authService as any).verifyPassword(password, user),
+      ).rejects.toThrow(error);
+      expect(bcrypt.compare).toHaveBeenCalledWith(password, user.password);
+    });
   });
 
   // --- JWT logic ---
