@@ -203,6 +203,29 @@ describe('AuthService', () => {
         userLoginDto.email,
       );
     });
+    it('should log out the user if he is already logged in', async () => {
+      mockUsersService.getUserByEmail.mockResolvedValue(user);
+      mockJwtService.sign
+        .mockReturnValueOnce('newAccessToken')
+        .mockReturnValueOnce('newRefreshToken');
+      mockRefreshTokenRepository.findRefreshTokenByUserId.mockResolvedValue(
+        null,
+      );
+      mockAccessTokenRepository.findAccessTokenByUserId.mockResolvedValue(null);
+
+      jest.spyOn(authService as any, 'validateUser').mockResolvedValue(user);
+      jest.spyOn(authService, 'checkIsUserLoggedIn').mockResolvedValue(true);
+
+      const userLogoutSpy = jest
+        .spyOn(authService, 'userLogout')
+        .mockResolvedValue(undefined);
+
+      const result = await authService.userLogin(userLoginDto);
+
+      expect(userLogoutSpy).toHaveBeenCalledWith(user.id);
+      expect(result).toHaveProperty('accessToken', 'newAccessToken');
+      expect(result).toHaveProperty('refreshToken', 'newRefreshToken');
+    });
 
     it('should throw BadRequestException if password is wrong', async () => {
       mockUsersService.getUserByEmail.mockResolvedValue(user);
