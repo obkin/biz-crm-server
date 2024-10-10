@@ -220,6 +220,9 @@ export class AuthService {
       this.logger.log(`Access token refreshed (userId: ${userId})`);
       return newAccessToken;
     } catch (e) {
+      if (e instanceof NotFoundException) {
+        throw e;
+      }
       throw new UnauthorizedException('Invalid refresh token');
     }
   }

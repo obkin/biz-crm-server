@@ -481,6 +481,90 @@ describe('AuthService', () => {
       );
       expect(result).toBe(newAccessToken);
     });
+
+    it('should throw UnauthorizedException if refresh token is invalid', async () => {
+      jest.spyOn(authService['jwtService'], 'verify').mockImplementation(() => {
+        throw new Error('Invalid token');
+      });
+
+      await expect(
+        authService.refreshAccessToken(refreshToken),
+      ).rejects.toThrow(UnauthorizedException);
+
+      expect(authService['jwtService'].verify).toHaveBeenCalledWith(
+        refreshToken,
+      );
+    });
+
+    it('should throw UnauthorizedException if stored token does not match', async () => {
+      jest
+        .spyOn(authService['jwtService'], 'verify')
+        .mockReturnValue(decodedToken);
+      jest
+        .spyOn(
+          authService['refreshTokenRepository'],
+          'findRefreshTokenByUserId',
+        )
+        .mockResolvedValue(null);
+
+      await expect(
+        authService.refreshAccessToken(refreshToken),
+      ).rejects.toThrow(UnauthorizedException);
+
+      expect(
+        authService['refreshTokenRepository'].findRefreshTokenByUserId,
+      ).toHaveBeenCalledWith(decodedToken.sub);
+    });
+
+    it('should throw NotFoundException if user is not found', async () => {
+      jest
+        .spyOn(authService['jwtService'], 'verify')
+        .mockReturnValue(decodedToken);
+      jest
+        .spyOn(
+          authService['refreshTokenRepository'],
+          'findRefreshTokenByUserId',
+        )
+        .mockResolvedValue(storedToken);
+      jest
+        .spyOn(authService['usersService'], 'getUserById')
+        .mockResolvedValue(null);
+
+      await expect(
+        authService.refreshAccessToken(refreshToken),
+      ).rejects.toThrow(NotFoundException);
+
+      expect(authService['usersService'].getUserById).toHaveBeenCalledWith(
+        decodedToken.sub,
+      );
+    });
+
+    it('should throw UnauthorizedException if saving new access token fails', async () => {
+      jest
+        .spyOn(authService['jwtService'], 'verify')
+        .mockReturnValue(decodedToken);
+      jest
+        .spyOn(
+          authService['refreshTokenRepository'],
+          'findRefreshTokenByUserId',
+        )
+        .mockResolvedValue(storedToken);
+      jest
+        .spyOn(authService['usersService'], 'getUserById')
+        .mockResolvedValue(user);
+      jest
+        .spyOn(authService['jwtService'], 'sign')
+        .mockReturnValue(newAccessToken);
+      jest
+        .spyOn(authService as any, 'saveAccessToken')
+        .mockRejectedValue(new Error('Failed to save token'));
+
+      await expect(
+        authService.refreshAccessToken(refreshToken),
+      ).rejects.toThrow(UnauthorizedException);
+
+      expect(authService['saveAccessToken']).toHaveBeenCalled();
+    });
   });
 
   // --- Refresh tokens' logic ---
