@@ -272,7 +272,6 @@ describe('AuthService', () => {
       const error = new Error('Some other error');
 
       mockAccessTokenRepository.deleteAccessToken.mockRejectedValue(error);
-
       await expect(authService.userLogout(userId)).rejects.toThrow(error);
     });
   });
@@ -290,6 +289,41 @@ describe('AuthService', () => {
         userLoginDto.email,
       );
       expect(result).toEqual(user);
+    });
+
+    it('should return null if user is not found', async () => {
+      mockUsersService.getUserByEmail.mockResolvedValue(null);
+
+      const result = await (authService as any).validateUser(userLoginDto);
+
+      expect(mockUsersService.getUserByEmail).toHaveBeenCalledWith(
+        userLoginDto.email,
+      );
+      expect(result).toBeNull();
+    });
+
+    it('should return null if password is incorrect', async () => {
+      jest.spyOn(authService as any, 'verifyPassword').mockResolvedValue(false);
+      mockUsersService.getUserByEmail.mockResolvedValue(user);
+
+      const result = await (authService as any).validateUser(userLoginDto);
+
+      expect(mockUsersService.getUserByEmail).toHaveBeenCalledWith(
+        userLoginDto.email,
+      );
+      expect(result).toBeNull();
+    });
+
+    it('should throw an error if getting user fails', async () => {
+      const error = new Error('Database error');
+      mockUsersService.getUserByEmail.mockRejectedValue(error);
+
+      await expect(
+        (authService as any).validateUser(userLoginDto),
+      ).rejects.toThrow(error);
+      expect(mockUsersService.getUserByEmail).toHaveBeenCalledWith(
+        userLoginDto.email,
+      );
     });
   });
 
