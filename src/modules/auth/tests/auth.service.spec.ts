@@ -266,6 +266,15 @@ describe('AuthService', () => {
         UnauthorizedException,
       );
     });
+
+    it('should rethrow any other exceptions', async () => {
+      const userId = 1;
+      const error = new Error('Some other error');
+
+      mockAccessTokenRepository.deleteAccessToken.mockRejectedValue(error);
+
+      await expect(authService.userLogout(userId)).rejects.toThrow(error);
+    });
   });
 
   // --- Methods ---
