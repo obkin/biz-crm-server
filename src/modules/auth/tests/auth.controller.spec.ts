@@ -16,6 +16,7 @@ describe('AuthController', () => {
     userLogin: jest.fn(),
     userLogout: jest.fn(),
     saveRefreshToken: jest.fn(),
+    deleteRefreshToken: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -170,8 +171,9 @@ describe('AuthController', () => {
       updatedAt: new Date(),
     };
 
-    it('should successfully save the refresh token', async () => {
+    it('should successfully save refresh token', async () => {
       mockAuthService.saveRefreshToken.mockResolvedValue(savedRefreshToken);
+
       const result = await authController.saveRefreshToken(dto);
       expect(result).toEqual(savedRefreshToken);
       expect(mockAuthService.saveRefreshToken).toHaveBeenCalledWith(dto);
@@ -204,6 +206,42 @@ describe('AuthController', () => {
         HttpException,
       );
       expect(mockAuthService.saveRefreshToken).toHaveBeenCalledWith(dto);
+    });
+  });
+
+  describe('deleteRefreshToken', () => {
+    const userId = 1;
+
+    it('should successfully delete refresh token', async () => {
+      mockAuthService.deleteRefreshToken.mockResolvedValue(null);
+
+      const result = await authController.deleteRefreshToken(userId);
+      expect(result).toEqual({ userId, message: 'Refresh token deleted' });
+      expect(mockAuthService.deleteRefreshToken).toHaveBeenCalledWith(userId);
+    });
+
+    it('should throw a NotFoundException if the token is not found', async () => {
+      mockAuthService.deleteRefreshToken.mockRejectedValue(
+        new HttpException('Token not found', HttpStatus.NOT_FOUND),
+      );
+
+      await expect(authController.deleteRefreshToken(userId)).rejects.toThrow(
+        HttpException,
+      );
+
+      expect(mockAuthService.deleteRefreshToken).toHaveBeenCalledWith(userId);
+    });
+
+    it('should throw an InternalServerError for unexpected errors', async () => {
+      mockAuthService.deleteRefreshToken.mockRejectedValue(
+        new Error('Unexpected error'),
+      );
+
+      await expect(authController.deleteRefreshToken(userId)).rejects.toThrow(
+        HttpException,
+      );
+
+      expect(mockAuthService.deleteRefreshToken).toHaveBeenCalledWith(userId);
     });
   });
 });
