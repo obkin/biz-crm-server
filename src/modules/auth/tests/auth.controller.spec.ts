@@ -9,7 +9,6 @@ import { RefreshTokenDto } from '../dto/refresh-token.dto';
 
 describe('AuthController', () => {
   let authController: AuthController;
-  //   let authService: AuthService;
 
   const mockAuthService = {
     userRegister: jest.fn(),
@@ -17,6 +16,7 @@ describe('AuthController', () => {
     userLogout: jest.fn(),
     saveRefreshToken: jest.fn(),
     deleteRefreshToken: jest.fn(),
+    getRefreshToken: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -26,16 +26,16 @@ describe('AuthController', () => {
     }).compile();
 
     authController = module.get<AuthController>(AuthController);
-    // authService = module.get<AuthService>(AuthService);
   });
 
   describe('register', () => {
+    const dto: UserRegisterDto = {
+      username: 'Test',
+      email: 'test@example.com',
+      password: 'Test123',
+    };
+
     it('should successfully register a new user', async () => {
-      const dto: UserRegisterDto = {
-        username: 'Test',
-        email: 'test@example.com',
-        password: 'Test123',
-      };
       const user = { id: 1, email: 'test@example.com' };
       mockAuthService.userRegister.mockResolvedValue(user);
 
@@ -45,11 +45,6 @@ describe('AuthController', () => {
     });
 
     it('should throw ConflictException when user already exists', async () => {
-      const dto: UserRegisterDto = {
-        username: 'Test',
-        email: 'test@example.com',
-        password: 'Test123',
-      };
       mockAuthService.userRegister.mockRejectedValue(
         new HttpException(
           'User with such email already exists',
@@ -62,11 +57,6 @@ describe('AuthController', () => {
     });
 
     it('should throw InternalServerError when an unexpected error occurs', async () => {
-      const dto: UserRegisterDto = {
-        username: 'Test',
-        email: 'test@example.com',
-        password: 'Test123',
-      };
       mockAuthService.userRegister.mockRejectedValue(
         new Error('Unexpected Error'),
       );
@@ -242,6 +232,48 @@ describe('AuthController', () => {
       );
 
       expect(mockAuthService.deleteRefreshToken).toHaveBeenCalledWith(userId);
+    });
+  });
+
+  describe('getRefreshToken', () => {
+    const userId = 1;
+    const mockRefreshToken = {
+      id: 1,
+      userId: 1,
+      refreshToken: 'some-refresh-token',
+      expiresIn: new Date(),
+      ipAddress: '192.168.1.1',
+      userAgent: 'Mozilla',
+    };
+
+    it('should successfully retrieve the refresh token', async () => {
+      mockAuthService.getRefreshToken.mockResolvedValue(mockRefreshToken);
+
+      const result = await authController.getRefreshToken(userId);
+      expect(result).toEqual(mockRefreshToken);
+      expect(mockAuthService.getRefreshToken).toHaveBeenCalledWith(userId);
+    });
+
+    it('should throw a NotFoundException if the token is not found', async () => {
+      mockAuthService.getRefreshToken.mockRejectedValue(
+        new HttpException('Such refresh token not found', HttpStatus.NOT_FOUND),
+      );
+
+      await expect(authController.getRefreshToken(userId)).rejects.toThrow(
+        HttpException,
+      );
+      expect(mockAuthService.getRefreshToken).toHaveBeenCalledWith(userId);
+    });
+
+    it('should throw an InternalServerError for unexpected errors', async () => {
+      mockAuthService.getRefreshToken.mockRejectedValue(
+        new Error('Unexpected error'),
+      );
+
+      await expect(authController.getRefreshToken(userId)).rejects.toThrow(
+        HttpException,
+      );
+      expect(mockAuthService.getRefreshToken).toHaveBeenCalledWith(userId);
     });
   });
 });
