@@ -5,6 +5,7 @@ import { AuthService } from '../auth.service';
 import { UserRegisterDto } from '../dto/user-register.dto';
 import { UserLoginDto } from '../dto/user-login.dto';
 import { UserLoginResponseDto } from '../dto/user-login-response.dto';
+import { RefreshTokenDto } from '../dto/refresh-token.dto';
 
 describe('AuthController', () => {
   let authController: AuthController;
@@ -14,6 +15,7 @@ describe('AuthController', () => {
     userRegister: jest.fn(),
     userLogin: jest.fn(),
     userLogout: jest.fn(),
+    saveRefreshToken: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -146,6 +148,62 @@ describe('AuthController', () => {
       await expect(authController.logout(mockReq)).rejects.toThrow(
         HttpException,
       );
+    });
+  });
+
+  describe('saveRefreshToken', () => {
+    const dto: RefreshTokenDto = {
+      userId: 1,
+      refreshToken: 'refresh-token',
+      expiresIn: new Date(),
+      ipAddress: '192.168.0.1',
+      userAgent: 'Mozila',
+    };
+    const savedRefreshToken = {
+      id: 1,
+      userId: dto.userId,
+      refreshToken: dto.refreshToken,
+      expiresIn: dto.expiresIn,
+      ipAddress: dto.ipAddress,
+      userAgent: dto.userAgent,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    it('should successfully save the refresh token', async () => {
+      mockAuthService.saveRefreshToken.mockResolvedValue(savedRefreshToken);
+      const result = await authController.saveRefreshToken(dto);
+      expect(result).toEqual(savedRefreshToken);
+      expect(mockAuthService.saveRefreshToken).toHaveBeenCalledWith(dto);
+    });
+
+    it('should throw a BadRequestException if the refresh token already exists', async () => {
+      mockAuthService.saveRefreshToken.mockRejectedValue(
+        new HttpException(
+          'Such refresh token already exists',
+          HttpStatus.BAD_REQUEST,
+        ),
+      );
+
+      await expect(authController.saveRefreshToken(dto)).rejects.toThrow(
+        HttpException,
+      );
+      await expect(authController.saveRefreshToken(dto)).rejects.toMatchObject({
+        status: HttpStatus.BAD_REQUEST,
+        message: 'Such refresh token already exists',
+      });
+      expect(mockAuthService.saveRefreshToken).toHaveBeenCalledWith(dto);
+    });
+
+    it('should throw an InternalServerError if an unexpected error occurs', async () => {
+      mockAuthService.saveRefreshToken.mockRejectedValue(
+        new Error('Unexpected Error'),
+      );
+
+      await expect(authController.saveRefreshToken(dto)).rejects.toThrow(
+        HttpException,
+      );
+      expect(mockAuthService.saveRefreshToken).toHaveBeenCalledWith(dto);
     });
   });
 });
