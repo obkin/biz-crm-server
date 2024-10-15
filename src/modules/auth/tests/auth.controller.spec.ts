@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { HttpStatus, HttpException } from '@nestjs/common';
+import { HttpStatus, HttpException, NotFoundException } from '@nestjs/common';
 import { AuthController } from '../auth.controller';
 import { AuthService } from '../auth.service';
 import { UserRegisterDto } from '../dto/user-register.dto';
@@ -17,6 +17,7 @@ describe('AuthController', () => {
     saveRefreshToken: jest.fn(),
     deleteRefreshToken: jest.fn(),
     getRefreshToken: jest.fn(),
+    getAllRefreshTokens: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -274,6 +275,65 @@ describe('AuthController', () => {
         HttpException,
       );
       expect(mockAuthService.getRefreshToken).toHaveBeenCalledWith(userId);
+    });
+  });
+
+  describe('getAllRefreshTokens', () => {
+    const mockRefreshTokensArray = [
+      {
+        id: 1,
+        userId: 1,
+        refreshToken: 'some-refresh-token-1',
+        expiresIn: new Date(),
+        ipAddress: '192.168.1.1',
+        userAgent: 'Mozilla/5.0',
+      },
+      {
+        id: 2,
+        userId: 2,
+        refreshToken: 'some-refresh-token-2',
+        expiresIn: new Date(),
+        ipAddress: '192.168.1.2',
+        userAgent: 'Chrome/98.0',
+      },
+    ];
+
+    it('should successfully retrieve all refresh tokens', async () => {
+      mockAuthService.getAllRefreshTokens.mockResolvedValue(
+        mockRefreshTokensArray,
+      );
+
+      const result = await authController.getAllRefreshTokens();
+      expect(result).toEqual({
+        tokensAmount: mockRefreshTokensArray.length,
+        refreshTokensArray: mockRefreshTokensArray,
+      });
+      expect(mockAuthService.getAllRefreshTokens).toHaveBeenCalled();
+    });
+
+    it('should throw a NotFoundException if no tokens are found', async () => {
+      mockAuthService.getAllRefreshTokens.mockRejectedValue(
+        new NotFoundException('There are no refresh tokens'),
+      );
+
+      await expect(authController.getAllRefreshTokens()).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(mockAuthService.getAllRefreshTokens).toHaveBeenCalled();
+    });
+
+    it('should throw an InternalServerError for unexpected errors', async () => {
+      mockAuthService.getAllRefreshTokens.mockRejectedValue(
+        new Error('Unexpected error'),
+      );
+
+      await expect(authController.getAllRefreshTokens()).rejects.toThrow(
+        new HttpException(
+          'Failed to find all refresh tokens. Error: Unexpected error',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        ),
+      );
+      expect(mockAuthService.getAllRefreshTokens).toHaveBeenCalled();
     });
   });
 });
