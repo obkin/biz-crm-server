@@ -24,6 +24,7 @@ describe('AuthController', () => {
     saveAccessToken: jest.fn(),
     deleteAccessToken: jest.fn(),
     getAccessToken: jest.fn(),
+    getAllAccessTokens: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -288,26 +289,28 @@ describe('AuthController', () => {
   });
 
   describe('getAllRefreshTokens', () => {
-    const mockRefreshTokensArray = [
+    const mockRefreshTokensArray: RefreshTokenEntity[] = [
       {
         id: 1,
+        refreshToken: 'token1',
         userId: 1,
-        refreshToken: 'some-refresh-token-1',
         expiresIn: new Date(),
         ipAddress: '192.168.1.1',
         userAgent: 'Mozilla/5.0',
+        createdAt: new Date(),
       },
       {
         id: 2,
+        refreshToken: 'token2',
         userId: 2,
-        refreshToken: 'some-refresh-token-2',
         expiresIn: new Date(),
         ipAddress: '192.168.1.2',
         userAgent: 'Chrome/98.0',
+        createdAt: new Date(),
       },
     ];
 
-    it('should successfully retrieve all refresh tokens', async () => {
+    it('should successfully return all refresh tokens', async () => {
       mockAuthService.getAllRefreshTokens.mockResolvedValue(
         mockRefreshTokensArray,
       );
@@ -475,5 +478,61 @@ describe('AuthController', () => {
       );
       expect(mockAuthService.getAccessToken).toHaveBeenCalledWith(userId);
     });
+  });
+
+  describe('getAllAccessTokens', () => {
+    const mockAccessTokensArray: AccessTokenEntity[] = [
+      {
+        id: 1,
+        accessToken: 'token1',
+        userId: 1,
+        expiresIn: new Date(),
+        createdAt: new Date(),
+      },
+      {
+        id: 2,
+        accessToken: 'token2',
+        userId: 2,
+        expiresIn: new Date(),
+        createdAt: new Date(),
+      },
+    ];
+    it('should successfully return all access tokens', async () => {
+      mockAuthService.getAllAccessTokens.mockResolvedValue(
+        mockAccessTokensArray,
+      );
+
+      const result = await authController.getAllAccessTokens();
+      expect(result).toEqual({
+        tokensAmount: mockAccessTokensArray.length,
+        accessTokensArray: mockAccessTokensArray,
+      });
+      expect(mockAuthService.getAllAccessTokens).toHaveBeenCalled();
+    });
+  });
+
+  it('should throw a NotFoundException if no tokens are found', async () => {
+    mockAuthService.getAllAccessTokens.mockRejectedValue(
+      new NotFoundException('There are no access tokens'),
+    );
+
+    await expect(authController.getAllAccessTokens()).rejects.toThrow(
+      NotFoundException,
+    );
+    expect(mockAuthService.getAllAccessTokens).toHaveBeenCalled();
+  });
+
+  it('should throw an InternalServerError for unexpected errors', async () => {
+    mockAuthService.getAllAccessTokens.mockRejectedValue(
+      new Error('Unexpected Error'),
+    );
+
+    await expect(authController.getAllAccessTokens()).rejects.toThrow(
+      new HttpException(
+        'Failed to find all access tokens. Error: Unexpected Error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      ),
+    );
+    expect(mockAuthService.getAllAccessTokens).toHaveBeenCalled();
   });
 });
