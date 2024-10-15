@@ -6,6 +6,7 @@ import { UserRegisterDto } from '../dto/user-register.dto';
 import { UserLoginDto } from '../dto/user-login.dto';
 import { UserLoginResponseDto } from '../dto/user-login-response.dto';
 import { RefreshTokenDto } from '../dto/refresh-token.dto';
+import { AccessTokenDto } from '../dto/access-token.dto';
 
 describe('AuthController', () => {
   let authController: AuthController;
@@ -18,6 +19,7 @@ describe('AuthController', () => {
     deleteRefreshToken: jest.fn(),
     getRefreshToken: jest.fn(),
     getAllRefreshTokens: jest.fn(),
+    saveAccessToken: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -143,6 +145,8 @@ describe('AuthController', () => {
     });
   });
 
+  // --- Refresh tokens logic (for Admins only) ---
+
   describe('saveRefreshToken', () => {
     const dto: RefreshTokenDto = {
       userId: 1,
@@ -170,7 +174,7 @@ describe('AuthController', () => {
       expect(mockAuthService.saveRefreshToken).toHaveBeenCalledWith(dto);
     });
 
-    it('should throw a BadRequestException if the refresh token already exists', async () => {
+    it('should throw a BadRequestException if refresh token already exists', async () => {
       mockAuthService.saveRefreshToken.mockRejectedValue(
         new HttpException(
           'Such refresh token already exists',
@@ -334,6 +338,61 @@ describe('AuthController', () => {
         ),
       );
       expect(mockAuthService.getAllRefreshTokens).toHaveBeenCalled();
+    });
+  });
+
+  // --- Access tokens logic (for Admins only) ---
+
+  describe('saveAccessToken', () => {
+    const dto: AccessTokenDto = {
+      userId: 1,
+      accessToken: 'access-token',
+      expiresIn: new Date(),
+    };
+    const savedAccessToken = {
+      id: 1,
+      userId: dto.userId,
+      refreshToken: dto.accessToken,
+      expiresIn: dto.expiresIn,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    it('should successfully save access token', async () => {
+      mockAuthService.saveAccessToken.mockResolvedValue(savedAccessToken);
+
+      const result = await authController.saveAccessToken(dto);
+      expect(result).toEqual(savedAccessToken);
+      expect(mockAuthService.saveAccessToken).toHaveBeenCalledWith(dto);
+    });
+
+    it('should throw a BadRequestException if access token already exists', async () => {
+      mockAuthService.saveAccessToken.mockRejectedValue(
+        new HttpException(
+          'Such access token already exists',
+          HttpStatus.BAD_REQUEST,
+        ),
+      );
+
+      await expect(authController.saveAccessToken(dto)).rejects.toThrow(
+        HttpException,
+      );
+      await expect(authController.saveAccessToken(dto)).rejects.toMatchObject({
+        status: HttpStatus.BAD_REQUEST,
+        message: 'Such access token already exists',
+      });
+      expect(mockAuthService.saveAccessToken).toHaveBeenCalledWith(dto);
+    });
+
+    it('should throw an InternalServerError if an unexpected error occurs', async () => {
+      mockAuthService.saveAccessToken.mockRejectedValue(
+        new Error('Unexpected Error'),
+      );
+
+      await expect(authController.saveAccessToken(dto)).rejects.toThrow(
+        HttpException,
+      );
+      expect(mockAuthService.saveAccessToken).toHaveBeenCalledWith(dto);
     });
   });
 });
