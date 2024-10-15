@@ -20,6 +20,7 @@ describe('AuthController', () => {
     getRefreshToken: jest.fn(),
     getAllRefreshTokens: jest.fn(),
     saveAccessToken: jest.fn(),
+    deleteAccessToken: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -393,6 +394,41 @@ describe('AuthController', () => {
         HttpException,
       );
       expect(mockAuthService.saveAccessToken).toHaveBeenCalledWith(dto);
+    });
+  });
+
+  describe('deleteAccessToken', () => {
+    const userId = 1;
+    it('should successfully delete access token', async () => {
+      mockAuthService.deleteAccessToken.mockResolvedValue(null);
+
+      const result = await authController.deleteAccessToken(userId);
+      expect(result).toEqual({ userId, message: 'Access token deleted' });
+      expect(mockAuthService.deleteAccessToken).toHaveBeenCalledWith(userId);
+    });
+
+    it('should throw a NotFoundException if the token is not found', async () => {
+      mockAuthService.deleteAccessToken.mockRejectedValue(
+        new HttpException('Token not found', HttpStatus.NOT_FOUND),
+      );
+
+      await expect(authController.deleteAccessToken(userId)).rejects.toThrow(
+        HttpException,
+      );
+
+      expect(mockAuthService.deleteAccessToken).toHaveBeenCalledWith(userId);
+    });
+
+    it('should throw an InternalServerError for unexpected errors', async () => {
+      mockAuthService.deleteAccessToken.mockRejectedValue(
+        new Error('Unexpected Error'),
+      );
+
+      await expect(authController.deleteAccessToken(userId)).rejects.toThrow(
+        HttpException,
+      );
+
+      expect(mockAuthService.deleteAccessToken).toHaveBeenCalledWith(userId);
     });
   });
 });
