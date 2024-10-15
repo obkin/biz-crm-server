@@ -7,6 +7,8 @@ import { UserLoginDto } from '../dto/user-login.dto';
 import { UserLoginResponseDto } from '../dto/user-login-response.dto';
 import { RefreshTokenDto } from '../dto/refresh-token.dto';
 import { AccessTokenDto } from '../dto/access-token.dto';
+import { AccessTokenEntity } from '../entities/access-token.entity';
+import { RefreshTokenEntity } from '../entities/refresh-token.entity';
 
 describe('AuthController', () => {
   let authController: AuthController;
@@ -21,6 +23,7 @@ describe('AuthController', () => {
     getAllRefreshTokens: jest.fn(),
     saveAccessToken: jest.fn(),
     deleteAccessToken: jest.fn(),
+    getAccessToken: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -243,13 +246,14 @@ describe('AuthController', () => {
 
   describe('getRefreshToken', () => {
     const userId = 1;
-    const mockRefreshToken = {
+    const mockRefreshToken: RefreshTokenEntity = {
       id: 1,
-      userId: 1,
       refreshToken: 'some-refresh-token',
+      userId: 1,
       expiresIn: new Date(),
       ipAddress: '192.168.1.1',
       userAgent: 'Mozilla',
+      createdAt: new Date(),
     };
 
     it('should successfully retrieve the refresh token', async () => {
@@ -429,6 +433,47 @@ describe('AuthController', () => {
       );
 
       expect(mockAuthService.deleteAccessToken).toHaveBeenCalledWith(userId);
+    });
+  });
+
+  describe('getAccessToken', () => {
+    const userId = 1;
+    const mockAccessToken: AccessTokenEntity = {
+      id: 1,
+      accessToken: 'some-access-token',
+      userId: 1,
+      expiresIn: new Date(),
+      createdAt: new Date(),
+    };
+
+    it('should return the access token successfully', async () => {
+      mockAuthService.getAccessToken.mockResolvedValue(mockAccessToken);
+
+      const result = await authController.getAccessToken(userId);
+      expect(result).toEqual(mockAccessToken);
+      expect(mockAuthService.getAccessToken).toHaveBeenCalledWith(userId);
+    });
+
+    it('should throw a NotFoundException if the token is not found', async () => {
+      mockAuthService.getAccessToken.mockRejectedValue(
+        new HttpException('Such access token not found', HttpStatus.NOT_FOUND),
+      );
+
+      await expect(authController.getAccessToken(userId)).rejects.toThrow(
+        HttpException,
+      );
+      expect(mockAuthService.getAccessToken).toHaveBeenCalledWith(userId);
+    });
+
+    it('should throw an InternalServerError for unexpected errors', async () => {
+      mockAuthService.getAccessToken.mockRejectedValue(
+        new Error('Unexpected Error'),
+      );
+
+      await expect(authController.getAccessToken(userId)).rejects.toThrow(
+        HttpException,
+      );
+      expect(mockAuthService.getAccessToken).toHaveBeenCalledWith(userId);
     });
   });
 });
