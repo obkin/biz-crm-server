@@ -216,14 +216,25 @@ describe('RefreshTokenRepository', () => {
     });
   });
 
-  describe('getAllRefreshTokens', () => {});
+  describe('getAllRefreshTokens', () => {
+    it('should return all refresh tokens', async () => {
+      jest
+        .spyOn(mockRepository, 'find')
+        .mockResolvedValue([mockRefreshTokenEntity]);
 
-  //   it('should return all refresh tokens', async () => {
-  //     jest
-  //       .spyOn(mockRepository, 'find')
-  //       .mockResolvedValue([mockRefreshTokenEntity]);
+      const result = await refreshTokenRepository.getAllRefreshTokens();
+      expect(result).toEqual([mockRefreshTokenEntity]);
+    });
 
-  //     const result = await refreshTokenRepository.getAllRefreshTokens();
-  //     expect(result).toEqual([mockRefreshTokenEntity]);
-  //   });
+    it('should throw an error if repository throws an exception', async () => {
+      const error = new InternalServerErrorException('Database error');
+      jest.spyOn(mockRepository, 'find').mockRejectedValue(error);
+
+      await expect(
+        refreshTokenRepository.getAllRefreshTokens(),
+      ).rejects.toThrow(InternalServerErrorException);
+
+      expect(mockRepository.find).toHaveBeenCalledTimes(1);
+    });
+  });
 });
