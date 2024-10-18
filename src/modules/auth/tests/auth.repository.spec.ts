@@ -151,14 +151,56 @@ describe('RefreshTokenRepository', () => {
     });
   });
 
-  //   it('should find a refresh token by userId', async () => {
-  //     jest
-  //       .spyOn(mockRepository, 'findOne')
-  //       .mockResolvedValue(mockRefreshTokenEntity);
+  describe('findRefreshTokenByUserId', () => {
+    it('should find a refresh token by userId using default repository', async () => {
+      jest
+        .spyOn(mockRepository, 'findOne')
+        .mockResolvedValue(mockRefreshTokenEntity);
 
-  //     const result = await refreshTokenRepository.findRefreshTokenByUserId(1);
-  //     expect(result).toEqual(mockRefreshTokenEntity);
-  //   });
+      const result = await refreshTokenRepository.findRefreshTokenByUserId(1);
+
+      expect(result).toEqual(mockRefreshTokenEntity);
+      expect(mockRepository.findOne).toHaveBeenCalledWith({
+        where: { userId: 1 },
+      });
+    });
+
+    it('should find a refresh token by userId using EntityManager', async () => {
+      const mockManager: EntityManager = {
+        getRepository: jest.fn().mockReturnValue(mockRepository),
+      } as unknown as EntityManager;
+
+      jest
+        .spyOn(mockRepository, 'findOne')
+        .mockResolvedValue(mockRefreshTokenEntity);
+
+      const result = await refreshTokenRepository.findRefreshTokenByUserId(
+        1,
+        mockManager,
+      );
+
+      expect(result).toEqual(mockRefreshTokenEntity);
+      expect(mockManager.getRepository).toHaveBeenCalledWith(
+        RefreshTokenEntity,
+      );
+      expect(mockRepository.findOne).toHaveBeenCalledWith({
+        where: { userId: 1 },
+      });
+    });
+
+    it('should return null if no refresh token is found', async () => {
+      jest.spyOn(mockRepository, 'findOne').mockResolvedValue(null);
+
+      const result = await refreshTokenRepository.findRefreshTokenByUserId(2);
+
+      expect(result).toBeNull();
+      expect(mockRepository.findOne).toHaveBeenCalledWith({
+        where: { userId: 2 },
+      });
+    });
+  });
+
+  describe('getAllRefreshTokens', () => {});
 
   //   it('should return all refresh tokens', async () => {
   //     jest
