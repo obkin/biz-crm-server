@@ -1,5 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { RefreshTokenRepository } from '../auth.repository';
+import {
+  AccessTokenRepository,
+  RefreshTokenRepository,
+} from '../auth.repository';
 import { RefreshTokenEntity } from '../entities/refresh-token.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { DeleteResult, EntityManager, Repository } from 'typeorm';
@@ -8,10 +11,15 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { AccessTokenEntity } from '../entities/access-token.entity';
+import { AccessTokenDto } from '../dto/access-token.dto';
 
 describe('RefreshTokenRepository', () => {
   let refreshTokenRepository: RefreshTokenRepository;
-  let mockRepository: Repository<RefreshTokenEntity>;
+  let mockRefreshTokenRepository: Repository<RefreshTokenEntity>;
+
+  let accessTokenRepository: AccessTokenRepository;
+  let mockAccessTokenRepository: Repository<AccessTokenEntity>;
 
   const mockRefreshTokenEntity: RefreshTokenEntity = {
     id: 1,
@@ -31,11 +39,19 @@ describe('RefreshTokenRepository', () => {
     userAgent: 'Mozila',
   };
 
-  //   const accessTokenDto: AccessTokenDto = {
-  //     userId: 1,
-  //     accessToken: 'access-token',
-  //     expiresIn: new Date(),
-  //   };
+  const mockAccessTokenEntity: AccessTokenEntity = {
+    id: 1,
+    accessToken: 'some-access-token',
+    userId: 1,
+    expiresIn: new Date(),
+    createdAt: new Date(),
+  };
+
+  const accessTokenDto: AccessTokenDto = {
+    userId: 1,
+    accessToken: 'access-token',
+    expiresIn: new Date(),
+  };
 
   const mockFaliedDeleteResult: DeleteResult = {
     affected: 0,
@@ -61,32 +77,52 @@ describe('RefreshTokenRepository', () => {
             find: jest.fn().mockResolvedValue([mockRefreshTokenEntity]),
           },
         },
+        AccessTokenRepository,
+        {
+          provide: getRepositoryToken(AccessTokenEntity),
+          useValue: {
+            create: jest.fn().mockReturnValue(mockAccessTokenEntity),
+            save: jest.fn().mockReturnValue(mockAccessTokenEntity),
+            delete: jest.fn().mockResolvedValue(mockSuccessfulDeleteResult),
+            findOne: jest.fn().mockResolvedValue(mockAccessTokenEntity),
+            find: jest.fn().mockResolvedValue([mockAccessTokenEntity]),
+          },
+        },
       ],
     }).compile();
 
     refreshTokenRepository = module.get<RefreshTokenRepository>(
       RefreshTokenRepository,
     );
-    mockRepository = module.get<Repository<RefreshTokenEntity>>(
+    mockRefreshTokenRepository = module.get<Repository<RefreshTokenEntity>>(
       getRepositoryToken(RefreshTokenEntity),
+    );
+
+    accessTokenRepository = module.get<AccessTokenRepository>(
+      AccessTokenRepository,
+    );
+    mockAccessTokenRepository = module.get<Repository<AccessTokenEntity>>(
+      getRepositoryToken(AccessTokenEntity),
     );
   });
 
   describe('saveRefreshToken', () => {
     it('should save refresh token', async () => {
       jest
-        .spyOn(mockRepository, 'save')
+        .spyOn(mockRefreshTokenRepository, 'save')
         .mockResolvedValue(mockRefreshTokenEntity);
 
       const result =
         await refreshTokenRepository.saveRefreshToken(refreshTokenDto);
       expect(result).toEqual(mockRefreshTokenEntity);
-      expect(mockRepository.save).toHaveBeenCalledWith(mockRefreshTokenEntity);
+      expect(mockRefreshTokenRepository.save).toHaveBeenCalledWith(
+        mockRefreshTokenEntity,
+      );
     });
 
     it('should use EntityManager if provided', async () => {
       const mockManager: EntityManager = {
-        getRepository: jest.fn().mockReturnValue(mockRepository),
+        getRepository: jest.fn().mockReturnValue(mockRefreshTokenRepository),
       } as unknown as EntityManager;
 
       const result = await refreshTokenRepository.saveRefreshToken(
@@ -97,14 +133,18 @@ describe('RefreshTokenRepository', () => {
       expect(mockManager.getRepository).toHaveBeenCalledWith(
         RefreshTokenEntity,
       );
-      expect(mockRepository.create).toHaveBeenCalledWith(refreshTokenDto);
-      expect(mockRepository.save).toHaveBeenCalledWith(mockRefreshTokenEntity);
+      expect(mockRefreshTokenRepository.create).toHaveBeenCalledWith(
+        refreshTokenDto,
+      );
+      expect(mockRefreshTokenRepository.save).toHaveBeenCalledWith(
+        mockRefreshTokenEntity,
+      );
       expect(result).toEqual(mockRefreshTokenEntity);
     });
 
     it('should throw an error if save fails', async () => {
       jest
-        .spyOn(mockRepository, 'save')
+        .spyOn(mockRefreshTokenRepository, 'save')
         .mockRejectedValue(new Error('Save failed'));
 
       await expect(
@@ -116,23 +156,25 @@ describe('RefreshTokenRepository', () => {
   describe('deleteRefreshToken', () => {
     it('should delete refresh token successfully', async () => {
       jest
-        .spyOn(mockRepository, 'delete')
+        .spyOn(mockRefreshTokenRepository, 'delete')
         .mockResolvedValue(mockSuccessfulDeleteResult);
 
       await expect(
         refreshTokenRepository.deleteRefreshToken(1),
       ).resolves.not.toThrow();
 
-      expect(mockRepository.delete).toHaveBeenCalledWith({ userId: 1 });
+      expect(mockRefreshTokenRepository.delete).toHaveBeenCalledWith({
+        userId: 1,
+      });
     });
 
     it('should use EntityManager if provided', async () => {
       const mockManager: EntityManager = {
-        getRepository: jest.fn().mockReturnValue(mockRepository),
+        getRepository: jest.fn().mockReturnValue(mockRefreshTokenRepository),
       } as unknown as EntityManager;
 
       jest
-        .spyOn(mockRepository, 'delete')
+        .spyOn(mockRefreshTokenRepository, 'delete')
         .mockResolvedValue(mockSuccessfulDeleteResult);
 
       await refreshTokenRepository.deleteRefreshToken(1, mockManager);
@@ -140,12 +182,14 @@ describe('RefreshTokenRepository', () => {
       expect(mockManager.getRepository).toHaveBeenCalledWith(
         RefreshTokenEntity,
       );
-      expect(mockRepository.delete).toHaveBeenCalledWith({ userId: 1 });
+      expect(mockRefreshTokenRepository.delete).toHaveBeenCalledWith({
+        userId: 1,
+      });
     });
 
     it('should throw NotFoundException if token is not found on delete', async () => {
       jest
-        .spyOn(mockRepository, 'delete')
+        .spyOn(mockRefreshTokenRepository, 'delete')
         .mockResolvedValue(mockFaliedDeleteResult);
 
       await expect(
@@ -157,24 +201,24 @@ describe('RefreshTokenRepository', () => {
   describe('findRefreshTokenByUserId', () => {
     it('should find refresh token by userId using default repository', async () => {
       jest
-        .spyOn(mockRepository, 'findOne')
+        .spyOn(mockRefreshTokenRepository, 'findOne')
         .mockResolvedValue(mockRefreshTokenEntity);
 
       const result = await refreshTokenRepository.findRefreshTokenByUserId(1);
 
       expect(result).toEqual(mockRefreshTokenEntity);
-      expect(mockRepository.findOne).toHaveBeenCalledWith({
+      expect(mockRefreshTokenRepository.findOne).toHaveBeenCalledWith({
         where: { userId: 1 },
       });
     });
 
     it('should find refresh token by userId using EntityManager', async () => {
       const mockManager: EntityManager = {
-        getRepository: jest.fn().mockReturnValue(mockRepository),
+        getRepository: jest.fn().mockReturnValue(mockRefreshTokenRepository),
       } as unknown as EntityManager;
 
       jest
-        .spyOn(mockRepository, 'findOne')
+        .spyOn(mockRefreshTokenRepository, 'findOne')
         .mockResolvedValue(mockRefreshTokenEntity);
 
       const result = await refreshTokenRepository.findRefreshTokenByUserId(
@@ -186,31 +230,33 @@ describe('RefreshTokenRepository', () => {
       expect(mockManager.getRepository).toHaveBeenCalledWith(
         RefreshTokenEntity,
       );
-      expect(mockRepository.findOne).toHaveBeenCalledWith({
+      expect(mockRefreshTokenRepository.findOne).toHaveBeenCalledWith({
         where: { userId: 1 },
       });
     });
 
     it('should return null if no refresh token found', async () => {
-      jest.spyOn(mockRepository, 'findOne').mockResolvedValue(null);
+      jest.spyOn(mockRefreshTokenRepository, 'findOne').mockResolvedValue(null);
 
       const result = await refreshTokenRepository.findRefreshTokenByUserId(2);
 
       expect(result).toBeNull();
-      expect(mockRepository.findOne).toHaveBeenCalledWith({
+      expect(mockRefreshTokenRepository.findOne).toHaveBeenCalledWith({
         where: { userId: 2 },
       });
     });
 
     it('should throw an error if repository throws an exception', async () => {
       const error = new InternalServerErrorException('Database error');
-      jest.spyOn(mockRepository, 'findOne').mockRejectedValue(error);
+      jest
+        .spyOn(mockRefreshTokenRepository, 'findOne')
+        .mockRejectedValue(error);
 
       await expect(
         refreshTokenRepository.findRefreshTokenByUserId(1),
       ).rejects.toThrow(InternalServerErrorException);
 
-      expect(mockRepository.findOne).toHaveBeenCalledWith({
+      expect(mockRefreshTokenRepository.findOne).toHaveBeenCalledWith({
         where: { userId: 1 },
       });
     });
@@ -219,7 +265,7 @@ describe('RefreshTokenRepository', () => {
   describe('getAllRefreshTokens', () => {
     it('should return all refresh tokens', async () => {
       jest
-        .spyOn(mockRepository, 'find')
+        .spyOn(mockRefreshTokenRepository, 'find')
         .mockResolvedValue([mockRefreshTokenEntity]);
 
       const result = await refreshTokenRepository.getAllRefreshTokens();
@@ -228,13 +274,34 @@ describe('RefreshTokenRepository', () => {
 
     it('should throw an error if repository throws an exception', async () => {
       const error = new InternalServerErrorException('Database error');
-      jest.spyOn(mockRepository, 'find').mockRejectedValue(error);
+      jest.spyOn(mockRefreshTokenRepository, 'find').mockRejectedValue(error);
 
       await expect(
         refreshTokenRepository.getAllRefreshTokens(),
       ).rejects.toThrow(InternalServerErrorException);
 
-      expect(mockRepository.find).toHaveBeenCalledTimes(1);
+      expect(mockRefreshTokenRepository.find).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe('saveAccessToken', () => {
+    it('should save access token', async () => {
+      jest
+        .spyOn(mockAccessTokenRepository, 'save')
+        .mockResolvedValue(mockAccessTokenEntity);
+
+      const result =
+        await accessTokenRepository.saveAccessToken(accessTokenDto);
+      expect(result).toEqual(mockAccessTokenEntity);
+      expect(mockAccessTokenRepository.save).toHaveBeenCalledWith(
+        mockAccessTokenEntity,
+      );
+    });
+  });
+
+  describe('deleteAccessToken', () => {});
+
+  describe('findAccessTokenByUserId', () => {});
+
+  describe('getAllAccessTokens', () => {});
 });
