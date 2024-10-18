@@ -4,7 +4,10 @@ import { RefreshTokenEntity } from '../entities/refresh-token.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { DeleteResult, EntityManager, Repository } from 'typeorm';
 import { RefreshTokenDto } from '../dto/refresh-token.dto';
-import { NotFoundException } from '@nestjs/common';
+import {
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 
 describe('RefreshTokenRepository', () => {
   let refreshTokenRepository: RefreshTokenRepository;
@@ -152,7 +155,7 @@ describe('RefreshTokenRepository', () => {
   });
 
   describe('findRefreshTokenByUserId', () => {
-    it('should find a refresh token by userId using default repository', async () => {
+    it('should find refresh token by userId using default repository', async () => {
       jest
         .spyOn(mockRepository, 'findOne')
         .mockResolvedValue(mockRefreshTokenEntity);
@@ -165,7 +168,7 @@ describe('RefreshTokenRepository', () => {
       });
     });
 
-    it('should find a refresh token by userId using EntityManager', async () => {
+    it('should find refresh token by userId using EntityManager', async () => {
       const mockManager: EntityManager = {
         getRepository: jest.fn().mockReturnValue(mockRepository),
       } as unknown as EntityManager;
@@ -188,7 +191,7 @@ describe('RefreshTokenRepository', () => {
       });
     });
 
-    it('should return null if no refresh token is found', async () => {
+    it('should return null if no refresh token found', async () => {
       jest.spyOn(mockRepository, 'findOne').mockResolvedValue(null);
 
       const result = await refreshTokenRepository.findRefreshTokenByUserId(2);
@@ -196,6 +199,19 @@ describe('RefreshTokenRepository', () => {
       expect(result).toBeNull();
       expect(mockRepository.findOne).toHaveBeenCalledWith({
         where: { userId: 2 },
+      });
+    });
+
+    it('should throw an error if repository throws an exception', async () => {
+      const error = new InternalServerErrorException('Database error');
+      jest.spyOn(mockRepository, 'findOne').mockRejectedValue(error);
+
+      await expect(
+        refreshTokenRepository.findRefreshTokenByUserId(1),
+      ).rejects.toThrow(InternalServerErrorException);
+
+      expect(mockRepository.findOne).toHaveBeenCalledWith({
+        where: { userId: 1 },
       });
     });
   });
