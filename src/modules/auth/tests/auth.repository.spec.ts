@@ -106,6 +106,8 @@ describe('RefreshTokenRepository', () => {
     );
   });
 
+  // --- Refresh Token's repository ---
+
   describe('saveRefreshToken', () => {
     it('should save refresh token', async () => {
       jest
@@ -281,13 +283,22 @@ describe('RefreshTokenRepository', () => {
   });
 
   describe('getAllRefreshTokens', () => {
-    it('should return all refresh tokens', async () => {
+    it('should return an array of refresh tokens', async () => {
       jest
         .spyOn(mockRefreshTokenRepository, 'find')
         .mockResolvedValue([mockRefreshTokenEntity]);
 
       const result = await refreshTokenRepository.getAllRefreshTokens();
       expect(result).toEqual([mockRefreshTokenEntity]);
+    });
+
+    it('should return an empty array if no tokens are found', async () => {
+      jest.spyOn(mockRefreshTokenRepository, 'find').mockResolvedValue([]);
+
+      const result = await refreshTokenRepository.getAllRefreshTokens();
+
+      expect(result).toEqual([]);
+      expect(mockRefreshTokenRepository.find).toHaveBeenCalledTimes(1);
     });
 
     it('should throw an error if repository throws an exception', async () => {
@@ -301,6 +312,8 @@ describe('RefreshTokenRepository', () => {
       expect(mockRefreshTokenRepository.find).toHaveBeenCalledTimes(1);
     });
   });
+
+  // --- Access Token's repository ---
 
   describe('saveAccessToken', () => {
     it('should save access token', async () => {
@@ -468,5 +481,34 @@ describe('RefreshTokenRepository', () => {
     });
   });
 
-  describe('getAllAccessTokens', () => {});
+  describe('getAllAccessTokens', () => {
+    it('should return an array of access tokens', async () => {
+      jest
+        .spyOn(mockAccessTokenRepository, 'find')
+        .mockResolvedValue([mockAccessTokenEntity]);
+
+      const result = await accessTokenRepository.getAllAccessTokens();
+      expect(result).toEqual([mockAccessTokenEntity]);
+    });
+
+    it('should return an empty array if no tokens are found', async () => {
+      jest.spyOn(mockAccessTokenRepository, 'find').mockResolvedValue([]);
+
+      const result = await accessTokenRepository.getAllAccessTokens();
+
+      expect(result).toEqual([]);
+      expect(mockAccessTokenRepository.find).toHaveBeenCalledTimes(1);
+    });
+
+    it('should throw an error if repository throws an exception', async () => {
+      const error = new InternalServerErrorException('Database error');
+      jest.spyOn(mockAccessTokenRepository, 'find').mockRejectedValue(error);
+
+      await expect(accessTokenRepository.getAllAccessTokens()).rejects.toThrow(
+        InternalServerErrorException,
+      );
+
+      expect(mockAccessTokenRepository.find).toHaveBeenCalledTimes(1);
+    });
+  });
 });
