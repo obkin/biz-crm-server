@@ -149,9 +149,8 @@ describe('RefreshTokenRepository', () => {
     });
 
     it('should throw an error if save fails', async () => {
-      jest
-        .spyOn(mockRefreshTokenRepository, 'save')
-        .mockRejectedValue(new Error('Save failed'));
+      const error = new Error('Save failed');
+      jest.spyOn(mockRefreshTokenRepository, 'save').mockRejectedValue(error);
 
       await expect(
         refreshTokenRepository.saveRefreshToken(refreshTokenDto),
@@ -308,6 +307,35 @@ describe('RefreshTokenRepository', () => {
       expect(mockAccessTokenRepository.save).toHaveBeenCalledWith(
         mockAccessTokenEntity,
       );
+    });
+
+    it('should use EntityManager if provided', async () => {
+      const mockManager: EntityManager = {
+        getRepository: jest.fn().mockReturnValue(mockAccessTokenRepository),
+      } as unknown as EntityManager;
+
+      const result = await accessTokenRepository.saveAccessToken(
+        accessTokenDto,
+        mockManager,
+      );
+
+      expect(mockManager.getRepository).toHaveBeenCalledWith(AccessTokenEntity);
+      expect(mockAccessTokenRepository.create).toHaveBeenCalledWith(
+        accessTokenDto,
+      );
+      expect(mockAccessTokenRepository.save).toHaveBeenCalledWith(
+        mockAccessTokenEntity,
+      );
+      expect(result).toEqual(mockAccessTokenEntity);
+    });
+
+    it('should throw an error if save fails', async () => {
+      const error = new Error('Save failed');
+      jest.spyOn(mockAccessTokenRepository, 'save').mockRejectedValue(error);
+
+      await expect(
+        accessTokenRepository.saveAccessToken(accessTokenDto),
+      ).rejects.toThrow('Save failed');
     });
   });
 
