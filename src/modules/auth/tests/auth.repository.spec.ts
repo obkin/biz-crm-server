@@ -408,7 +408,65 @@ describe('RefreshTokenRepository', () => {
     });
   });
 
-  describe('findAccessTokenByUserId', () => {});
+  describe('findAccessTokenByUserId', () => {
+    it('should return access token if found using the default repository', async () => {
+      jest
+        .spyOn(mockAccessTokenRepository, 'findOne')
+        .mockResolvedValue(mockAccessTokenEntity);
+
+      const result = await accessTokenRepository.findAccessTokenByUserId(1);
+
+      expect(result).toEqual(mockAccessTokenEntity);
+      expect(mockAccessTokenRepository.findOne).toHaveBeenCalledWith({
+        where: { userId: 1 },
+      });
+    });
+
+    it('should find access token by userId using EntityManager', async () => {
+      const mockManager: EntityManager = {
+        getRepository: jest.fn().mockReturnValue(mockAccessTokenRepository),
+      } as unknown as EntityManager;
+
+      jest
+        .spyOn(mockAccessTokenRepository, 'findOne')
+        .mockResolvedValue(mockAccessTokenEntity);
+
+      const result = await accessTokenRepository.findAccessTokenByUserId(
+        1,
+        mockManager,
+      );
+
+      expect(result).toEqual(mockAccessTokenEntity);
+      expect(mockManager.getRepository).toHaveBeenCalledWith(AccessTokenEntity);
+      expect(mockAccessTokenRepository.findOne).toHaveBeenCalledWith({
+        where: { userId: 1 },
+      });
+    });
+
+    it('should return null if no token is found', async () => {
+      jest.spyOn(mockAccessTokenRepository, 'findOne').mockResolvedValue(null);
+
+      const result = await accessTokenRepository.findAccessTokenByUserId(2);
+
+      expect(result).toBeNull();
+      expect(mockAccessTokenRepository.findOne).toHaveBeenCalledWith({
+        where: { userId: 2 },
+      });
+    });
+
+    it('should throw an error if repository throws an exception', async () => {
+      const error = new InternalServerErrorException('Database error');
+      jest.spyOn(mockAccessTokenRepository, 'findOne').mockRejectedValue(error);
+
+      await expect(
+        accessTokenRepository.findAccessTokenByUserId(1),
+      ).rejects.toThrow(InternalServerErrorException);
+
+      expect(mockAccessTokenRepository.findOne).toHaveBeenCalledWith({
+        where: { userId: 1 },
+      });
+    });
+  });
 
   describe('getAllAccessTokens', () => {});
 });
