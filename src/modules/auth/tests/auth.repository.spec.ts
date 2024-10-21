@@ -159,7 +159,7 @@ describe('RefreshTokenRepository', () => {
   });
 
   describe('deleteRefreshToken', () => {
-    it('should delete refresh token successfully', async () => {
+    it('should delete refresh token successfully using the default repository', async () => {
       jest
         .spyOn(mockRefreshTokenRepository, 'delete')
         .mockResolvedValue(mockSuccessfulDeleteResult);
@@ -200,6 +200,19 @@ describe('RefreshTokenRepository', () => {
       await expect(
         refreshTokenRepository.deleteRefreshToken(1),
       ).rejects.toThrow(NotFoundException);
+
+      expect(mockRefreshTokenRepository.delete).toHaveBeenCalledWith({
+        userId: 1,
+      });
+    });
+
+    it('should throw an error if repository throws an exception', async () => {
+      const error = new Error('Database error');
+      jest.spyOn(mockRefreshTokenRepository, 'delete').mockRejectedValue(error);
+
+      await expect(
+        refreshTokenRepository.deleteRefreshToken(1),
+      ).rejects.toThrow('Database error');
     });
   });
 
@@ -339,7 +352,61 @@ describe('RefreshTokenRepository', () => {
     });
   });
 
-  describe('deleteAccessToken', () => {});
+  describe('deleteAccessToken', () => {
+    it('should delete access token successfully using the default repository', async () => {
+      jest
+        .spyOn(mockAccessTokenRepository, 'delete')
+        .mockResolvedValue(mockSuccessfulDeleteResult);
+
+      await expect(
+        accessTokenRepository.deleteAccessToken(1),
+      ).resolves.not.toThrow();
+
+      expect(mockAccessTokenRepository.delete).toHaveBeenCalledWith({
+        userId: 1,
+      });
+    });
+
+    it('should use EntityManager if provided', async () => {
+      const mockManager: EntityManager = {
+        getRepository: jest.fn().mockReturnValue(mockAccessTokenRepository),
+      } as unknown as EntityManager;
+
+      jest
+        .spyOn(mockAccessTokenRepository, 'delete')
+        .mockResolvedValue(mockSuccessfulDeleteResult);
+
+      await accessTokenRepository.deleteAccessToken(1, mockManager);
+
+      expect(mockManager.getRepository).toHaveBeenCalledWith(AccessTokenEntity);
+      expect(mockAccessTokenRepository.delete).toHaveBeenCalledWith({
+        userId: 1,
+      });
+    });
+
+    it('should throw NotFoundException if token is not found on delete', async () => {
+      jest
+        .spyOn(mockAccessTokenRepository, 'delete')
+        .mockResolvedValue(mockFaliedDeleteResult);
+
+      await expect(accessTokenRepository.deleteAccessToken(1)).rejects.toThrow(
+        NotFoundException,
+      );
+
+      expect(mockAccessTokenRepository.delete).toHaveBeenCalledWith({
+        userId: 1,
+      });
+    });
+
+    it('should throw an error if repository throws an exception', async () => {
+      const error = new Error('Database error');
+      jest.spyOn(mockAccessTokenRepository, 'delete').mockRejectedValue(error);
+
+      await expect(accessTokenRepository.deleteAccessToken(1)).rejects.toThrow(
+        'Database error',
+      );
+    });
+  });
 
   describe('findAccessTokenByUserId', () => {});
 
