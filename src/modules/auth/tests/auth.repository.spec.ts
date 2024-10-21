@@ -109,12 +109,18 @@ describe('RefreshTokenRepository', () => {
   describe('saveRefreshToken', () => {
     it('should save refresh token', async () => {
       jest
+        .spyOn(mockRefreshTokenRepository, 'create')
+        .mockReturnValue(mockRefreshTokenEntity);
+      jest
         .spyOn(mockRefreshTokenRepository, 'save')
         .mockResolvedValue(mockRefreshTokenEntity);
 
       const result =
         await refreshTokenRepository.saveRefreshToken(refreshTokenDto);
       expect(result).toEqual(mockRefreshTokenEntity);
+      expect(mockRefreshTokenRepository.create).toHaveBeenCalledWith(
+        refreshTokenDto,
+      );
       expect(mockRefreshTokenRepository.save).toHaveBeenCalledWith(
         mockRefreshTokenEntity,
       );
@@ -287,12 +293,18 @@ describe('RefreshTokenRepository', () => {
   describe('saveAccessToken', () => {
     it('should save access token', async () => {
       jest
+        .spyOn(mockAccessTokenRepository, 'create')
+        .mockReturnValue(mockAccessTokenEntity);
+      jest
         .spyOn(mockAccessTokenRepository, 'save')
         .mockResolvedValue(mockAccessTokenEntity);
 
       const result =
         await accessTokenRepository.saveAccessToken(accessTokenDto);
       expect(result).toEqual(mockAccessTokenEntity);
+      expect(mockAccessTokenRepository.create).toHaveBeenCalledWith(
+        accessTokenDto,
+      );
       expect(mockAccessTokenRepository.save).toHaveBeenCalledWith(
         mockAccessTokenEntity,
       );
