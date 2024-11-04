@@ -29,8 +29,8 @@ jobs:
       DATABASE_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
 
     steps:
-      - name: Check out code
-        uses: actions/checkout@v2
+      # - name: Check out code
+      #   uses: actions/checkout@v2
 
       - name: Set up Node.js
         uses: actions/setup-node@v14
