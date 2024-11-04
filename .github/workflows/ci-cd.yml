@@ -3,7 +3,8 @@ name: "Build, Test, and Deploy Dockerized NestJS App (BizCRM)"
 on:
   push:
     branches:
-      - [main, ci/cd-setup]
+      - main
+      - ci/cd-setup
   pull_request:
     branches:
       - main
