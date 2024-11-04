@@ -3,7 +3,7 @@ name: "Build, Test, and Deploy Dockerized NestJS App (BizCRM)"
 on:
   push:
     branches:
-      - main
+      - [main, ci/cd-setup]
   pull_request:
     branches:
       - main
@@ -33,7 +33,9 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Set up Node.js
-        uses: actions/setup-node@v20
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
 
       - name: Install dependencies
         run: npm ci
