@@ -92,7 +92,7 @@ describe('AuthService', () => {
     unblockEntries: [],
     createdAt: new Date(),
     updatedAt: new Date(),
-  };
+  } as UserEntity;
 
   const userRegisterDto: UserRegisterDto = {
     username: 'Test',
