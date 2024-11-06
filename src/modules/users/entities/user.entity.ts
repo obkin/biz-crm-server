@@ -9,6 +9,8 @@ import {
 } from 'typeorm';
 import { UserBlockEntity } from './user-block.entity';
 import { UserUnblockEntity } from './user-unblock.entity';
+import { FolderEntity } from 'src/modules/folders/entities/folder.entity';
+import { OrderEntity } from 'src/modules/orders/entities/order.entity';
 
 @Entity('users')
 export class UserEntity {
@@ -66,6 +68,12 @@ export class UserEntity {
 
   @OneToMany(() => UserUnblockEntity, (unblockHistory) => unblockHistory.userId)
   public unblockEntries: UserUnblockEntity[];
+
+  @OneToMany(() => FolderEntity, (folder) => folder.user)
+  public folders: FolderEntity[];
+
+  @OneToMany(() => OrderEntity, (order) => order.user)
+  public orders: OrderEntity[];
 
   @ApiProperty({
     example: '2024-04-12T08:44:37.025Z',
