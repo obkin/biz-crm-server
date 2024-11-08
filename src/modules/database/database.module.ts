@@ -8,6 +8,9 @@ import { UserEntity } from 'src/modules/users/entities/user.entity';
 import { UserBlockEntity } from '../users/entities/user-block.entity';
 import { UserDeletionEntity } from '../users/entities/user-deletion.entity';
 import { UserUnblockEntity } from '../users/entities/user-unblock.entity';
+import { ProductEntity } from '../products/entities/product.entity';
+import { FolderEntity } from '../folders/entities/folder.entity';
+import { OrderEntity } from '../orders/entities/order.entity';
 
 @Module({
   imports: [
@@ -29,6 +32,9 @@ import { UserUnblockEntity } from '../users/entities/user-unblock.entity';
           RefreshTokenEntity,
           AccessTokenEntity,
           RoleEntity,
+          ProductEntity,
+          FolderEntity,
+          OrderEntity,
         ],
         synchronize: true, // Enable synchronization (auto-create tables) in development mode
       }),

@@ -31,6 +31,7 @@ import { UsersBlockGuard } from './common/guards/users-block.guard';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ExpiredBlocksUpdaterService } from './common/tasks/expired-blocks-updater.service';
 import { UsersManagementService } from './modules/users/services/users-management.service';
+import { ProductsModule } from './modules/products/products.module';
 
 @Module({
   controllers: [],
@@ -85,6 +86,7 @@ import { UsersManagementService } from './modules/users/services/users-managemen
     AuthModule,
     EmailModule,
     RolesModule,
+    ProductsModule,
   ],
   exports: [],
 })

@@ -10,7 +10,7 @@ on:
       - main
 
 jobs:
-  test:
+  tests:
     runs-on: ubuntu-latest
     services:
       db:
@@ -54,7 +54,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    needs: test
+    needs: tests
 
     steps:
       - name: Check out code
