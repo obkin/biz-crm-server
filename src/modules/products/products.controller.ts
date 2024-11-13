@@ -9,7 +9,6 @@ import {
   Param,
   Patch,
   Post,
-  UsePipes,
 } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ProductsService } from './products.service';
@@ -95,11 +94,12 @@ export class ProductsController {
     description: 'Internal Server Error',
   })
   @ApiQuery({ name: 'id', required: true, description: 'ID of the product' })
-  @UsePipes(new idValidationPipe())
   @Get(':id')
-  async findOne(@Param('id') id: number): Promise<ProductEntity> {
+  async findOne(
+    @Param('id', idValidationPipe) id: number,
+  ): Promise<ProductEntity> {
     try {
-      return await this.productsService.findOne(id);
+      return await this.productsService.findOne(Number(id));
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;
@@ -131,14 +131,13 @@ export class ProductsController {
     description: 'Internal Server Error',
   })
   @ApiQuery({ name: 'id', required: true, description: 'ID of the product' })
-  @UsePipes(new idValidationPipe())
   @Patch(':id')
   async update(
-    @Param('id') id: number,
+    @Param('id', idValidationPipe) id: number,
     @Body() dto: UpdateProductDto,
   ): Promise<ProductEntity> {
     try {
-      return await this.productsService.update(id, dto);
+      return await this.productsService.update(Number(id), dto);
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;
@@ -166,12 +165,11 @@ export class ProductsController {
   })
   @ApiQuery({ name: 'id', required: true, description: 'ID of the product' })
   @HttpCode(200)
-  @UsePipes(new idValidationPipe())
   @Delete(':id')
-  async remove(@Param('id') id: number) {
+  async remove(@Param('id', idValidationPipe) id: number) {
     try {
       await this.productsService.remove(Number(id));
-      return { id, message: 'Product deleted' };
+      return { id, message: 'Product removed' };
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;

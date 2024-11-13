@@ -12,7 +12,9 @@ export class ProductsService {
 
   async create(dto: CreateProductDto): Promise<ProductEntity> {
     try {
-      return await this.productsRepository.create(dto);
+      const product = await this.productsRepository.create(dto);
+      this.logger.log(`New product created (id: ${product.id})`);
+      return product;
     } catch (e) {
       throw e;
     }
@@ -44,7 +46,9 @@ export class ProductsService {
       if (!existingProduct) {
         throw new NotFoundException('Product not found');
       }
-      return await this.productsRepository.update(id, dto);
+      const updatedProduct = await this.productsRepository.update(id, dto);
+      this.logger.log(`Product updated (id: ${id})`);
+      return updatedProduct;
     } catch (e) {
       throw e;
     }
@@ -53,6 +57,7 @@ export class ProductsService {
   async remove(id: number): Promise<void> {
     try {
       await this.productsRepository.remove(id);
+      this.logger.log(`Product removed (id: ${id})`);
     } catch (e) {
       throw e;
     }
