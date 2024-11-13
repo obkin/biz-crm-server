@@ -11,6 +11,7 @@ import { UserBlockEntity } from './user-block.entity';
 import { UserUnblockEntity } from './user-unblock.entity';
 import { FolderEntity } from 'src/modules/folders/entities/folder.entity';
 import { OrderEntity } from 'src/modules/orders/entities/order.entity';
+import { ProductEntity } from 'src/modules/products/entities/product.entity';
 
 @Entity('users')
 export class UserEntity {
@@ -68,6 +69,9 @@ export class UserEntity {
 
   @OneToMany(() => UserUnblockEntity, (unblockHistory) => unblockHistory.userId)
   public unblockEntries: UserUnblockEntity[];
+
+  @OneToMany(() => ProductEntity, (product) => product.user)
+  public products: ProductEntity[];
 
   @OneToMany(() => FolderEntity, (folder) => folder.user)
   public folders: FolderEntity[];

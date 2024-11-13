@@ -3,23 +3,36 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   HttpException,
   HttpStatus,
   Param,
   Patch,
   Post,
+  UsePipes,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { ProductEntity } from './entities/product.entity';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { idValidationPipe } from 'src/common/pipes/validate-id.pipe';
 
 @ApiTags('products')
 @Controller('/products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
+  @ApiOperation({ summary: 'Create new product' })
+  @ApiResponse({
+    status: 201,
+    description: 'New product created',
+    type: ProductEntity,
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
   @Post()
   async create(@Body() dto: CreateProductDto): Promise<ProductEntity> {
     try {
@@ -36,6 +49,16 @@ export class ProductsController {
     }
   }
 
+  @ApiOperation({ summary: 'Get all products' })
+  @ApiResponse({
+    status: 200,
+    description: 'Retrieved all products',
+    type: [ProductEntity],
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
   @Get()
   async findAll() {
     try {
@@ -53,6 +76,26 @@ export class ProductsController {
     }
   }
 
+  @ApiOperation({ summary: 'Get product by ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Retrieved product by id',
+    type: ProductEntity,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Wrong id format',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Product not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @ApiQuery({ name: 'id', required: true, description: 'ID of the product' })
+  @UsePipes(new idValidationPipe())
   @Get(':id')
   async findOne(@Param('id') id: number): Promise<ProductEntity> {
     try {
@@ -69,6 +112,26 @@ export class ProductsController {
     }
   }
 
+  @ApiOperation({ summary: 'Update product by ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Product updated',
+    type: ProductEntity,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Wrong id format',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Product not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @ApiQuery({ name: 'id', required: true, description: 'ID of the product' })
+  @UsePipes(new idValidationPipe())
   @Patch(':id')
   async update(
     @Param('id') id: number,
@@ -88,10 +151,26 @@ export class ProductsController {
     }
   }
 
+  @ApiOperation({ summary: 'Delete product' })
+  @ApiResponse({
+    status: 200,
+    description: 'Product deleted',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Product not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @ApiQuery({ name: 'id', required: true, description: 'ID of the product' })
+  @HttpCode(200)
+  @UsePipes(new idValidationPipe())
   @Delete(':id')
   async remove(@Param('id') id: number) {
     try {
-      await this.productsService.remove(id);
+      await this.productsService.remove(Number(id));
       return { id, message: 'Product deleted' };
     } catch (e) {
       if (e instanceof HttpException) {

@@ -1,3 +1,4 @@
+import { UserEntity } from 'src/modules/users/entities/user.entity';
 import { FolderEntity } from 'src/modules/folders/entities/folder.entity';
 import {
   Entity,
@@ -32,4 +33,10 @@ export class ProductEntity {
   })
   @JoinColumn({ name: 'folderId' })
   folder: FolderEntity;
+
+  @ManyToOne(() => UserEntity, (user) => user.products, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'userId' })
+  user: UserEntity;
 }

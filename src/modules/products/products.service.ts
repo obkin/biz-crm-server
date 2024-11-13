@@ -12,8 +12,7 @@ export class ProductsService {
 
   async create(dto: CreateProductDto): Promise<ProductEntity> {
     try {
-      const product = await this.productsRepository.create(dto);
-      return product;
+      return await this.productsRepository.create(dto);
     } catch (e) {
       throw e;
     }
