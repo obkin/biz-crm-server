@@ -13,8 +13,8 @@ export class ThrottlerConfigService implements ThrottlerOptionsFactory {
     return {
       throttlers: [
         {
-          ttl: this.configService.get<number>('THROTTLE_TTL'),
-          limit: this.configService.get<number>('THROTTLE_LIMIT'),
+          ttl: Number(this.configService.get<number>('THROTTLE_TTL')),
+          limit: Number(this.configService.get<number>('THROTTLE_LIMIT')),
         },
       ],
     };
