@@ -18,6 +18,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { ProductEntity } from './entities/product.entity';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { idValidationPipe } from 'src/common/pipes/validate-id.pipe';
+import { EmptyObjectValidationPipe } from 'src/common/pipes/validate-empty-object.pipe';
 
 @ApiTags('products')
 @Controller('/products')
@@ -135,6 +136,7 @@ export class ProductsController {
   })
   @ApiQuery({ name: 'id', required: true, description: 'ID of the product' })
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  @UsePipes(new EmptyObjectValidationPipe())
   @Patch(':id')
   async update(
     @Param('id', idValidationPipe) id: number,
