@@ -7,36 +7,64 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Entity('products')
 export class ProductEntity {
+  @ApiProperty({
+    example: 123,
+    description: 'The unique identifier of the product',
+  })
   @PrimaryGeneratedColumn()
-  id: number;
+  public id: number;
 
-  @Column()
-  name: string;
+  @ApiProperty({
+    example: 'Baseus Desktop Lamp',
+    description: 'The name of the product',
+    maxLength: 70,
+  })
+  @Column({ length: 70 })
+  public name: string;
 
+  @ApiProperty({
+    example: 'John Dope',
+    description: 'The description of the product',
+    nullable: true,
+  })
   @Column({ type: 'text', nullable: true })
-  description: string;
+  public description: string;
 
+  @ApiProperty({
+    example: 749.25,
+    description: 'The price of the product',
+  })
   @Column('decimal', { precision: 10, scale: 2 })
-  price: number;
+  public price: number;
 
+  @ApiProperty({
+    example: 10,
+    description: 'The quantity of the products',
+  })
   @Column('int')
-  quantity: number;
+  public quantity: number;
 
+  @ApiProperty({
+    example: 'https://aws-s3/image?fh43FAgJ343gfhGHJ11344',
+    description: 'Image address of the product',
+    nullable: true,
+  })
   @Column({ nullable: true })
-  imageUrl: string;
+  public imageUrl: string;
 
   @ManyToOne(() => FolderEntity, (folder) => folder.products, {
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'folderId' })
-  folder: FolderEntity;
+  public folder: FolderEntity;
 
   @ManyToOne(() => UserEntity, (user) => user.products, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'userId' })
-  user: UserEntity;
+  public user: UserEntity;
 }

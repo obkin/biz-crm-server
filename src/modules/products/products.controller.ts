@@ -9,6 +9,8 @@ import {
   Param,
   Patch,
   Post,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ProductsService } from './products.service';
@@ -32,6 +34,7 @@ export class ProductsController {
     status: 500,
     description: 'Internal Server Error',
   })
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   @Post()
   async create(@Body() dto: CreateProductDto): Promise<ProductEntity> {
     try {
@@ -131,6 +134,7 @@ export class ProductsController {
     description: 'Internal Server Error',
   })
   @ApiQuery({ name: 'id', required: true, description: 'ID of the product' })
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   @Patch(':id')
   async update(
     @Param('id', idValidationPipe) id: number,
