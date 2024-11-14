@@ -10,6 +10,7 @@ import {
   Query,
   Req,
   UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
@@ -46,6 +47,7 @@ export class AuthController {
     description: 'Internal Server Error',
   })
   @Public()
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   @UsePipes(new UserNameValidationPipe())
   @Post('/register')
   async register(@Body() dto: UserRegisterDto) {

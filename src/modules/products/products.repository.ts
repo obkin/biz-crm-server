@@ -12,9 +12,10 @@ export class ProductsRepository {
     private readonly productsRepository: Repository<ProductEntity>,
   ) {}
 
-  async create(dto: CreateProductDto): Promise<ProductEntity> {
+  async create(userId: number, dto: CreateProductDto): Promise<ProductEntity> {
     try {
       const product = this.productsRepository.create(dto);
+      product.userId = userId;
       return await this.productsRepository.save(product);
     } catch (e) {
       throw e;

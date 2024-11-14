@@ -1,4 +1,3 @@
-import { UserEntity } from 'src/modules/users/entities/user.entity';
 import { FolderEntity } from 'src/modules/folders/entities/folder.entity';
 import {
   Entity,
@@ -62,9 +61,10 @@ export class ProductEntity {
   @JoinColumn({ name: 'folderId' })
   public folder: FolderEntity;
 
-  @ManyToOne(() => UserEntity, (user) => user.products, {
-    onDelete: 'CASCADE',
+  @ApiProperty({
+    example: 42,
+    description: 'The unique identifier of the user who owns this product',
   })
-  @JoinColumn({ name: 'userId' })
-  public user: UserEntity;
+  @Column()
+  public userId: number;
 }

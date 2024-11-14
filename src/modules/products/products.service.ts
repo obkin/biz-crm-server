@@ -10,9 +10,9 @@ export class ProductsService {
 
   constructor(private readonly productsRepository: ProductsRepository) {}
 
-  async create(dto: CreateProductDto): Promise<ProductEntity> {
+  async create(userId: number, dto: CreateProductDto): Promise<ProductEntity> {
     try {
-      const product = await this.productsRepository.create(dto);
+      const product = await this.productsRepository.create(userId, dto);
       this.logger.log(`New product created (id: ${product.id})`);
       return product;
     } catch (e) {

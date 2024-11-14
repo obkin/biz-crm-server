@@ -9,6 +9,7 @@ import {
   Param,
   Patch,
   Post,
+  Req,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -19,6 +20,7 @@ import { ProductEntity } from './entities/product.entity';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { idValidationPipe } from 'src/common/pipes/validate-id.pipe';
 import { EmptyObjectValidationPipe } from 'src/common/pipes/validate-empty-object.pipe';
+import { Request } from 'express';
 
 @ApiTags('products')
 @Controller('/products')
@@ -37,9 +39,12 @@ export class ProductsController {
   })
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   @Post()
-  async create(@Body() dto: CreateProductDto): Promise<ProductEntity> {
+  async create(
+    @Body() dto: CreateProductDto,
+    @Req() req: Request,
+  ): Promise<ProductEntity> {
     try {
-      return await this.productsService.create(dto);
+      return await this.productsService.create(Number(req.user.id), dto);
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;
