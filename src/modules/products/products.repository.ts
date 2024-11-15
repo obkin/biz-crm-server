@@ -22,9 +22,13 @@ export class ProductsRepository {
     }
   }
 
-  async findAll(): Promise<ProductEntity[]> {
+  async findAll(userId?: number): Promise<ProductEntity[]> {
     try {
-      return await this.productsRepository.find();
+      if (userId) {
+        return await this.productsRepository.find({ where: { userId } });
+      } else {
+        return await this.productsRepository.find();
+      }
     } catch (e) {
       throw e;
     }

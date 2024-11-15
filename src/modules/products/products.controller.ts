@@ -9,6 +9,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   UsePipes,
   ValidationPipe,
@@ -68,9 +69,9 @@ export class ProductsController {
     description: 'Internal Server Error',
   })
   @Get()
-  async findAll() {
+  async findAll(@Query('userId') userId?: number) {
     try {
-      const products = await this.productsService.findAll();
+      const products = await this.productsService.findAll(userId);
       return { productsAmount: products.length, products };
     } catch (e) {
       if (e instanceof HttpException) {
@@ -106,9 +107,13 @@ export class ProductsController {
   @Get(':id')
   async findOne(
     @Param('id', idValidationPipe) id: number,
+    @Req() req: Request,
   ): Promise<ProductEntity> {
     try {
-      return await this.productsService.findOne(Number(id));
+      return await this.productsService.findOne(
+        Number(req.user.id),
+        Number(id),
+      );
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;

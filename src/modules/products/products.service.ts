@@ -8,12 +8,16 @@ import { ProductsRepository } from './products.repository';
 import { CreateProductDto } from './dto/create-product.dto';
 import { ProductEntity } from './entities/product.entity';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { UsersService } from '../users/services/users.service';
 
 @Injectable()
 export class ProductsService {
   private readonly logger = new Logger(ProductsService.name);
 
-  constructor(private readonly productsRepository: ProductsRepository) {}
+  constructor(
+    private readonly productsRepository: ProductsRepository,
+    private readonly usersService: UsersService,
+  ) {}
 
   async create(userId: number, dto: CreateProductDto): Promise<ProductEntity> {
     try {
@@ -25,17 +29,18 @@ export class ProductsService {
     }
   }
 
-  async findAll(): Promise<ProductEntity[]> {
+  async findAll(userId?: number): Promise<ProductEntity[]> {
     try {
-      return await this.productsRepository.findAll();
+      return await this.productsRepository.findAll(userId);
     } catch (e) {
       throw e;
     }
   }
 
-  async findOne(id: number): Promise<ProductEntity> {
+  async findOne(userId: number, productId: number): Promise<ProductEntity> {
     try {
-      const product = await this.productsRepository.findOne(id);
+      await this.verifyOwnership(userId, productId);
+      const product = await this.productsRepository.findOne(productId);
       if (!product) {
         throw new NotFoundException('Product not found');
       }
@@ -90,9 +95,12 @@ export class ProductsService {
     }
 
     if (product.userId !== userId) {
-      throw new ForbiddenException(
-        `You do not have permission to modify this product`,
-      );
+      const isAdmin = await this.usersService.checkIsUserAdmin(userId);
+      if (!isAdmin) {
+        throw new ForbiddenException(
+          `You do not have permission to get or modify this product`,
+        );
+      }
     }
   }
 }
