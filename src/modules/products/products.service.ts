@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { ProductsRepository } from './products.repository';
 import { CreateProductDto } from './dto/create-product.dto';
 import { ProductEntity } from './entities/product.entity';
@@ -40,26 +45,54 @@ export class ProductsService {
     }
   }
 
-  async update(id: number, dto: UpdateProductDto): Promise<ProductEntity> {
+  async update(
+    userId: number,
+    productId: number,
+    dto: UpdateProductDto,
+  ): Promise<ProductEntity> {
     try {
-      const existingProduct = await this.productsRepository.findOne(id);
-      if (!existingProduct) {
-        throw new NotFoundException('Product not found');
-      }
-      const updatedProduct = await this.productsRepository.update(id, dto);
-      this.logger.log(`Product updated (id: ${id})`);
+      await this.verifyOwnership(userId, productId);
+      const updatedProduct = await this.productsRepository.update(
+        productId,
+        dto,
+      );
+      this.logger.log(
+        `Product updated (userId: ${userId}, productId: ${productId})`,
+      );
       return updatedProduct;
     } catch (e) {
       throw e;
     }
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(userId: number, productId: number): Promise<void> {
     try {
-      await this.productsRepository.remove(id);
-      this.logger.log(`Product removed (id: ${id})`);
+      await this.verifyOwnership(userId, productId);
+      await this.productsRepository.remove(productId);
+      this.logger.log(
+        `Product removed (userId: ${userId}, productId: ${productId})`,
+      );
     } catch (e) {
       throw e;
+    }
+  }
+
+  // --- Methods ---
+
+  private async verifyOwnership(
+    userId: number,
+    productId: number,
+  ): Promise<void> {
+    const product = await this.productsRepository.findOne(productId);
+
+    if (!product) {
+      throw new NotFoundException(`Product with ID ${productId} not found`);
+    }
+
+    if (product.userId !== userId) {
+      throw new ForbiddenException(
+        `You do not have permission to modify this product`,
+      );
     }
   }
 }

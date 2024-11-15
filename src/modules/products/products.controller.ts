@@ -144,11 +144,16 @@ export class ProductsController {
   @UsePipes(new EmptyObjectValidationPipe())
   @Patch(':id')
   async update(
-    @Param('id', idValidationPipe) id: number,
+    @Param('id', idValidationPipe) productId: number,
     @Body() dto: UpdateProductDto,
+    @Req() req: Request,
   ): Promise<ProductEntity> {
     try {
-      return await this.productsService.update(Number(id), dto);
+      return await this.productsService.update(
+        Number(req.user.id),
+        Number(productId),
+        dto,
+      );
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;
@@ -177,10 +182,13 @@ export class ProductsController {
   @ApiQuery({ name: 'id', required: true, description: 'ID of the product' })
   @HttpCode(200)
   @Delete(':id')
-  async remove(@Param('id', idValidationPipe) id: number) {
+  async remove(
+    @Param('id', idValidationPipe) productId: number,
+    @Req() req: Request,
+  ) {
     try {
-      await this.productsService.remove(Number(id));
-      return { id, message: 'Product removed' };
+      await this.productsService.remove(Number(req.user.id), Number(productId));
+      return { productId, message: 'Product removed' };
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;
