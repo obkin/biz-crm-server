@@ -81,7 +81,7 @@ export class ProductsService {
     dto: UpdateProductDto,
   ): Promise<ProductEntity> {
     try {
-      await this.verifyOwnership(userId, [productId]);
+      await this.findOneProduct(userId, productId);
       const updatedProduct = await this.productsRepository.update(
         productId,
         dto,
