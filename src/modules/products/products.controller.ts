@@ -69,10 +69,13 @@ export class ProductsController {
     description: 'Internal Server Error',
   })
   @Get()
-  async findAll(@Query('userId') userId?: number) {
+  async findAll(@Req() req: Request, @Query('userId') ownerId?: number) {
     try {
-      const products = await this.productsService.findAll(userId);
-      return { productsAmount: products.length, products };
+      const products = await this.productsService.findAll(
+        Number(req.user.id),
+        Number(ownerId),
+      );
+      return { amount: products.length, products };
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;

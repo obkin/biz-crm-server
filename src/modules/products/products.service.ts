@@ -29,9 +29,13 @@ export class ProductsService {
     }
   }
 
-  async findAll(userId?: number): Promise<ProductEntity[]> {
+  async findAll(userId: number, ownerId?: number): Promise<ProductEntity[]> {
     try {
-      return await this.productsRepository.findAll(userId);
+      const products = await this.productsRepository.findAll(ownerId);
+      for (const product of products) {
+        await this.verifyOwnership(userId, product.id);
+      }
+      return products;
     } catch (e) {
       throw e;
     }
@@ -98,7 +102,7 @@ export class ProductsService {
       const isAdmin = await this.usersService.checkIsUserAdmin(userId);
       if (!isAdmin) {
         throw new ForbiddenException(
-          `You do not have permission to get or modify this product`,
+          `You do not have permission to get or modify this product(s)`,
         );
       }
     }
