@@ -38,9 +38,10 @@ export class ProductsService {
   ): Promise<ProductEntity[]> {
     try {
       const products = await this.productsRepository.findAll(ownerId);
-      for (const product of products) {
-        await this.verifyOwnership(userId, product.id);
-      }
+      const productIds = products.map((product) => product.id);
+
+      await this.verifyOwnership(userId, productIds);
+
       return products;
     } catch (e) {
       throw e;
@@ -52,7 +53,7 @@ export class ProductsService {
     productId: number,
   ): Promise<ProductEntity> {
     try {
-      await this.verifyOwnership(userId, productId);
+      await this.verifyOwnership(userId, [productId]);
       const product = await this.productsRepository.findOne(productId);
       if (!product) {
         throw new NotFoundException('Product not found');
@@ -69,7 +70,7 @@ export class ProductsService {
     dto: UpdateProductDto,
   ): Promise<ProductEntity> {
     try {
-      await this.verifyOwnership(userId, productId);
+      await this.verifyOwnership(userId, [productId]);
       const updatedProduct = await this.productsRepository.update(
         productId,
         dto,
@@ -85,7 +86,7 @@ export class ProductsService {
 
   async removeProduct(userId: number, productId: number): Promise<void> {
     try {
-      await this.verifyOwnership(userId, productId);
+      await this.verifyOwnership(userId, [productId]);
       await this.productsRepository.remove(productId);
       this.logger.log(
         `Product removed (userId: ${userId}, productId: ${productId})`,
@@ -99,15 +100,15 @@ export class ProductsService {
 
   private async verifyOwnership(
     userId: number,
-    productId: number,
+    productIds: number[],
   ): Promise<void> {
-    const product = await this.productsRepository.findOne(productId);
+    const unauthorizedProducts =
+      await this.productsRepository.findUnauthorizedProducts(
+        userId,
+        productIds,
+      );
 
-    if (!product) {
-      throw new NotFoundException(`Product with ID ${productId} not found`);
-    }
-
-    if (product.userId !== userId) {
+    if (unauthorizedProducts.length > 0) {
       const isAdmin = await this.usersService.checkIsUserAdmin(userId);
       if (!isAdmin) {
         throw new ForbiddenException(
