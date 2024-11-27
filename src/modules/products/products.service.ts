@@ -37,10 +37,21 @@ export class ProductsService {
     ownerId?: number,
   ): Promise<ProductEntity[]> {
     try {
-      const products = await this.productsRepository.findAll(ownerId);
-      const productIds = products.map((product) => product.id);
+      if (!ownerId) {
+        const isAdmin = await this.usersService.checkIsUserAdmin(userId);
+        if (!isAdmin) {
+          throw new ForbiddenException(
+            `You do not have permission to get or modify this product(s)`,
+          );
+        }
+      }
 
-      await this.verifyOwnership(userId, productIds);
+      const products = await this.productsRepository.findAll(ownerId);
+
+      if (ownerId) {
+        const productIds = products.map((product) => product.id);
+        await this.verifyOwnership(userId, productIds);
+      }
 
       return products;
     } catch (e) {
