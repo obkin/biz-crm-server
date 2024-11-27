@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductEntity } from './entities/product.entity';
-import { Repository } from 'typeorm';
+import { Repository, In, Not } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 
@@ -57,6 +57,24 @@ export class ProductsRepository {
       if (result.affected === 0) {
         throw new NotFoundException(`Product not found`);
       }
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  // --- Methods ---
+
+  async findUnauthorizedProducts(
+    userId: number,
+    productIds: number[],
+  ): Promise<ProductEntity[]> {
+    try {
+      return await this.productsRepository.find({
+        where: {
+          id: In(productIds),
+          userId: Not(userId),
+        },
+      });
     } catch (e) {
       throw e;
     }

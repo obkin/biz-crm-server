@@ -19,7 +19,10 @@ export class ProductsService {
     private readonly usersService: UsersService,
   ) {}
 
-  async create(userId: number, dto: CreateProductDto): Promise<ProductEntity> {
+  async createProduct(
+    userId: number,
+    dto: CreateProductDto,
+  ): Promise<ProductEntity> {
     try {
       const product = await this.productsRepository.create(userId, dto);
       this.logger.log(`New product created (id: ${product.id})`);
@@ -29,7 +32,10 @@ export class ProductsService {
     }
   }
 
-  async findAll(userId: number, ownerId?: number): Promise<ProductEntity[]> {
+  async findAllProducts(
+    userId: number,
+    ownerId?: number,
+  ): Promise<ProductEntity[]> {
     try {
       const products = await this.productsRepository.findAll(ownerId);
       for (const product of products) {
@@ -41,7 +47,10 @@ export class ProductsService {
     }
   }
 
-  async findOne(userId: number, productId: number): Promise<ProductEntity> {
+  async findOneProduct(
+    userId: number,
+    productId: number,
+  ): Promise<ProductEntity> {
     try {
       await this.verifyOwnership(userId, productId);
       const product = await this.productsRepository.findOne(productId);
@@ -54,7 +63,7 @@ export class ProductsService {
     }
   }
 
-  async update(
+  async updateProduct(
     userId: number,
     productId: number,
     dto: UpdateProductDto,
@@ -74,7 +83,7 @@ export class ProductsService {
     }
   }
 
-  async remove(userId: number, productId: number): Promise<void> {
+  async removeProduct(userId: number, productId: number): Promise<void> {
     try {
       await this.verifyOwnership(userId, productId);
       await this.productsRepository.remove(productId);

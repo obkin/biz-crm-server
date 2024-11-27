@@ -45,7 +45,7 @@ export class ProductsController {
     @Req() req: Request,
   ): Promise<ProductEntity> {
     try {
-      return await this.productsService.create(Number(req.user.id), dto);
+      return await this.productsService.createProduct(Number(req.user.id), dto);
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;
@@ -71,7 +71,7 @@ export class ProductsController {
   @Get()
   async findAll(@Req() req: Request, @Query('userId') ownerId?: number) {
     try {
-      const products = await this.productsService.findAll(
+      const products = await this.productsService.findAllProducts(
         Number(req.user.id),
         Number(ownerId),
       );
@@ -113,7 +113,7 @@ export class ProductsController {
     @Req() req: Request,
   ): Promise<ProductEntity> {
     try {
-      return await this.productsService.findOne(
+      return await this.productsService.findOneProduct(
         Number(req.user.id),
         Number(id),
       );
@@ -157,7 +157,7 @@ export class ProductsController {
     @Req() req: Request,
   ): Promise<ProductEntity> {
     try {
-      return await this.productsService.update(
+      return await this.productsService.updateProduct(
         Number(req.user.id),
         Number(productId),
         dto,
@@ -195,7 +195,10 @@ export class ProductsController {
     @Req() req: Request,
   ) {
     try {
-      await this.productsService.remove(Number(req.user.id), Number(productId));
+      await this.productsService.removeProduct(
+        Number(req.user.id),
+        Number(productId),
+      );
       return { productId, message: 'Product removed' };
     } catch (e) {
       if (e instanceof HttpException) {
