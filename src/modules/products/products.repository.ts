@@ -67,14 +67,16 @@ export class ProductsRepository {
   async findUnauthorizedProducts(
     userId: number,
     productIds: number[],
-  ): Promise<ProductEntity[]> {
+  ): Promise<boolean> {
     try {
-      return await this.productsRepository.find({
+      const unauthorizedCount = await this.productsRepository.count({
         where: {
           id: In(productIds),
           userId: Not(userId),
         },
       });
+
+      return unauthorizedCount > 0;
     } catch (e) {
       throw e;
     }

@@ -113,13 +113,13 @@ export class ProductsService {
     userId: number,
     productIds: number[],
   ): Promise<void> {
-    const unauthorizedProducts =
+    const hasUnauthorized =
       await this.productsRepository.findUnauthorizedProducts(
         userId,
         productIds,
       );
 
-    if (unauthorizedProducts.length > 0) {
+    if (hasUnauthorized) {
       const isAdmin = await this.usersService.checkIsUserAdmin(userId);
       if (!isAdmin) {
         throw new ForbiddenException(
