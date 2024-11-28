@@ -64,7 +64,7 @@ export class ProductsRepository {
 
   // --- Methods ---
 
-  async findUnauthorizedProducts(
+  async countUnauthorizedProducts(
     userId: number,
     productIds: number[],
   ): Promise<boolean> {
