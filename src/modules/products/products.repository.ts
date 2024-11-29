@@ -34,9 +34,11 @@ export class ProductsRepository {
     }
   }
 
-  async findOne(id: number): Promise<ProductEntity> {
+  async findOne(productId: number): Promise<ProductEntity> {
     try {
-      return await this.productsRepository.findOne({ where: { id } });
+      return await this.productsRepository.findOne({
+        where: { id: productId },
+      });
     } catch (e) {
       throw e;
     }
@@ -64,19 +66,21 @@ export class ProductsRepository {
 
   // --- Methods ---
 
-  async countUnauthorizedProducts(
+  async findUnauthorizedProducts(
     userId: number,
     productIds: number[],
   ): Promise<boolean> {
     try {
-      const unauthorizedCount = await this.productsRepository.count({
+      const unauthorizedProduct = await this.productsRepository.findOne({
         where: {
           id: In(productIds),
           userId: Not(userId),
         },
       });
 
-      return unauthorizedCount > 0;
+      console.log(unauthorizedProduct);
+
+      return !!unauthorizedProduct;
     } catch (e) {
       throw e;
     }

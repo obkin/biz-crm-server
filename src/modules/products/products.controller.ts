@@ -109,20 +109,20 @@ export class ProductsController {
   @ApiQuery({ name: 'id', required: true, description: 'ID of the product' })
   @Get(':id')
   async findOne(
-    @Param('id', idValidationPipe) id: number,
+    @Param('id', idValidationPipe) productId: number,
     @Req() req: Request,
   ): Promise<ProductEntity> {
     try {
       return await this.productsService.findOneProduct(
         Number(req.user.id),
-        Number(id),
+        Number(productId),
       );
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;
       } else {
         throw new HttpException(
-          `Failed to find the product. ${e}`,
+          `Failed to find the product by ID. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }

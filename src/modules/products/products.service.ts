@@ -114,7 +114,7 @@ export class ProductsService {
     productIds: number[],
   ): Promise<void> {
     const hasUnauthorized =
-      await this.productsRepository.countUnauthorizedProducts(
+      await this.productsRepository.findUnauthorizedProducts(
         userId,
         productIds,
       );
