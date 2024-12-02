@@ -64,11 +64,11 @@ export class ProductsService {
     productId: number,
   ): Promise<ProductEntity> {
     try {
-      await this.verifyOwnership(userId, [productId]);
       const product = await this.productsRepository.findOne(productId);
       if (!product) {
         throw new NotFoundException('Product not found');
       }
+      await this.verifyOwnership(userId, [productId]);
       return product;
     } catch (e) {
       throw e;
@@ -113,6 +113,11 @@ export class ProductsService {
     userId: number,
     productIds: number[],
   ): Promise<void> {
+    const isAdmin = await this.usersService.checkIsUserAdmin(userId);
+    if (isAdmin) {
+      return;
+    }
+
     const hasUnauthorized =
       await this.productsRepository.findUnauthorizedProducts(
         userId,
@@ -120,12 +125,9 @@ export class ProductsService {
       );
 
     if (hasUnauthorized) {
-      const isAdmin = await this.usersService.checkIsUserAdmin(userId);
-      if (!isAdmin) {
-        throw new ForbiddenException(
-          `You do not have permission to get or modify this product(s)`,
-        );
-      }
+      throw new ForbiddenException(
+        `You do not have permission to get or modify this product(s)`,
+      );
     }
   }
 }

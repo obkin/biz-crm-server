@@ -78,8 +78,6 @@ export class ProductsRepository {
         },
       });
 
-      console.log(unauthorizedProduct);
-
       return !!unauthorizedProduct;
     } catch (e) {
       throw e;
