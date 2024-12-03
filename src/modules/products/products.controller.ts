@@ -65,6 +65,10 @@ export class ProductsController {
     type: [ProductEntity],
   })
   @ApiResponse({
+    status: 403,
+    description: 'No access',
+  })
+  @ApiResponse({
     status: 500,
     description: 'Internal Server Error',
   })
@@ -97,6 +101,10 @@ export class ProductsController {
   @ApiResponse({
     status: 400,
     description: 'Wrong id format',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'No access',
   })
   @ApiResponse({
     status: 404,
@@ -140,6 +148,10 @@ export class ProductsController {
     description: 'Wrong id format',
   })
   @ApiResponse({
+    status: 403,
+    description: 'No access',
+  })
+  @ApiResponse({
     status: 404,
     description: 'Product not found',
   })
@@ -178,6 +190,10 @@ export class ProductsController {
   @ApiResponse({
     status: 200,
     description: 'Product deleted',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'No access',
   })
   @ApiResponse({
     status: 404,

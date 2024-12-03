@@ -44,10 +44,16 @@ export class ProductsRepository {
     }
   }
 
-  async update(id: number, dto: UpdateProductDto): Promise<ProductEntity> {
+  async update(
+    productId: number,
+    dto: UpdateProductDto,
+  ): Promise<ProductEntity> {
     try {
-      await this.productsRepository.update(id, dto);
-      return this.findOne(id);
+      const updatedProduct = await this.productsRepository.save({
+        ...dto,
+        id: productId,
+      });
+      return updatedProduct;
     } catch (e) {
       throw e;
     }
