@@ -192,6 +192,10 @@ export class ProductsController {
     description: 'Product deleted',
   })
   @ApiResponse({
+    status: 400,
+    description: 'Wrong id format',
+  })
+  @ApiResponse({
     status: 403,
     description: 'No access',
   })

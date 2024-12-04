@@ -12,7 +12,10 @@ export class ProductsRepository {
     private readonly productsRepository: Repository<ProductEntity>,
   ) {}
 
-  async create(userId: number, dto: CreateProductDto): Promise<ProductEntity> {
+  async createNewProduct(
+    userId: number,
+    dto: CreateProductDto,
+  ): Promise<ProductEntity> {
     try {
       const product = this.productsRepository.create(dto);
       product.userId = userId;
@@ -22,7 +25,7 @@ export class ProductsRepository {
     }
   }
 
-  async findAll(userId?: number): Promise<ProductEntity[]> {
+  async findAllProducts(userId?: number): Promise<ProductEntity[]> {
     try {
       if (userId) {
         return await this.productsRepository.find({ where: { userId } });
@@ -34,7 +37,7 @@ export class ProductsRepository {
     }
   }
 
-  async findOne(productId: number): Promise<ProductEntity> {
+  async findOneProductById(productId: number): Promise<ProductEntity> {
     try {
       return await this.productsRepository.findOne({
         where: { id: productId },
@@ -44,7 +47,7 @@ export class ProductsRepository {
     }
   }
 
-  async update(
+  async updateProductById(
     productId: number,
     dto: UpdateProductDto,
   ): Promise<ProductEntity> {
@@ -59,9 +62,9 @@ export class ProductsRepository {
     }
   }
 
-  async remove(id: number): Promise<void> {
+  async deleteProductById(productId: number): Promise<void> {
     try {
-      const result = await this.productsRepository.delete(id);
+      const result = await this.productsRepository.delete({ id: productId });
       if (result.affected === 0) {
         throw new NotFoundException(`Product not found`);
       }

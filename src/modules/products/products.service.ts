@@ -24,7 +24,10 @@ export class ProductsService {
     dto: CreateProductDto,
   ): Promise<ProductEntity> {
     try {
-      const product = await this.productsRepository.create(userId, dto);
+      const product = await this.productsRepository.createNewProduct(
+        userId,
+        dto,
+      );
       this.logger.log(`New product created (id: ${product.id})`);
       return product;
     } catch (e) {
@@ -46,11 +49,11 @@ export class ProductsService {
         }
       }
 
-      const products = await this.productsRepository.findAll(ownerId);
+      const products = await this.productsRepository.findAllProducts(ownerId);
 
       if (ownerId) {
         const productIds = products.map((product) => product.id);
-        await this.verifyOwnership(userId, productIds);
+        await this.verifyAccess(userId, productIds);
       }
 
       return products;
@@ -64,11 +67,12 @@ export class ProductsService {
     productId: number,
   ): Promise<ProductEntity> {
     try {
-      const product = await this.productsRepository.findOne(productId);
+      const product =
+        await this.productsRepository.findOneProductById(productId);
       if (!product) {
         throw new NotFoundException('Product not found');
       }
-      await this.verifyOwnership(userId, [productId]);
+      await this.verifyAccess(userId, [productId]);
       return product;
     } catch (e) {
       throw e;
@@ -82,7 +86,7 @@ export class ProductsService {
   ): Promise<ProductEntity> {
     try {
       await this.findOneProduct(userId, productId);
-      const updatedProduct = await this.productsRepository.update(
+      const updatedProduct = await this.productsRepository.updateProductById(
         productId,
         dto,
       );
@@ -97,8 +101,8 @@ export class ProductsService {
 
   async removeProduct(userId: number, productId: number): Promise<void> {
     try {
-      await this.verifyOwnership(userId, [productId]);
-      await this.productsRepository.remove(productId);
+      await this.verifyAccess(userId, [productId]);
+      await this.productsRepository.deleteProductById(productId);
       this.logger.log(
         `Product removed (userId: ${userId}, productId: ${productId})`,
       );
@@ -109,7 +113,7 @@ export class ProductsService {
 
   // --- Methods ---
 
-  private async verifyOwnership(
+  private async verifyAccess(
     userId: number,
     productIds: number[],
   ): Promise<void> {
