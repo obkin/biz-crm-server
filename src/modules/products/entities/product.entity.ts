@@ -26,7 +26,7 @@ export class ProductEntity {
   public name: string;
 
   @ApiProperty({
-    example: 'John Dope',
+    example: 'Baseus Desktop Lamp - is a lamp that will turn your life around',
     description: 'The description of the product',
     nullable: true,
   })
@@ -62,7 +62,7 @@ export class ProductEntity {
   public folder: FolderEntity;
 
   @ApiProperty({
-    example: 42,
+    example: 321,
     description: 'The unique identifier of the user who owns this product',
   })
   @Column()
