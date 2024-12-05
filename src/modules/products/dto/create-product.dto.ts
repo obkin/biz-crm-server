@@ -5,35 +5,46 @@ import {
   IsNotEmpty,
   MaxLength,
   IsPositive,
+  IsUrl,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
+const MAX_NAME_LENGTH = 70;
+const MAX_DESCRIPTION_LENGTH = 9000;
 
 export class CreateProductDto {
   @ApiProperty({
     example: 'Baseus Desktop Lamp',
     description: 'The name of the product',
+    maxLength: 70,
   })
   @IsString()
   @IsNotEmpty()
-  @MaxLength(70, { message: 'Name must not exceed 70 characters' })
+  @MaxLength(MAX_NAME_LENGTH, { message: 'Name must not exceed 70 characters' })
   readonly name: string;
 
   @ApiPropertyOptional({
     example: 'A stylish desktop lamp with adjustable brightness',
     description: 'The description of the product',
+    maxLength: 9000,
   })
   @IsOptional()
   @IsString()
-  @MaxLength(9000, { message: 'Description must not exceed 9000 characters' })
+  @MaxLength(MAX_DESCRIPTION_LENGTH, {
+    message: 'Description must not exceed 9000 characters',
+  })
   readonly description?: string;
 
   @ApiProperty({
     example: 749.25,
     description: 'The price of the product',
   })
-  @IsNumber({ maxDecimalPlaces: 2 })
-  @IsNotEmpty()
+  @IsNumber(
+    { maxDecimalPlaces: 2 },
+    { message: 'Price must be a valid number with up to 2 decimal places' },
+  )
   @IsPositive()
+  @IsNotEmpty()
   readonly price: number;
 
   @ApiProperty({
@@ -41,6 +52,7 @@ export class CreateProductDto {
     description: 'The quantity of the product in stock',
   })
   @IsNumber()
+  @IsPositive()
   @IsNotEmpty()
   readonly quantity: number;
 
@@ -50,6 +62,7 @@ export class CreateProductDto {
   })
   @IsOptional()
   @IsString()
+  @IsUrl({}, { message: 'Image URL must be valid' })
   readonly imageUrl?: string;
 
   @ApiPropertyOptional({
@@ -57,6 +70,7 @@ export class CreateProductDto {
     description: 'The ID of the folder where the product is categorized',
   })
   @IsOptional()
+  @IsPositive({ message: 'Folder ID must be a positive number' })
   @IsNumber()
   readonly folderId?: number;
 
@@ -65,6 +79,7 @@ export class CreateProductDto {
     description: 'The ID of the user who owns this product',
   })
   @IsOptional()
+  @IsPositive({ message: 'User ID must be a positive number' })
   @IsNumber()
   readonly userId?: number;
 }

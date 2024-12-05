@@ -8,6 +8,8 @@ import {
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 
+const MAX_NAME_LENGTH = 70;
+
 @Entity('products')
 export class ProductEntity {
   @ApiProperty({
@@ -22,7 +24,7 @@ export class ProductEntity {
     description: 'The name of the product',
     maxLength: 70,
   })
-  @Column({ length: 70 })
+  @Column({ length: MAX_NAME_LENGTH })
   public name: string;
 
   @ApiProperty({
