@@ -5,6 +5,7 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
+  Index,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -67,6 +68,7 @@ export class ProductEntity {
     example: 321,
     description: 'The unique identifier of the user who owns this product',
   })
+  @Index()
   @Column()
   public userId: number;
 }

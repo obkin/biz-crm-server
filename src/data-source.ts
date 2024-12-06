@@ -10,6 +10,6 @@ export const AppDataSource = new DataSource({
   database: process.env.POSTGRES_DB,
   synchronize: false,
   logging: true,
-  entities: ['src/modules/**/entities/**/*.ts'],
-  migrations: ['src/migrations/**/*.ts'],
+  entities: [__dirname + '/modules/**/entities/**/*.js'],
+  migrations: [__dirname + '/migrations/**/*.js'],
 });
