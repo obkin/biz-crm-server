@@ -1,6 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import * as dotenv from 'dotenv';
+
+const envFile =
+  process.env.NODE_ENV === 'production' ? '.env.prod' : '.env.dev';
+dotenv.config({ path: `./config/${envFile}` });
+
+console.log('Loaded environment variables from:', envFile);
 
 async function bootstrap() {
   const PORT = process.env.PORT || 3000;

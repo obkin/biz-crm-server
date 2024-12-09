@@ -5,7 +5,7 @@ services:
     container_name: bc-database
     image: postgres:latest
     env_file:
-      - .dev.env
+      - src/config/.dev.env
     environment:
       PG_DATA: /var/lib/postgresql/data
     ports:
@@ -24,7 +24,7 @@ services:
     build:
       context: .
     env_file:
-      - .dev.env
+      - src/config/.dev.env
     volumes:
       - .:/app
       - /app/node_modules
