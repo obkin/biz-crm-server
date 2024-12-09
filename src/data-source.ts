@@ -1,14 +1,10 @@
 import { DataSource } from 'typeorm';
-
-console.log('POSTGRES_HOST:', process.env.POSTGRES_HOST);
-console.log('POSTGRES_PORT:', process.env.POSTGRES_PORT);
-console.log('POSTGRES_USER:', process.env.POSTGRES_USER);
-console.log('POSTGRES_PASSWORD:', process.env.POSTGRES_PASSWORD);
-console.log('POSTGRES_DB:', process.env.POSTGRES_DB);
+import * as dotenv from 'dotenv';
+dotenv.config({ path: 'src/config/.dev.env' });
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
-  host: process.env.POSTGRES_HOST,
+  host: 'localhost',
   port: Number(process.env.POSTGRES_PORT),
   username: process.env.POSTGRES_USER,
   password: process.env.POSTGRES_PASSWORD,
