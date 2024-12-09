@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import { DataSource } from 'typeorm';
 
 console.log('POSTGRES_HOST:', process.env.POSTGRES_HOST);

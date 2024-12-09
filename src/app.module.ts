@@ -71,7 +71,7 @@ import { ProductsModule } from './modules/products/products.module';
   ],
   imports: [
     ConfigModule.forRoot({
-      envFilePath: `.${process.env.NODE_ENV}.env`,
+      envFilePath: `./config/${process.env.NODE_ENV}.env`,
       isGlobal: true,
     }),
     ThrottlerModule.forRootAsync({
