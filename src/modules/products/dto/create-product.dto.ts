@@ -16,7 +16,7 @@ export class CreateProductDto {
   @ApiProperty({
     example: 'Baseus Desktop Lamp',
     description: 'The name of the product',
-    maxLength: 70,
+    maxLength: MAX_NAME_LENGTH,
   })
   @IsString()
   @IsNotEmpty()
@@ -26,7 +26,7 @@ export class CreateProductDto {
   @ApiPropertyOptional({
     example: 'A stylish desktop lamp with adjustable brightness',
     description: 'The description of the product',
-    maxLength: 9000,
+    maxLength: MAX_DESCRIPTION_LENGTH,
   })
   @IsOptional()
   @IsString()

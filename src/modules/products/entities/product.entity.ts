@@ -6,6 +6,8 @@ import {
   ManyToOne,
   JoinColumn,
   Index,
+  CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -23,7 +25,7 @@ export class ProductEntity {
   @ApiProperty({
     example: 'Baseus Desktop Lamp',
     description: 'The name of the product',
-    maxLength: 70,
+    maxLength: MAX_NAME_LENGTH,
   })
   @Column({ length: MAX_NAME_LENGTH })
   public name: string;
@@ -71,4 +73,25 @@ export class ProductEntity {
   @Index()
   @Column()
   public userId: number;
+
+  @ApiProperty({
+    example: '2024-04-12T08:44:37.025Z',
+    description: 'The date and time when product was created',
+  })
+  @CreateDateColumn({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  public createdAt: Date;
+
+  @ApiProperty({
+    example: '2024-04-12T08:44:37.025Z',
+    description: 'The date and time when product was updated',
+  })
+  @UpdateDateColumn({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
+  public updatedAt: Date;
 }
