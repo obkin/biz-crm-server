@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ProductEntity } from 'src/modules/products/entities/product.entity';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
+import { MAX_FOLDER_NAME_LENGTH } from '../folder.constants';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -11,8 +12,6 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-
-const MAX_FOLDER_NAME_LENGTH = 70;
 
 @Entity('folders')
 export class FolderEntity {
