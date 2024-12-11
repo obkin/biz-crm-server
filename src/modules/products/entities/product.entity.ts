@@ -10,8 +10,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
-
-const MAX_NAME_LENGTH = 70;
+import { MAX_NAME_LENGTH } from '../products.constants';
 
 @Entity('products')
 export class ProductEntity {
