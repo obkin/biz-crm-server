@@ -9,12 +9,13 @@ import {
   OneToMany,
   ManyToOne,
   JoinColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
+  Index,
+  RelationId,
+  BaseEntity,
 } from 'typeorm';
 
 @Entity('folders')
-export class FolderEntity {
+export class FolderEntity extends BaseEntity {
   @ApiProperty({
     example: 123,
     description: 'The unique identifier of the folder',
@@ -34,27 +35,14 @@ export class FolderEntity {
   @JoinColumn({ name: 'userId' })
   public user: UserEntity;
 
+  @ApiProperty({
+    example: 321,
+    description: 'The unique identifier of the user who owns this folder',
+  })
+  @Index()
+  @RelationId((folder: FolderEntity) => folder.user)
+  public userId: number;
+
   @OneToMany(() => ProductEntity, (product) => product.folder)
   public products: ProductEntity[];
-
-  @ApiProperty({
-    example: '2024-04-12T08:44:37.025Z',
-    description: 'The date and time when folder was created',
-  })
-  @CreateDateColumn({
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  public createdAt: Date;
-
-  @ApiProperty({
-    example: '2024-04-12T08:44:37.025Z',
-    description: 'The date and time when folder was updated',
-  })
-  @UpdateDateColumn({
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-    onUpdate: 'CURRENT_TIMESTAMP',
-  })
-  public updatedAt: Date;
 }

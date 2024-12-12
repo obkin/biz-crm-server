@@ -6,14 +6,15 @@ import {
   ManyToOne,
   JoinColumn,
   Index,
-  CreateDateColumn,
-  UpdateDateColumn,
+  RelationId,
+  BaseEntity,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { MAX_NAME_LENGTH } from '../products.constants';
+import { UserEntity } from 'src/modules/users/entities/user.entity';
 
 @Entity('products')
-export class ProductEntity {
+export class ProductEntity extends BaseEntity {
   @ApiProperty({
     example: 123,
     description: 'The unique identifier of the product',
@@ -41,14 +42,14 @@ export class ProductEntity {
     example: 749.25,
     description: 'The price of the product',
   })
-  @Column('decimal', { precision: 10, scale: 2 })
+  @Column('decimal', { precision: 10, scale: 2, unsigned: true })
   public price: number;
 
   @ApiProperty({
     example: 10,
     description: 'The quantity of the products',
   })
-  @Column('int')
+  @Column('int', { unsigned: true })
   public quantity: number;
 
   @ApiProperty({
@@ -65,32 +66,15 @@ export class ProductEntity {
   @JoinColumn({ name: 'folderId' })
   public folder: FolderEntity;
 
+  @ManyToOne(() => UserEntity, (user) => user.products, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'userId' })
+  public user: UserEntity;
+
   @ApiProperty({
     example: 321,
-    description: 'The unique identifier of the user who owns this product',
+    description: 'The unique identifier of the user who owns this folder',
   })
   @Index()
-  @Column()
+  @RelationId((product: ProductEntity) => product.user)
   public userId: number;
-
-  @ApiProperty({
-    example: '2024-04-12T08:44:37.025Z',
-    description: 'The date and time when product was created',
-  })
-  @CreateDateColumn({
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  public createdAt: Date;
-
-  @ApiProperty({
-    example: '2024-04-12T08:44:37.025Z',
-    description: 'The date and time when product was updated',
-  })
-  @UpdateDateColumn({
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-    onUpdate: 'CURRENT_TIMESTAMP',
-  })
-  public updatedAt: Date;
 }
