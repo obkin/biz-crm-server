@@ -15,7 +15,7 @@ import { CreateFolderDto } from './dto/create-folder.dto';
 import { Request } from 'express';
 
 @ApiTags('folders')
-@Controller('folders')
+@Controller('/folders')
 export class FoldersController {
   constructor(private readonly foldersService: FoldersService) {}
 

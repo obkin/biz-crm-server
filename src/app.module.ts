@@ -32,6 +32,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { ExpiredBlocksUpdaterService } from './common/tasks/expired-blocks-updater.service';
 import { UsersManagementService } from './modules/users/services/users-management.service';
 import { ProductsModule } from './modules/products/products.module';
+import { FoldersModule } from './modules/folders/folders.module';
 
 @Module({
   controllers: [],
@@ -87,6 +88,7 @@ import { ProductsModule } from './modules/products/products.module';
     EmailModule,
     RolesModule,
     ProductsModule,
+    FoldersModule,
   ],
   exports: [],
 })
