@@ -1,4 +1,9 @@
-import { ForbiddenException, Injectable, Logger } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { FoldersRepository } from './folders.repository';
 import { CreateFolderDto } from './dto/create-folder.dto';
 import { FolderEntity } from './entities/folder.entity';
@@ -53,13 +58,18 @@ export class FoldersService {
     }
   }
 
-  //   async findOneFolder(userId: number, folderId: number): Promise<FolderEntity> {
-  //     try {
-  //       // ...
-  //     } catch (e) {
-  //       throw e;
-  //     }
-  //   }
+  async findOneFolder(userId: number, folderId: number): Promise<FolderEntity> {
+    try {
+      const folder = await this.foldersRepository.findOneFolderById(folderId);
+      if (!folder) {
+        throw new NotFoundException('Folder not found');
+      }
+      await this.verifyAccess(userId, [folderId]);
+      return folder;
+    } catch (e) {
+      throw e;
+    }
+  }
 
   //   async updateFolder(
   //     userId: number,

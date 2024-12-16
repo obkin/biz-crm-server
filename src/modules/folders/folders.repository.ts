@@ -36,6 +36,16 @@ export class FoldersRepository {
     }
   }
 
+  async findOneFolderById(folderId: number): Promise<FolderEntity> {
+    try {
+      return await this.foldersRepository.findOne({
+        where: { id: folderId },
+      });
+    } catch (e) {
+      throw e;
+    }
+  }
+
   // --- Methods ---
 
   async findUnauthorizedFolders(

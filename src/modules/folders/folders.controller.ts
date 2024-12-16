@@ -4,17 +4,19 @@ import {
   Get,
   HttpException,
   HttpStatus,
+  Param,
   Post,
   Query,
   Req,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { FoldersService } from './folders.service';
 import { FolderEntity } from './entities/folder.entity';
 import { CreateFolderDto } from './dto/create-folder.dto';
 import { Request } from 'express';
+import { idValidationPipe } from 'src/common/pipes/validate-id.pipe';
 
 @ApiTags('folders')
 @Controller('/folders')
@@ -85,7 +87,51 @@ export class FoldersController {
     }
   }
 
-  async findOne() {}
+  @ApiOperation({ summary: 'Get folder by ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Retrieved folder by id',
+    type: FolderEntity,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Wrong id format',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'No access',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Folder not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @ApiQuery({ name: 'id', required: true, description: 'ID of the folder' })
+  @Get(':id')
+  async findOne(
+    @Param('id', idValidationPipe) folderId: number,
+    @Req() req: Request,
+  ): Promise<FolderEntity> {
+    try {
+      return await this.foldersService.findOneFolder(
+        Number(req.user.id),
+        Number(folderId),
+      );
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to find the folder by ID. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
   async update() {}
   async remove() {}
 }
