@@ -1,9 +1,11 @@
 import {
   Body,
   Controller,
+  Get,
   HttpException,
   HttpStatus,
   Post,
+  Query,
   Req,
   UsePipes,
   ValidationPipe,
@@ -49,7 +51,40 @@ export class FoldersController {
     }
   }
 
-  async findAll() {}
+  @ApiOperation({ summary: 'Get all folders' })
+  @ApiResponse({
+    status: 200,
+    description: 'Retrieved all folders',
+    type: [FolderEntity],
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'No access',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @Get()
+  async findAll(@Req() req: Request, @Query('userId') ownerId?: number) {
+    try {
+      const folders = await this.foldersService.findAllFolders(
+        Number(req.user.id),
+        Number(ownerId),
+      );
+      return { amount: folders.length, folders };
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to find all folders. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
   async findOne() {}
   async update() {}
   async remove() {}
