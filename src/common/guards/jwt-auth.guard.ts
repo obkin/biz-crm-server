@@ -40,6 +40,11 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     const userId = Number(this.getUserIdFromToken(token));
+    if (!userId) {
+      this.logger.warn('Invalid token format');
+      throw new UnauthorizedException('[JwtAuthGuard] Invalid token format');
+    }
+
     const isUserLoggined = await this.authService.checkIsUserLoggedIn(userId);
     if (!isUserLoggined) {
       this.logger.warn('User is not logged in');
