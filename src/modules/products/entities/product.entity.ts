@@ -5,9 +5,8 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
-  Index,
-  RelationId,
   BaseEntity,
+  Index,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { MAX_NAME_LENGTH } from '../products.constants';
@@ -60,21 +59,21 @@ export class ProductEntity extends BaseEntity {
   @Column({ nullable: true })
   public imageUrl: string;
 
-  @ManyToOne(() => FolderEntity, (folder) => folder.products, {
-    onDelete: 'SET NULL',
-  })
-  @JoinColumn({ name: 'folderId' })
-  public folder: FolderEntity;
-
   @ManyToOne(() => UserEntity, (user) => user.products, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })
   public user: UserEntity;
 
   @ApiProperty({
     example: 321,
-    description: 'The unique identifier of the user who owns this folder',
+    description: 'The unique identifier of the user who owns the folder',
   })
   @Index()
-  @RelationId((product: ProductEntity) => product.user)
+  @Column()
   public userId: number;
+
+  @ManyToOne(() => FolderEntity, (folder) => folder.products, {
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'folderId' })
+  public folder: FolderEntity;
 }

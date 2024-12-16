@@ -9,9 +9,8 @@ import {
   OneToMany,
   ManyToOne,
   JoinColumn,
-  Index,
-  RelationId,
   BaseEntity,
+  Index,
 } from 'typeorm';
 
 @Entity('folders')
@@ -37,10 +36,10 @@ export class FolderEntity extends BaseEntity {
 
   @ApiProperty({
     example: 321,
-    description: 'The unique identifier of the user who owns this folder',
+    description: 'The unique identifier of the user who owns the folder',
   })
   @Index()
-  @RelationId((folder: FolderEntity) => folder.user)
+  @Column()
   public userId: number;
 
   @OneToMany(() => ProductEntity, (product) => product.folder)

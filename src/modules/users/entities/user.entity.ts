@@ -3,8 +3,9 @@ import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
   OneToMany,
-  BaseEntity,
 } from 'typeorm';
 import { UserBlockEntity } from './user-block.entity';
 import { UserUnblockEntity } from './user-unblock.entity';
@@ -13,7 +14,7 @@ import { OrderEntity } from 'src/modules/orders/entities/order.entity';
 import { ProductEntity } from 'src/modules/products/entities/product.entity';
 
 @Entity('users')
-export class UserEntity extends BaseEntity {
+export class UserEntity {
   @ApiProperty({
     example: 123,
     description: 'The unique identifier of the user',
@@ -77,4 +78,25 @@ export class UserEntity extends BaseEntity {
 
   @OneToMany(() => OrderEntity, (order) => order.user)
   public orders: OrderEntity[];
+
+  @ApiProperty({
+    example: '2024-04-12T08:44:37.025Z',
+    description: 'The date and time when account was created',
+  })
+  @CreateDateColumn({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  public createdAt: Date;
+
+  @ApiProperty({
+    example: '2024-04-12T08:44:37.025Z',
+    description: 'The date and time when account was updated',
+  })
+  @UpdateDateColumn({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
+  public updatedAt: Date;
 }
