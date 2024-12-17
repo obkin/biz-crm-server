@@ -8,6 +8,7 @@ import { FoldersRepository } from './folders.repository';
 import { CreateFolderDto } from './dto/create-folder.dto';
 import { FolderEntity } from './entities/folder.entity';
 import { UsersService } from '../users/services/users.service';
+import { UpdateFolderDto } from './dto/update-folder.dto';
 
 @Injectable()
 export class FoldersService {
@@ -71,17 +72,25 @@ export class FoldersService {
     }
   }
 
-  //   async updateFolder(
-  //     userId: number,
-  //     folderId: number,
-  //     dto: UpdateFolderDto,
-  //   ): Promise<FolderEntity> {
-  //     try {
-  //       // ...
-  //     } catch (e) {
-  //       throw e;
-  //     }
-  //   }
+  async updateFolder(
+    userId: number,
+    folderId: number,
+    dto: UpdateFolderDto,
+  ): Promise<FolderEntity> {
+    try {
+      await this.findOneFolder(userId, folderId);
+      const updatedFolder = await this.foldersRepository.updateFolderById(
+        folderId,
+        dto,
+      );
+      this.logger.log(
+        `Folder updated (userId: ${userId}, folderId: ${folderId})`,
+      );
+      return updatedFolder;
+    } catch (e) {
+      throw e;
+    }
+  }
 
   //   async removeFolder(userId: number, folderId: number): Promise<void> {
   //     try {

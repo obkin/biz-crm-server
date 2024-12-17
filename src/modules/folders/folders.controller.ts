@@ -5,6 +5,7 @@ import {
   HttpException,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Query,
   Req,
@@ -17,6 +18,8 @@ import { FolderEntity } from './entities/folder.entity';
 import { CreateFolderDto } from './dto/create-folder.dto';
 import { Request } from 'express';
 import { idValidationPipe } from 'src/common/pipes/validate-id.pipe';
+import { EmptyObjectValidationPipe } from 'src/common/pipes/validate-empty-object.pipe';
+import { UpdateFolderDto } from './dto/update-folder.dto';
 
 @ApiTags('folders')
 @Controller('/folders')
@@ -132,6 +135,54 @@ export class FoldersController {
     }
   }
 
-  async update() {}
+  @ApiOperation({ summary: 'Update folder by ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Folder updated',
+    type: FolderEntity,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Wrong id format',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'No access',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Folder not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @ApiQuery({ name: 'id', required: true, description: 'ID of the folder' })
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  @UsePipes(new EmptyObjectValidationPipe())
+  @Patch(':id')
+  async update(
+    @Param('id', idValidationPipe) folderId: number,
+    @Body() dto: UpdateFolderDto,
+    @Req() req: Request,
+  ): Promise<FolderEntity> {
+    try {
+      return await this.foldersService.updateFolder(
+        Number(req.user.id),
+        Number(folderId),
+        dto,
+      );
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to update the folder. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
   async remove() {}
 }

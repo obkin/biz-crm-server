@@ -4,24 +4,16 @@ import { UserEntity } from 'src/modules/users/entities/user.entity';
 import { MAX_FOLDER_NAME_LENGTH } from '../folders.constants';
 import {
   Entity,
-  PrimaryGeneratedColumn,
   Column,
   OneToMany,
   ManyToOne,
   JoinColumn,
-  BaseEntity,
   Index,
 } from 'typeorm';
+import { BaseEntity } from 'src/common/entities/base.entity';
 
 @Entity('folders')
 export class FolderEntity extends BaseEntity {
-  @ApiProperty({
-    example: 123,
-    description: 'The unique identifier of the folder',
-  })
-  @PrimaryGeneratedColumn()
-  public id: number;
-
   @ApiProperty({
     example: 'Photos',
     description: 'The name of the folder',

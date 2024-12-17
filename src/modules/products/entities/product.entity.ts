@@ -1,26 +1,12 @@
 import { FolderEntity } from 'src/modules/folders/entities/folder.entity';
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  JoinColumn,
-  BaseEntity,
-  Index,
-} from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn, Index } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { MAX_NAME_LENGTH } from '../products.constants';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
+import { BaseEntity } from 'src/common/entities/base.entity';
 
 @Entity('products')
 export class ProductEntity extends BaseEntity {
-  @ApiProperty({
-    example: 123,
-    description: 'The unique identifier of the product',
-  })
-  @PrimaryGeneratedColumn()
-  public id: number;
-
   @ApiProperty({
     example: 'Baseus Desktop Lamp',
     description: 'The name of the product',
