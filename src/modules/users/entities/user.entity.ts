@@ -1,27 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
-  OneToMany,
-} from 'typeorm';
+import { Entity, Column, OneToMany } from 'typeorm';
 import { UserBlockEntity } from './user-block.entity';
 import { UserUnblockEntity } from './user-unblock.entity';
 import { FolderEntity } from 'src/modules/folders/entities/folder.entity';
 import { OrderEntity } from 'src/modules/orders/entities/order.entity';
 import { ProductEntity } from 'src/modules/products/entities/product.entity';
+import { BaseEntity } from 'src/common/entities/base.entity';
 
 @Entity('users')
-export class UserEntity {
-  @ApiProperty({
-    example: 123,
-    description: 'The unique identifier of the user',
-  })
-  @PrimaryGeneratedColumn()
-  public id: number;
-
+export class UserEntity extends BaseEntity {
   @ApiProperty({
     example: 'john_dope@gmail.com',
     description: 'The unique email of the user',
@@ -47,7 +34,7 @@ export class UserEntity {
     example: 'John Dope',
     description: 'The name of the user',
   })
-  @Column({ unique: true, length: 255 })
+  @Column({ length: 255 })
   public username: string;
 
   @ApiProperty({
@@ -78,25 +65,4 @@ export class UserEntity {
 
   @OneToMany(() => OrderEntity, (order) => order.user)
   public orders: OrderEntity[];
-
-  @ApiProperty({
-    example: '2024-04-12T08:44:37.025Z',
-    description: 'The date and time when account was created',
-  })
-  @CreateDateColumn({
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  public createdAt: Date;
-
-  @ApiProperty({
-    example: '2024-04-12T08:44:37.025Z',
-    description: 'The date and time when account was updated',
-  })
-  @UpdateDateColumn({
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-    onUpdate: 'CURRENT_TIMESTAMP',
-  })
-  public updatedAt: Date;
 }
