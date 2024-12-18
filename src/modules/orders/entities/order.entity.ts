@@ -1,14 +1,8 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { BaseEntity } from 'src/common/entities/base.entity';
 import { ProductEntity } from 'src/modules/products/entities/product.entity';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  JoinColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn, Index } from 'typeorm';
 
 export enum OrderStatus {
   PENDING = 'pending',
@@ -17,34 +11,44 @@ export enum OrderStatus {
 }
 
 @Entity('orders')
-export class OrderEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @ManyToOne(() => UserEntity, (user) => user.orders, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'userId' })
-  user: UserEntity;
-
-  @ManyToOne(() => ProductEntity, { onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'productId' })
-  product: ProductEntity;
-
+export class OrderEntity extends BaseEntity {
   @Column('int')
-  quantity: number;
+  public quantity: number;
 
   @Column('decimal', { precision: 10, scale: 2 })
-  totalPrice: number;
+  public unitPrice: number;
+
+  @Column('decimal', { precision: 10, scale: 2 })
+  public totalPrice: number;
 
   @Column({
     type: 'enum',
     enum: OrderStatus,
     default: OrderStatus.PENDING,
   })
-  status: OrderStatus;
+  public status: OrderStatus;
 
-  @CreateDateColumn()
-  createdAt: Date;
+  @ManyToOne(() => UserEntity, (user) => user.orders, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'userId' })
+  public user: UserEntity;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
+  @ApiProperty({
+    example: 321,
+    description: 'The unique identifier of the user who made the order',
+  })
+  @Index()
+  @Column()
+  public userId: number;
+
+  @ManyToOne(() => ProductEntity, { onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'productId' })
+  public product: ProductEntity;
+
+  @ApiProperty({
+    example: 123,
+    description: 'The unique identifier of product',
+  })
+  @Index()
+  @Column()
+  public productId: number;
 }
