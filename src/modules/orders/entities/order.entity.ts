@@ -12,15 +12,33 @@ export enum OrderStatus {
 
 @Entity('orders')
 export class OrderEntity extends BaseEntity {
+  @ApiProperty({
+    example: 2,
+    description: 'The quantity of the product ordered',
+  })
   @Column('int')
   public quantity: number;
 
+  @ApiProperty({
+    example: 99.99,
+    description: 'The unit price of the product at the time of the order',
+  })
   @Column('decimal', { precision: 10, scale: 2 })
   public unitPrice: number;
 
+  @ApiProperty({
+    example: 199.98,
+    description: 'The total price for the order (quantity * unitPrice)',
+  })
   @Column('decimal', { precision: 10, scale: 2 })
   public totalPrice: number;
 
+  @ApiProperty({
+    example: OrderStatus.PENDING,
+    description: 'The status of the order',
+    enum: OrderStatus,
+    default: OrderStatus.PENDING,
+  })
   @Column({
     type: 'enum',
     enum: OrderStatus,
