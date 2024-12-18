@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
   HttpException,
   HttpStatus,
   Param,
@@ -184,5 +186,49 @@ export class FoldersController {
     }
   }
 
-  async remove() {}
+  @ApiOperation({ summary: 'Delete folder' })
+  @ApiResponse({
+    status: 200,
+    description: 'Folder deleted',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Wrong id format',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'No access',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Folder not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @ApiQuery({ name: 'id', required: true, description: 'ID of the folder' })
+  @HttpCode(200)
+  @Delete(':id')
+  async remove(
+    @Param('id', idValidationPipe) folderId: number,
+    @Req() req: Request,
+  ) {
+    try {
+      await this.foldersService.removeFolder(
+        Number(req.user.id),
+        Number(folderId),
+      );
+      return { folderId, message: 'Folder removed' };
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to delete the folder. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
 }

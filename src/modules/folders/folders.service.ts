@@ -92,13 +92,17 @@ export class FoldersService {
     }
   }
 
-  //   async removeFolder(userId: number, folderId: number): Promise<void> {
-  //     try {
-  //       // ...
-  //     } catch (e) {
-  //       throw e;
-  //     }
-  //   }
+  async removeFolder(userId: number, folderId: number): Promise<void> {
+    try {
+      await this.verifyAccess(userId, [folderId]);
+      await this.foldersRepository.deleteFolderById(folderId);
+      this.logger.log(
+        `Folder removed (userId: ${userId}, folderId: ${folderId})`,
+      );
+    } catch (e) {
+      throw e;
+    }
+  }
 
   // --- Methods ---
 

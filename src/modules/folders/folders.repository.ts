@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FolderEntity } from './entities/folder.entity';
 import { In, Not, Repository } from 'typeorm';
@@ -62,13 +62,16 @@ export class FoldersRepository {
     }
   }
 
-  // async deleteFolderById(folderId: number): Promise<void> {
-  //   try {
-  //     // ...
-  //   } catch (e) {
-  //     throw e;
-  //   }
-  // }
+  async deleteFolderById(folderId: number): Promise<void> {
+    try {
+      const result = await this.foldersRepository.delete({ id: folderId });
+      if (result.affected === 0) {
+        throw new NotFoundException('Folder not found');
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
 
   // --- Methods ---
 
