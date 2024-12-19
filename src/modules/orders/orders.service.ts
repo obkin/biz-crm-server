@@ -81,7 +81,19 @@ export class OrdersService {
     }
   }
 
-  async findOneOrder() {}
+  async findOneOrder(userId: number, orderId: number): Promise<OrderEntity> {
+    try {
+      const order = await this.ordersRepository.findOneOrderById(orderId);
+      if (!order) {
+        throw new NotFoundException('Order not found');
+      }
+      await this.verifyAccess(userId, [orderId]);
+      return order;
+    } catch (e) {
+      throw e;
+    }
+  }
+
   async updateOrder() {}
   async removeOrder() {}
 

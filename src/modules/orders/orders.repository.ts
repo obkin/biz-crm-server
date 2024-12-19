@@ -36,7 +36,16 @@ export class OrdersRepository {
     }
   }
 
-  async findOneOrderById() {}
+  async findOneOrderById(orderId: number): Promise<OrderEntity> {
+    try {
+      return await this.ordersRepository.findOne({
+        where: { id: orderId },
+      });
+    } catch (e) {
+      throw e;
+    }
+  }
+
   async updateOrderById() {}
   async deleteOrderById() {}
 
