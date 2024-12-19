@@ -33,6 +33,7 @@ import { ExpiredBlocksUpdaterService } from './common/tasks/expired-blocks-updat
 import { UsersManagementService } from './modules/users/services/users-management.service';
 import { ProductsModule } from './modules/products/products.module';
 import { FoldersModule } from './modules/folders/folders.module';
+import { OrdersModule } from './modules/orders/orders.module';
 
 @Module({
   controllers: [],
@@ -89,6 +90,7 @@ import { FoldersModule } from './modules/folders/folders.module';
     RolesModule,
     ProductsModule,
     FoldersModule,
+    OrdersModule,
   ],
   exports: [],
 })

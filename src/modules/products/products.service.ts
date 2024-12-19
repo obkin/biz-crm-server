@@ -134,4 +134,24 @@ export class ProductsService {
       );
     }
   }
+
+  async checkProductExisting(productId: number): Promise<boolean> {
+    try {
+      const product =
+        await this.productsRepository.findOneProductById(productId);
+      return !!product;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async getProductQuantity(productId: number) {
+    try {
+      const product =
+        await this.productsRepository.findOneProductById(productId);
+      return product.quantity;
+    } catch (e) {
+      throw e;
+    }
+  }
 }
