@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
   HttpException,
   HttpStatus,
   Param,
@@ -133,5 +135,50 @@ export class OrdersController {
   }
 
   //   async update(): Promise<OrderEntity> {}
-  //   async remove() {}
+
+  @ApiOperation({ summary: 'Delete order' })
+  @ApiResponse({
+    status: 200,
+    description: 'Order deleted',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Wrong id format',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'No access',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Order not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @ApiQuery({ name: 'id', required: true, description: 'ID of the order' })
+  @HttpCode(200)
+  @Delete(':id')
+  async remove(
+    @Param('id', idValidationPipe) orderId: number,
+    @Req() req: Request,
+  ) {
+    try {
+      await this.ordersService.removeOrder(
+        Number(req.user.id),
+        Number(orderId),
+      );
+      return { orderId, message: 'Order removed' };
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to delete the order. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
 }

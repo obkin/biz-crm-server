@@ -95,7 +95,16 @@ export class OrdersService {
   }
 
   async updateOrder() {}
-  async removeOrder() {}
+
+  async removeOrder(userId: number, orderId: number): Promise<void> {
+    try {
+      await this.verifyAccess(userId, [orderId]);
+      await this.ordersRepository.deleteOrderById(orderId);
+      this.logger.log(`Order removed (userId: ${userId}, orderId: ${orderId})`);
+    } catch (e) {
+      throw e;
+    }
+  }
 
   async changeOrderStatus() {}
 
