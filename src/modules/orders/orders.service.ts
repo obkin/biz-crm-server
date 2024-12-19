@@ -54,10 +54,38 @@ export class OrdersService {
     }
   }
 
-  async findAllOrders() {}
+  async findAllOrders(
+    userId: number,
+    ownerId?: number,
+  ): Promise<OrderEntity[]> {
+    try {
+      if (!ownerId) {
+        const isAdmin = await this.usersService.checkIsUserAdmin(userId);
+        if (!isAdmin) {
+          throw new ForbiddenException(
+            `You do not have permission to get or modify this order(s)`,
+          );
+        }
+      }
+
+      const orders = await this.ordersRepository.findAllOrders(ownerId);
+
+      if (ownerId) {
+        const orderIds = orders.map((order) => order.id);
+        await this.verifyAccess(userId, orderIds);
+      }
+
+      return orders;
+    } catch (e) {
+      throw e;
+    }
+  }
+
   async findOneOrder() {}
   async updateOrder() {}
   async removeOrder() {}
+
+  async changeOrderStatus() {}
 
   // --- Methods ---
 
@@ -81,4 +109,6 @@ export class OrdersService {
       );
     }
   }
+
+  async checkOrderStatus() {}
 }

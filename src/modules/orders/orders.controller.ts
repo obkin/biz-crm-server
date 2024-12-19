@@ -1,9 +1,11 @@
 import {
   Body,
   Controller,
+  Get,
   HttpException,
   HttpStatus,
   Post,
+  Query,
   Req,
   UsePipes,
   ValidationPipe,
@@ -49,7 +51,40 @@ export class OrdersController {
     }
   }
 
-  //   async findAll() {}
+  @ApiOperation({ summary: 'Get all orders' })
+  @ApiResponse({
+    status: 200,
+    description: 'Retrieved all orders',
+    type: [OrderEntity],
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'No access',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @Get()
+  async findAll(@Req() req: Request, @Query('userId') ownerId?: number) {
+    try {
+      const orders = await this.ordersService.findAllOrders(
+        Number(req.user.id),
+        Number(ownerId),
+      );
+      return { amount: orders.length, orders };
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to find all orders. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
   //   async findOne(): Promise<OrderEntity> {}
   //   async update(): Promise<OrderEntity> {}
   //   async remove() {}

@@ -24,7 +24,18 @@ export class OrdersRepository {
     }
   }
 
-  async findAllOrders() {}
+  async findAllOrders(userId?: number): Promise<OrderEntity[]> {
+    try {
+      if (userId) {
+        return await this.ordersRepository.find({ where: { userId } });
+      } else {
+        return await this.ordersRepository.find();
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
+
   async findOneOrderById() {}
   async updateOrderById() {}
   async deleteOrderById() {}
