@@ -73,6 +73,16 @@ export class OrdersRepository {
     }
   }
 
+  // --- Management ---
+
+  async saveOrder(order: OrderEntity): Promise<void> {
+    try {
+      await this.ordersRepository.save(order);
+    } catch (e) {
+      throw e;
+    }
+  }
+
   // --- Methods ---
 
   async findUnauthorizedOrders(

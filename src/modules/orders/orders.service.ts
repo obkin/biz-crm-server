@@ -39,14 +39,14 @@ export class OrdersService {
         );
       }
 
-      const orderDto = {
+      const orderCreateDto = {
         ...dto,
         status: OrderStatus.PENDING,
         totalPrice: Number(dto.quantity) * Number(dto.unitPrice),
       };
       const order = await this.ordersRepository.createNewOrder(
         userId,
-        orderDto,
+        orderCreateDto,
       );
       this.logger.log(`New order created (id: ${order.id})`);
       return order;
@@ -127,7 +127,24 @@ export class OrdersService {
     }
   }
 
-  async changeOrderStatus() {}
+  // --- Management ---
+
+  async changeOrderStatus(
+    userId: number,
+    orderId: number,
+    status: OrderStatus,
+  ): Promise<void> {
+    try {
+      const order = await this.findOneOrder(userId, orderId);
+      if (order.status == status) {
+        throw new BadRequestException('This status is already set');
+      }
+      order.status = status;
+      await this.ordersRepository.saveOrder(order);
+    } catch (e) {
+      throw e;
+    }
+  }
 
   // --- Methods ---
 

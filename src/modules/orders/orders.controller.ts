@@ -22,6 +22,7 @@ import { Request } from 'express';
 import { idValidationPipe } from 'src/common/pipes/validate-id.pipe';
 import { EmptyObjectValidationPipe } from 'src/common/pipes/validate-empty-object.pipe';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { ChangeOrderStatusDto } from './dto/change-order-status.dto';
 
 @ApiTags('orders')
 @Controller('/orders')
@@ -226,6 +227,39 @@ export class OrdersController {
       } else {
         throw new HttpException(
           `Failed to delete the order. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  // --- Management ---
+
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  @UsePipes(new EmptyObjectValidationPipe())
+  @Patch('/change-order-status/:id')
+  async changeOrderStatus(
+    @Param('id', idValidationPipe) orderId: number,
+    @Body() dto: ChangeOrderStatusDto,
+    @Req() req: Request,
+  ) {
+    try {
+      await this.ordersService.changeOrderStatus(
+        Number(req.user.id),
+        Number(orderId),
+        dto.status,
+      );
+      return {
+        orderId,
+        message: 'Order status updated',
+        newStatus: dto.status,
+      };
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to update order status. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
