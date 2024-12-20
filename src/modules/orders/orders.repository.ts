@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { OrderEntity } from './entities/order.entity';
 import { In, Not, Repository } from 'typeorm';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { UpdateOrderDto } from './dto/update-order.dto';
 
 @Injectable()
 export class OrdersRepository {
@@ -46,7 +47,20 @@ export class OrdersRepository {
     }
   }
 
-  async updateOrderById() {}
+  async updateOrderById(
+    orderId: number,
+    dto: UpdateOrderDto,
+  ): Promise<OrderEntity> {
+    try {
+      const updatedOrder = await this.ordersRepository.save({
+        ...dto,
+        id: orderId,
+      });
+      return updatedOrder;
+    } catch (e) {
+      throw e;
+    }
+  }
 
   async deleteOrderById(orderId: number): Promise<void> {
     try {

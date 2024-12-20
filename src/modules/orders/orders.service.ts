@@ -10,6 +10,7 @@ import { UsersService } from '../users/services/users.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderEntity, OrderStatus } from './entities/order.entity';
 import { ProductsService } from '../products/products.service';
+import { UpdateOrderDto } from './dto/update-order.dto';
 
 @Injectable()
 export class OrdersService {
@@ -94,7 +95,27 @@ export class OrdersService {
     }
   }
 
-  async updateOrder() {}
+  async updateOrder(
+    userId: number,
+    orderId: number,
+    dto: UpdateOrderDto,
+  ): Promise<OrderEntity> {
+    try {
+      const updateOrderDto = {
+        ...dto,
+        totalPrice: Number(dto.quantity) * Number(dto.unitPrice),
+      };
+      await this.findOneOrder(userId, orderId);
+      const updatedOrder = await this.ordersRepository.updateOrderById(
+        orderId,
+        updateOrderDto,
+      );
+      this.logger.log(`Order updated (userId: ${userId}, orderId: ${orderId})`);
+      return updatedOrder;
+    } catch (e) {
+      throw e;
+    }
+  }
 
   async removeOrder(userId: number, orderId: number): Promise<void> {
     try {

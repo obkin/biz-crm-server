@@ -7,6 +7,7 @@ import {
   HttpException,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Query,
   Req,
@@ -19,6 +20,8 @@ import { OrderEntity } from './entities/order.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { Request } from 'express';
 import { idValidationPipe } from 'src/common/pipes/validate-id.pipe';
+import { EmptyObjectValidationPipe } from 'src/common/pipes/validate-empty-object.pipe';
+import { UpdateOrderDto } from './dto/update-order.dto';
 
 @ApiTags('orders')
 @Controller('/orders')
@@ -134,7 +137,54 @@ export class OrdersController {
     }
   }
 
-  //   async update(): Promise<OrderEntity> {}
+  @ApiOperation({ summary: 'Update order by ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Order updated',
+    type: OrderEntity,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Wrong id format',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'No access',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Order not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @ApiQuery({ name: 'id', required: true, description: 'ID of the order' })
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  @UsePipes(new EmptyObjectValidationPipe())
+  @Patch(':id')
+  async update(
+    @Param('id', idValidationPipe) orderId: number,
+    @Body() dto: UpdateOrderDto,
+    @Req() req: Request,
+  ): Promise<OrderEntity> {
+    try {
+      return await this.ordersService.updateOrder(
+        Number(req.user.id),
+        Number(orderId),
+        dto,
+      );
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to update the order. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
 
   @ApiOperation({ summary: 'Delete order' })
   @ApiResponse({
