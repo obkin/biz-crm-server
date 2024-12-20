@@ -235,6 +235,27 @@ export class OrdersController {
 
   // --- Management ---
 
+  @ApiOperation({ summary: 'Update order status by ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Order status updated',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Wrong id format',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'No access',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Order not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   @UsePipes(new EmptyObjectValidationPipe())
   @Patch('/change-order-status/:id')
