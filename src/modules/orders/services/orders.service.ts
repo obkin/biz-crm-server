@@ -127,25 +127,6 @@ export class OrdersService {
     }
   }
 
-  // --- Management ---
-
-  async changeOrderStatus(
-    userId: number,
-    orderId: number,
-    status: OrderStatus,
-  ): Promise<void> {
-    try {
-      const order = await this.findOneOrder(userId, orderId);
-      if (order.status == status) {
-        throw new BadRequestException('This status is already set');
-      }
-      order.status = status;
-      await this.ordersRepository.saveOrder(order);
-    } catch (e) {
-      throw e;
-    }
-  }
-
   // --- Methods ---
 
   private async verifyAccess(
@@ -168,6 +149,4 @@ export class OrdersService {
       );
     }
   }
-
-  async checkOrderStatus() {}
 }

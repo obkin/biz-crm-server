@@ -16,13 +16,12 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { OrdersService } from '../services/orders.service';
-import { OrderEntity, OrderStatus } from '../entities/order.entity';
+import { OrderEntity } from '../entities/order.entity';
 import { CreateOrderDto } from '../dto/create-order.dto';
 import { Request } from 'express';
 import { idValidationPipe } from 'src/common/pipes/validate-id.pipe';
 import { EmptyObjectValidationPipe } from 'src/common/pipes/validate-empty-object.pipe';
 import { UpdateOrderDto } from '../dto/update-order.dto';
-import { ChangeOrderStatusDto } from '../dto/change-order-status.dto';
 
 @ApiTags('orders')
 @Controller('/orders')
@@ -232,90 +231,4 @@ export class OrdersController {
       }
     }
   }
-
-  // --- Management ---
-
-  @ApiOperation({ summary: 'Update order status by ID' })
-  @ApiResponse({
-    status: 200,
-    description: 'Order status updated',
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Wrong id format',
-  })
-  @ApiResponse({
-    status: 403,
-    description: 'No access',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Order not found',
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Internal Server Error',
-  })
-  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
-  @UsePipes(new EmptyObjectValidationPipe())
-  @Patch('/change-order-status/:id')
-  async changeOrderStatus(
-    @Param('id', idValidationPipe) orderId: number,
-    @Body() dto: ChangeOrderStatusDto,
-    @Req() req: Request,
-  ) {
-    try {
-      await this.ordersService.changeOrderStatus(
-        Number(req.user.id),
-        Number(orderId),
-        dto.status,
-      );
-      return {
-        orderId,
-        message: 'Order status updated',
-        newStatus: dto.status,
-      };
-    } catch (e) {
-      if (e instanceof HttpException) {
-        throw e;
-      } else {
-        throw new HttpException(
-          `Failed to update order status. ${e}`,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-    }
-  }
-
-  async acceptOrder(
-    @Param('id', idValidationPipe) orderId: number,
-    @Req() req: Request,
-  ) {
-    try {
-      await this.ordersService.changeOrderStatus(
-        Number(req.user.id),
-        Number(orderId),
-        OrderStatus.ACCEPTED,
-      );
-      return {
-        user: req.user.id,
-        orderId,
-        message: 'Order status updated',
-        newStatus: OrderStatus.ACCEPTED,
-      };
-    } catch (e) {
-      if (e instanceof HttpException) {
-        throw e;
-      } else {
-        throw new HttpException(
-          `Failed to accept order. ${e}`,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-    }
-  }
-
-  async declineOrder() {}
-
-  async cancelOrder() {}
 }
