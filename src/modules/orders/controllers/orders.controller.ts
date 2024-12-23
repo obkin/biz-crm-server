@@ -15,14 +15,14 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { OrdersService } from './orders.service';
-import { OrderEntity } from './entities/order.entity';
-import { CreateOrderDto } from './dto/create-order.dto';
+import { OrdersService } from '../services/orders.service';
+import { OrderEntity, OrderStatus } from '../entities/order.entity';
+import { CreateOrderDto } from '../dto/create-order.dto';
 import { Request } from 'express';
 import { idValidationPipe } from 'src/common/pipes/validate-id.pipe';
 import { EmptyObjectValidationPipe } from 'src/common/pipes/validate-empty-object.pipe';
-import { UpdateOrderDto } from './dto/update-order.dto';
-import { ChangeOrderStatusDto } from './dto/change-order-status.dto';
+import { UpdateOrderDto } from '../dto/update-order.dto';
+import { ChangeOrderStatusDto } from '../dto/change-order-status.dto';
 
 @ApiTags('orders')
 @Controller('/orders')
@@ -286,4 +286,36 @@ export class OrdersController {
       }
     }
   }
+
+  async acceptOrder(
+    @Param('id', idValidationPipe) orderId: number,
+    @Req() req: Request,
+  ) {
+    try {
+      await this.ordersService.changeOrderStatus(
+        Number(req.user.id),
+        Number(orderId),
+        OrderStatus.ACCEPTED,
+      );
+      return {
+        user: req.user.id,
+        orderId,
+        message: 'Order status updated',
+        newStatus: OrderStatus.ACCEPTED,
+      };
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to accept order. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  async declineOrder() {}
+
+  async cancelOrder() {}
 }

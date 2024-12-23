@@ -5,12 +5,12 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { OrdersRepository } from './orders.repository';
-import { UsersService } from '../users/services/users.service';
-import { CreateOrderDto } from './dto/create-order.dto';
-import { OrderEntity, OrderStatus } from './entities/order.entity';
-import { ProductsService } from '../products/products.service';
-import { UpdateOrderDto } from './dto/update-order.dto';
+import { OrdersRepository } from '../repositories/orders.repository';
+import { UsersService } from '../../users/services/users.service';
+import { CreateOrderDto } from '../dto/create-order.dto';
+import { OrderEntity, OrderStatus } from '../entities/order.entity';
+import { ProductsService } from '../../products/products.service';
+import { UpdateOrderDto } from '../dto/update-order.dto';
 
 @Injectable()
 export class OrdersService {
