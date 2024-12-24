@@ -11,6 +11,7 @@ import { CreateOrderDto } from '../dto/create-order.dto';
 import { OrderEntity, OrderStatus } from '../entities/order.entity';
 import { ProductsService } from '../../products/products.service';
 import { UpdateOrderDto } from '../dto/update-order.dto';
+import { EntityManager } from 'typeorm';
 
 @Injectable()
 export class OrdersService {
@@ -82,9 +83,16 @@ export class OrdersService {
     }
   }
 
-  async findOneOrder(userId: number, orderId: number): Promise<OrderEntity> {
+  async findOneOrder(
+    userId: number,
+    orderId: number,
+    manager?: EntityManager,
+  ): Promise<OrderEntity> {
     try {
-      const order = await this.ordersRepository.findOneOrderById(orderId);
+      const order = await this.ordersRepository.findOneOrderById(
+        orderId,
+        manager,
+      );
       if (!order) {
         throw new NotFoundException('Order not found');
       }

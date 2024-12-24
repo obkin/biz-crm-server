@@ -10,6 +10,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { ProductEntity } from './entities/product.entity';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { UsersService } from '../users/services/users.service';
+import { EntityManager } from 'typeorm';
 
 @Injectable()
 export class ProductsService {
@@ -66,10 +67,13 @@ export class ProductsService {
   async findOneProduct(
     userId: number,
     productId: number,
+    manager?: EntityManager,
   ): Promise<ProductEntity> {
     try {
-      const product =
-        await this.productsRepository.findOneProductById(productId);
+      const product = await this.productsRepository.findOneProductById(
+        productId,
+        manager,
+      );
       if (!product) {
         throw new NotFoundException('Product not found');
       }
@@ -160,9 +164,10 @@ export class ProductsService {
     userId: number,
     productId: number,
     decreaseBy: number,
+    manager: EntityManager,
   ): Promise<void> {
     try {
-      const product = await this.findOneProduct(userId, productId);
+      const product = await this.findOneProduct(userId, productId, manager);
       if (product.quantity < decreaseBy) {
         throw new BadRequestException(
           `There is no such quantity of this product. Alaivable: ${product.quantity}`,
@@ -175,6 +180,7 @@ export class ProductsService {
       await this.productsRepository.updateProductById(
         productId,
         updatedProduct,
+        manager,
       );
     } catch (e) {
       throw e;

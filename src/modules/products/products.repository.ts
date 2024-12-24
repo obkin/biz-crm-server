@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductEntity } from './entities/product.entity';
-import { Repository, In, Not } from 'typeorm';
+import { Repository, In, Not, EntityManager } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 
@@ -37,9 +37,15 @@ export class ProductsRepository {
     }
   }
 
-  async findOneProductById(productId: number): Promise<ProductEntity> {
+  async findOneProductById(
+    productId: number,
+    manager?: EntityManager,
+  ): Promise<ProductEntity> {
+    const repository = manager
+      ? manager.getRepository(ProductEntity)
+      : this.productsRepository;
     try {
-      return await this.productsRepository.findOne({
+      return await repository.findOne({
         where: { id: productId },
       });
     } catch (e) {
@@ -50,9 +56,13 @@ export class ProductsRepository {
   async updateProductById(
     productId: number,
     dto: UpdateProductDto,
+    manager?: EntityManager,
   ): Promise<ProductEntity> {
+    const repository = manager
+      ? manager.getRepository(ProductEntity)
+      : this.productsRepository;
     try {
-      const updatedProduct = await this.productsRepository.save({
+      const updatedProduct = await repository.save({
         ...dto,
         id: productId,
       });
