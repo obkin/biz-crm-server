@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   Logger,
@@ -150,6 +151,31 @@ export class ProductsService {
       const product =
         await this.productsRepository.findOneProductById(productId);
       return product.quantity;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async decreaseProductQuantity(
+    userId: number,
+    productId: number,
+    decreaseBy: number,
+  ): Promise<void> {
+    try {
+      const product = await this.findOneProduct(userId, productId);
+      if (product.quantity < decreaseBy) {
+        throw new BadRequestException(
+          `There is no such quantity of this product. Alaivable: ${product.quantity}`,
+        );
+      }
+      const updatedProduct = {
+        ...product,
+        quantity: product.quantity - decreaseBy,
+      };
+      await this.productsRepository.updateProductById(
+        productId,
+        updatedProduct,
+      );
     } catch (e) {
       throw e;
     }

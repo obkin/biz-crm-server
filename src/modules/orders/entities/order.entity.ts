@@ -6,10 +6,10 @@ import { Entity, Column, ManyToOne, JoinColumn, Index } from 'typeorm';
 
 export enum OrderStatus {
   PENDING = 'pending',
-  ACCEPTED = 'accepted',
+  CONFIRMED = 'confirmed',
   DECLINED = 'declined',
-  COMPLETED = 'completed',
   CANCELED = 'canceled',
+  COMPLETED = 'completed',
 }
 
 @Entity('orders')

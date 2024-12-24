@@ -76,21 +76,42 @@ export class OrdersManagementController {
     }
   }
 
-  async acceptOrder(
+  @ApiOperation({ summary: 'Accept order' })
+  @ApiResponse({
+    status: 200,
+    description: 'Order accepted',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Wrong id format',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'No access',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Order not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @Patch('/confirm-order/:id')
+  async confirmOrder(
     @Param('id', idValidationPipe) orderId: number,
     @Req() req: Request,
   ) {
     try {
-      await this.ordersManagementService.changeOrderStatus(
+      await this.ordersManagementService.confirmOrder(
         Number(req.user.id),
         Number(orderId),
-        OrderStatus.ACCEPTED,
       );
       return {
         user: req.user.id,
         orderId,
         message: 'Order status updated',
-        newStatus: OrderStatus.ACCEPTED,
+        newStatus: OrderStatus.CONFIRMED,
       };
     } catch (e) {
       if (e instanceof HttpException) {
@@ -104,7 +125,54 @@ export class OrdersManagementController {
     }
   }
 
-  async declineOrder() {}
+  @ApiOperation({ summary: 'Decline order' })
+  @ApiResponse({
+    status: 200,
+    description: 'Order declined',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Wrong id format',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'No access',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Order not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @Patch('/decline-order/:id')
+  async declineOrder(
+    @Param('id', idValidationPipe) orderId: number,
+    @Req() req: Request,
+  ) {
+    try {
+      await this.ordersManagementService.declineOrder(
+        Number(req.user.id),
+        Number(orderId),
+      );
+      return {
+        user: req.user.id,
+        orderId,
+        message: 'Order status updated',
+        newStatus: OrderStatus.DECLINED,
+      };
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to decline order. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
 
   async cancelOrder() {}
 }
