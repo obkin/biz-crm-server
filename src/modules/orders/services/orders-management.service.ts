@@ -16,28 +16,6 @@ export class OrdersManagementService {
     private readonly dataSource: DataSource,
   ) {}
 
-  async changeOrderStatus(
-    userId: number,
-    orderId: number,
-    status: OrderStatus,
-    manager?: EntityManager,
-  ): Promise<void> {
-    try {
-      const order = await this.ordersService.findOneOrder(
-        userId,
-        orderId,
-        manager,
-      );
-      if (order.status == status) {
-        throw new BadRequestException('This status is already set');
-      }
-      order.status = status;
-      await this.ordersManagementRepository.saveOrder(order, manager);
-    } catch (e) {
-      throw e;
-    }
-  }
-
   async confirmOrder(userId: number, orderId: number): Promise<void> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -89,4 +67,28 @@ export class OrdersManagementService {
 
   async cancelOrder() {}
   async checkOrderStatus() {}
+
+  // --- Methods ---
+
+  async changeOrderStatus(
+    userId: number,
+    orderId: number,
+    status: OrderStatus,
+    manager?: EntityManager,
+  ): Promise<void> {
+    try {
+      const order = await this.ordersService.findOneOrder(
+        userId,
+        orderId,
+        manager,
+      );
+      if (order.status == status) {
+        throw new BadRequestException('This status is already set');
+      }
+      order.status = status;
+      await this.ordersManagementRepository.saveOrder(order, manager);
+    } catch (e) {
+      throw e;
+    }
+  }
 }

@@ -24,58 +24,6 @@ export class OrdersManagementController {
     private readonly ordersManagementService: OrdersManagementService,
   ) {}
 
-  @ApiOperation({ summary: 'Update order status by ID' })
-  @ApiResponse({
-    status: 200,
-    description: 'Order status updated',
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Wrong id format',
-  })
-  @ApiResponse({
-    status: 403,
-    description: 'No access',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Order not found',
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Internal Server Error',
-  })
-  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
-  @UsePipes(new EmptyObjectValidationPipe())
-  @Patch('/change-order-status/:id')
-  async changeOrderStatus(
-    @Param('id', idValidationPipe) orderId: number,
-    @Body() dto: ChangeOrderStatusDto,
-    @Req() req: Request,
-  ) {
-    try {
-      await this.ordersManagementService.changeOrderStatus(
-        Number(req.user.id),
-        Number(orderId),
-        dto.status,
-      );
-      return {
-        orderId,
-        message: 'Order status updated',
-        newStatus: dto.status,
-      };
-    } catch (e) {
-      if (e instanceof HttpException) {
-        throw e;
-      } else {
-        throw new HttpException(
-          `Failed to update order status. ${e}`,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-    }
-  }
-
   @ApiOperation({ summary: 'Accept order' })
   @ApiResponse({
     status: 200,
@@ -175,4 +123,58 @@ export class OrdersManagementController {
   }
 
   async cancelOrder() {}
+
+  // --- Private ---
+
+  @ApiOperation({ summary: 'Update order status by ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Order status updated',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Wrong id format',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'No access',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Order not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  @UsePipes(new EmptyObjectValidationPipe())
+  @Patch('/change-order-status/:id')
+  async changeOrderStatus(
+    @Param('id', idValidationPipe) orderId: number,
+    @Body() dto: ChangeOrderStatusDto,
+    @Req() req: Request,
+  ) {
+    try {
+      await this.ordersManagementService.changeOrderStatus(
+        Number(req.user.id),
+        Number(orderId),
+        dto.status,
+      );
+      return {
+        orderId,
+        message: 'Order status updated',
+        newStatus: dto.status,
+      };
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to update order status. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
 }
