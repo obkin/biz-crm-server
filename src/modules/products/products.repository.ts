@@ -62,10 +62,20 @@ export class ProductsRepository {
       ? manager.getRepository(ProductEntity)
       : this.productsRepository;
     try {
-      const updatedProduct = await repository.save({
-        ...dto,
-        id: productId,
+      const res = await repository.update(productId, dto);
+      if (res.affected === 0) {
+        throw new NotFoundException(
+          `Product with #${productId} not found or not updated`,
+        );
+      }
+      const updatedProduct = await repository.findOne({
+        where: { id: productId },
       });
+      if (!updatedProduct) {
+        throw new NotFoundException(
+          `Failed to get updated product #${productId}`,
+        );
+      }
       return updatedProduct;
     } catch (e) {
       throw e;
