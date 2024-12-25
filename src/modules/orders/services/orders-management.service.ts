@@ -39,6 +39,7 @@ export class OrdersManagementService {
         OrderStatus.CONFIRMED,
         queryRunner.manager,
       );
+      this.logger.log(`Order confirmed (id: ${orderId})`);
       await queryRunner.commitTransaction();
     } catch (e) {
       await queryRunner.rollbackTransaction();
@@ -53,13 +54,14 @@ export class OrdersManagementService {
       const order = await this.ordersService.findOneOrder(userId, orderId);
       if (
         order.status !== OrderStatus.PENDING &&
-        order.status !== OrderStatus.CONFIRMED
+        order.status == OrderStatus.CONFIRMED
       ) {
         throw new BadRequestException(
           `You can't decline this order anymore. This order is already ${order.status}`,
         );
       }
       await this.changeOrderStatus(userId, orderId, OrderStatus.DECLINED);
+      this.logger.log(`Order declined (id: ${orderId})`);
     } catch (e) {
       throw e;
     }
