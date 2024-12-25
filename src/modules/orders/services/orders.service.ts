@@ -25,16 +25,8 @@ export class OrdersService {
 
   async createOrder(userId: number, dto: CreateOrderDto): Promise<OrderEntity> {
     try {
-      const product = await this.productsService.checkProductExisting(
-        dto.productId,
-      );
-      if (!product) {
-        throw new NotFoundException('Product not found');
-      }
-      const productQuantity = await this.productsService.getProductQuantity(
-        dto.productId,
-      );
-      if (productQuantity < dto.quantity) {
+      const product = await this.productsService.getProductInfo(dto.productId);
+      if (product.quantity < dto.quantity) {
         throw new BadRequestException(
           'There is no such quantity of the product',
         );
@@ -42,8 +34,9 @@ export class OrdersService {
 
       const orderCreateDto = {
         ...dto,
+        unitPrice: Number(product.price),
         status: OrderStatus.PENDING,
-        totalPrice: Number(dto.quantity) * Number(dto.unitPrice),
+        totalPrice: Number(dto.quantity) * Number(product.price),
       };
       const order = await this.ordersRepository.createNewOrder(
         userId,

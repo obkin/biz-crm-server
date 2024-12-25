@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsNumber, IsPositive, Min } from 'class-validator';
+import { IsInt, Min } from 'class-validator';
 
 export class CreateOrderDto {
   @ApiProperty({
@@ -9,17 +9,6 @@ export class CreateOrderDto {
   @IsInt()
   @Min(1, { message: 'Quantity must be at least 1' })
   public quantity: number;
-
-  @ApiProperty({
-    example: 100.5,
-    description: 'Price of a single product unit',
-  })
-  @IsNumber(
-    { maxDecimalPlaces: 2 },
-    { message: 'Unit price must be a valid number' },
-  )
-  @IsPositive({ message: 'Unit price must be a positive number' })
-  public unitPrice: number;
 
   @ApiProperty({
     example: 123,

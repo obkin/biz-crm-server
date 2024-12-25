@@ -140,7 +140,7 @@ export class ProductsService {
     }
   }
 
-  async checkProductExisting(productId: number): Promise<boolean> {
+  public async checkProductExisting(productId: number): Promise<boolean> {
     try {
       const product =
         await this.productsRepository.findOneProductById(productId);
@@ -150,7 +150,7 @@ export class ProductsService {
     }
   }
 
-  async getProductQuantity(productId: number) {
+  public async getProductQuantity(productId: number) {
     try {
       const product =
         await this.productsRepository.findOneProductById(productId);
@@ -160,7 +160,20 @@ export class ProductsService {
     }
   }
 
-  async decreaseProductQuantity(
+  public async getProductInfo(productId: number): Promise<ProductEntity> {
+    try {
+      const product =
+        await this.productsRepository.findOneProductById(productId);
+      if (!product) {
+        throw new NotFoundException('Product not found');
+      }
+      return product;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  public async decreaseProductQuantity(
     userId: number,
     productId: number,
     decreaseBy: number,
