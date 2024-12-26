@@ -103,6 +103,14 @@ export class OrdersManagementService {
     }
   }
 
+  async completeOrder(userId: number, orderId: number): Promise<void> {
+    try {
+      // ...
+    } catch (e) {
+      throw e;
+    }
+  }
+
   async checkOrderStatus() {}
 
   // --- Methods ---

@@ -37,7 +37,9 @@ export class OrdersService {
         ...dto,
         unitPrice: Number(product.price),
         status: OrderStatus.PENDING,
-        totalPrice: Number(dto.quantity) * Number(product.price),
+        totalPrice: Number(
+          (Number(dto.quantity) * Number(product.price)).toFixed(2),
+        ),
       };
       const order = await this.ordersRepository.createNewOrder(
         userId,
