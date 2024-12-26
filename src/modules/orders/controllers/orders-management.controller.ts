@@ -1,4 +1,4 @@
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
   Body,
   Controller,
@@ -14,8 +14,8 @@ import { EmptyObjectValidationPipe } from 'src/common/pipes/validate-empty-objec
 import { idValidationPipe } from 'src/common/pipes/validate-id.pipe';
 import { ChangeOrderStatusDto } from '../dto/change-order-status.dto';
 import { Request } from 'express';
-import { OrderStatus } from '../entities/order.entity';
 import { OrdersManagementService } from '../services/orders-management.service';
+import { OrderStatus } from '../common/enums';
 
 @ApiTags('orders-management')
 @Controller('/orders/management')
@@ -45,6 +45,7 @@ export class OrdersManagementController {
     status: 500,
     description: 'Internal Server Error',
   })
+  @ApiQuery({ name: 'id', required: true, description: 'ID of the order' })
   @Patch('/confirm-order/:id')
   async confirmOrder(
     @Param('id', idValidationPipe) orderId: number,
@@ -94,6 +95,7 @@ export class OrdersManagementController {
     status: 500,
     description: 'Internal Server Error',
   })
+  @ApiQuery({ name: 'id', required: true, description: 'ID of the order' })
   @Patch('/decline-order/:id')
   async declineOrder(
     @Param('id', idValidationPipe) orderId: number,
@@ -122,7 +124,55 @@ export class OrdersManagementController {
     }
   }
 
-  async cancelOrder() {}
+  @ApiOperation({ summary: 'Cancel order' })
+  @ApiResponse({
+    status: 200,
+    description: 'Order canceled',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Wrong id format',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'No access',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Order not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @ApiQuery({ name: 'id', required: true, description: 'ID of the order' })
+  @Patch('/cancel-order/:id')
+  async cancelOrder(
+    @Param('id', idValidationPipe) orderId: number,
+    @Req() req: Request,
+  ) {
+    try {
+      await this.ordersManagementService.cancelOrder(
+        Number(req.user.id),
+        Number(orderId),
+      );
+      return {
+        user: req.user.id,
+        orderId,
+        message: 'Order status updated',
+        newStatus: OrderStatus.CANCELED,
+      };
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to cancel order. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
 
   // --- Private ---
 
@@ -147,6 +197,7 @@ export class OrdersManagementController {
     status: 500,
     description: 'Internal Server Error',
   })
+  @ApiQuery({ name: 'id', required: true, description: 'ID of the order' })
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   @UsePipes(new EmptyObjectValidationPipe())
   @Patch('/change-order-status/:id')

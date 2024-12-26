@@ -1,9 +1,10 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { OrderStatus } from '../entities/order.entity';
 import { OrdersService } from './orders.service';
 import { OrdersManagementRepository } from '../repositories/orders-management.repository';
 import { ProductsService } from 'src/modules/products/products.service';
 import { DataSource, EntityManager } from 'typeorm';
+import { OrderStatus } from '../common/enums';
+import { ProductAction } from 'src/modules/products/common/enums';
 
 @Injectable()
 export class OrdersManagementService {
@@ -27,10 +28,11 @@ export class OrdersManagementService {
           `You can't accept this order anymore. This order is already ${order.status}`,
         );
       }
-      await this.productsService.decreaseProductQuantity(
+      await this.productsService.changeProductQuantity(
         userId,
         order.productId,
         order.quantity,
+        ProductAction.DECREASE,
         queryRunner.manager,
       );
       await this.changeOrderStatus(
@@ -39,7 +41,7 @@ export class OrdersManagementService {
         OrderStatus.CONFIRMED,
         queryRunner.manager,
       );
-      this.logger.log(`Order confirmed (id: ${orderId})`);
+      this.logger.log(`Order confirmed (orderId: ${orderId})`);
       await queryRunner.commitTransaction();
     } catch (e) {
       await queryRunner.rollbackTransaction();
@@ -61,13 +63,31 @@ export class OrdersManagementService {
         );
       }
       await this.changeOrderStatus(userId, orderId, OrderStatus.DECLINED);
-      this.logger.log(`Order declined (id: ${orderId})`);
+      this.logger.log(`Order declined (orderId: ${orderId})`);
     } catch (e) {
       throw e;
     }
   }
 
-  async cancelOrder() {}
+  async cancelOrder(userId: number, orderId: number): Promise<void> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const order = await this.ordersService.findOneOrder(userId, orderId);
+      if (order.status !== OrderStatus.CONFIRMED) {
+        throw new BadRequestException(
+          `You can't cancel this order anymore. This order is already ${order.status}`,
+        );
+      }
+      // ... (return product quantity)
+      
+      await this.changeOrderStatus(userId, orderId, OrderStatus.CANCELED);
+      this.logger.log(`Order canceled (orderId: ${orderId})`);
+    } catch (e) {
+      throw e;
+    }
+  }
 
   async checkOrderStatus() {}
 

@@ -3,14 +3,7 @@ import { BaseEntity } from 'src/common/entities/base.entity';
 import { ProductEntity } from 'src/modules/products/entities/product.entity';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
 import { Entity, Column, ManyToOne, JoinColumn, Index } from 'typeorm';
-
-export enum OrderStatus {
-  PENDING = 'pending',
-  CONFIRMED = 'confirmed',
-  DECLINED = 'declined',
-  CANCELED = 'canceled',
-  COMPLETED = 'completed',
-}
+import { OrderStatus } from '../common/enums';
 
 @Entity('orders')
 export class OrderEntity extends BaseEntity {

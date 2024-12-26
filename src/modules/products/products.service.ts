@@ -11,6 +11,7 @@ import { ProductEntity } from './entities/product.entity';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { UsersService } from '../users/services/users.service';
 import { EntityManager } from 'typeorm';
+import { ProductAction } from './common/enums';
 
 @Injectable()
 export class ProductsService {
@@ -173,26 +174,33 @@ export class ProductsService {
     }
   }
 
-  public async decreaseProductQuantity(
+  public async changeProductQuantity(
     userId: number,
     productId: number,
-    decreaseBy: number,
+    changeBy: number,
+    action: ProductAction,
     manager: EntityManager,
   ): Promise<void> {
     try {
       const product = await this.findOneProduct(userId, productId, manager);
-      if (product.quantity < decreaseBy) {
-        throw new BadRequestException(
-          `There is no such quantity of this product. Alaivable: ${product.quantity}`,
-        );
+
+      if (action === ProductAction.DECREASE) {
+        if (product.quantity < changeBy) {
+          throw new BadRequestException(
+            `There is no such quantity of this product. Alaivable: ${product.quantity}`,
+          );
+        }
+
+        product.quantity -= changeBy;
+      } else if (action === ProductAction.INCREASE) {
+        product.quantity += changeBy;
+      } else {
+        throw new BadRequestException('Invalid action');
       }
-      const updatedProduct = {
-        ...product,
-        quantity: product.quantity - decreaseBy,
-      };
+
       await this.productsRepository.updateProductById(
         productId,
-        updatedProduct,
+        product,
         manager,
       );
     } catch (e) {

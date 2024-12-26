@@ -8,7 +8,7 @@ import {
   IsUrl,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { MAX_DESCRIPTION_LENGTH, MAX_NAME_LENGTH } from '../products.constants';
+import { MAX_DESCRIPTION_LENGTH, MAX_NAME_LENGTH } from '../common/products.constants';
 
 export class CreateProductDto {
   @ApiProperty({

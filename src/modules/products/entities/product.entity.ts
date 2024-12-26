@@ -1,7 +1,7 @@
 import { FolderEntity } from 'src/modules/folders/entities/folder.entity';
 import { Entity, Column, ManyToOne, JoinColumn, Index } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
-import { MAX_NAME_LENGTH } from '../products.constants';
+import { MAX_NAME_LENGTH } from '../common/products.constants';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
 import { BaseEntity } from 'src/common/entities/base.entity';
 

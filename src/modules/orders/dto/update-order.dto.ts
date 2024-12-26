@@ -7,7 +7,7 @@ import {
   IsPositive,
   Min,
 } from 'class-validator';
-import { OrderStatus } from '../entities/order.entity';
+import { OrderStatus } from '../common/enums';
 
 export class UpdateOrderDto {
   @ApiProperty({

@@ -8,10 +8,11 @@ import {
 import { OrdersRepository } from '../repositories/orders.repository';
 import { UsersService } from '../../users/services/users.service';
 import { CreateOrderDto } from '../dto/create-order.dto';
-import { OrderEntity, OrderStatus } from '../entities/order.entity';
+import { OrderEntity } from '../entities/order.entity';
 import { ProductsService } from '../../products/products.service';
 import { UpdateOrderDto } from '../dto/update-order.dto';
 import { EntityManager } from 'typeorm';
+import { OrderStatus } from '../common/enums';
 
 @Injectable()
 export class OrdersService {

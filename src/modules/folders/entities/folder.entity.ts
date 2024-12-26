@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ProductEntity } from 'src/modules/products/entities/product.entity';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
-import { MAX_FOLDER_NAME_LENGTH } from '../folders.constants';
+import { MAX_FOLDER_NAME_LENGTH } from '../common/folders.constants';
 import {
   Entity,
   Column,
