@@ -80,12 +80,26 @@ export class OrdersManagementService {
           `You can't cancel this order anymore. This order is already ${order.status}`,
         );
       }
-      // ... (return product quantity)
-      
-      await this.changeOrderStatus(userId, orderId, OrderStatus.CANCELED);
+      await this.productsService.changeProductQuantity(
+        userId,
+        order.productId,
+        order.quantity,
+        ProductAction.INCREASE,
+        queryRunner.manager,
+      );
+      await this.changeOrderStatus(
+        userId,
+        orderId,
+        OrderStatus.CANCELED,
+        queryRunner.manager,
+      );
       this.logger.log(`Order canceled (orderId: ${orderId})`);
+      await queryRunner.commitTransaction();
     } catch (e) {
+      await queryRunner.rollbackTransaction();
       throw e;
+    } finally {
+      await queryRunner.release();
     }
   }
 
