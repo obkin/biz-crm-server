@@ -55,6 +55,7 @@ export class OrdersService {
   async findAllOrders(
     userId: number,
     ownerId?: number,
+    status?: OrderStatus,
   ): Promise<OrderEntity[]> {
     try {
       if (!ownerId) {
@@ -71,6 +72,10 @@ export class OrdersService {
       if (ownerId) {
         const orderIds = orders.map((order) => order.id);
         await this.verifyAccess(userId, orderIds);
+      }
+
+      if (status) {
+        return orders.filter((order) => order.status === status);
       }
 
       return orders;

@@ -22,6 +22,7 @@ import { Request } from 'express';
 import { idValidationPipe } from 'src/common/pipes/validate-id.pipe';
 import { EmptyObjectValidationPipe } from 'src/common/pipes/validate-empty-object.pipe';
 import { UpdateOrderDto } from '../dto/update-order.dto';
+import { FindAllOrdersQueryDto } from '../dto/find-all-orders-query.dto';
 
 @ApiTags('orders')
 @Controller('/orders')
@@ -73,11 +74,12 @@ export class OrdersController {
     description: 'Internal Server Error',
   })
   @Get()
-  async findAll(@Req() req: Request, @Query('userId') ownerId?: number) {
+  async findAll(@Req() req: Request, @Query() query: FindAllOrdersQueryDto) {
     try {
       const orders = await this.ordersService.findAllOrders(
         Number(req.user.id),
-        Number(ownerId),
+        Number(query.ownerId),
+        query.status,
       );
       return { amount: orders.length, orders };
     } catch (e) {
