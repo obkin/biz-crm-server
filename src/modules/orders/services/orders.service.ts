@@ -67,15 +67,11 @@ export class OrdersService {
         }
       }
 
-      const orders = await this.ordersRepository.findAllOrders(ownerId);
+      const orders = await this.ordersRepository.findAllOrders(ownerId, status);
 
       if (ownerId) {
         const orderIds = orders.map((order) => order.id);
         await this.verifyAccess(userId, orderIds);
-      }
-
-      if (status) {
-        return orders.filter((order) => order.status === status);
       }
 
       return orders;

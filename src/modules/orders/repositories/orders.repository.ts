@@ -4,6 +4,7 @@ import { OrderEntity } from '../entities/order.entity';
 import { EntityManager, In, Not, Repository } from 'typeorm';
 import { CreateOrderDto } from '../dto/create-order.dto';
 import { UpdateOrderDto } from '../dto/update-order.dto';
+import { OrderStatus } from '../common/enums';
 
 @Injectable()
 export class OrdersRepository {
@@ -25,10 +26,22 @@ export class OrdersRepository {
     }
   }
 
-  async findAllOrders(userId?: number): Promise<OrderEntity[]> {
+  async findAllOrders(
+    ownerId?: number,
+    status?: OrderStatus,
+  ): Promise<OrderEntity[]> {
+    const query: any = {};
+
+    if (ownerId) {
+      query.userId = ownerId;
+    }
+    if (status) {
+      query.status = status;
+    }
+
     try {
-      if (userId) {
-        return await this.ordersRepository.find({ where: { userId } });
+      if (ownerId || status) {
+        return this.ordersRepository.find({ where: query });
       } else {
         return await this.ordersRepository.find();
       }
