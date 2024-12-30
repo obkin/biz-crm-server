@@ -41,6 +41,13 @@ export class OrderEntity extends BaseEntity {
   })
   public status: OrderStatus;
 
+  @ApiProperty({
+    example: false,
+    description: 'Whether the order is archived',
+  })
+  @Column({ default: false })
+  public isArchived: boolean;
+
   @ManyToOne(() => UserEntity, (user) => user.orders, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })
   public user: UserEntity;

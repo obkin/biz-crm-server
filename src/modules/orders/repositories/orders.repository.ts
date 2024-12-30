@@ -29,6 +29,7 @@ export class OrdersRepository {
   async findAllOrders(
     ownerId?: number,
     status?: OrderStatus,
+    isArchived?: boolean,
   ): Promise<OrderEntity[]> {
     const query: any = {};
 
@@ -38,9 +39,12 @@ export class OrdersRepository {
     if (status) {
       query.status = status;
     }
+    if (isArchived) {
+      query.isArchived = isArchived;
+    }
 
     try {
-      if (ownerId || status) {
+      if (ownerId || status || isArchived) {
         return this.ordersRepository.find({ where: query });
       } else {
         return await this.ordersRepository.find();

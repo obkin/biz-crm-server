@@ -80,6 +80,7 @@ export class OrdersController {
         Number(req.user.id),
         Number(query.ownerId),
         query.status,
+        query.isArchived,
       );
       return { amount: orders.length, orders };
     } catch (e) {

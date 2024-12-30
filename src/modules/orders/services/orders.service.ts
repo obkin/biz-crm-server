@@ -56,6 +56,7 @@ export class OrdersService {
     userId: number,
     ownerId?: number,
     status?: OrderStatus,
+    isArchived?: boolean,
   ): Promise<OrderEntity[]> {
     try {
       if (!ownerId) {
@@ -67,7 +68,11 @@ export class OrdersService {
         }
       }
 
-      const orders = await this.ordersRepository.findAllOrders(ownerId, status);
+      const orders = await this.ordersRepository.findAllOrders(
+        ownerId,
+        status,
+        isArchived,
+      );
 
       if (ownerId) {
         const orderIds = orders.map((order) => order.id);
