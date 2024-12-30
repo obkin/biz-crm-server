@@ -77,7 +77,7 @@ export class OrdersManagementService {
       const order = await this.ordersService.findOneOrder(userId, orderId);
       if (order.status !== OrderStatus.CONFIRMED) {
         throw new BadRequestException(
-          `You can't cancel this order anymore. This order is already ${order.status}`,
+          `You can't cancel this order. This order is ${order.status}`,
         );
       }
       await this.productsService.changeProductQuantity(
@@ -105,7 +105,14 @@ export class OrdersManagementService {
 
   async completeOrder(userId: number, orderId: number): Promise<void> {
     try {
-      // ...
+      const order = await this.ordersService.findOneOrder(userId, orderId);
+      if (order.status !== OrderStatus.CONFIRMED) {
+        throw new BadRequestException(
+          `You can't complete this order. This order is ${order.status}`,
+        );
+      }
+      await this.changeOrderStatus(userId, orderId, OrderStatus.COMPLETED);
+      this.logger.log(`Order completed (orderId: ${orderId})`);
     } catch (e) {
       throw e;
     }

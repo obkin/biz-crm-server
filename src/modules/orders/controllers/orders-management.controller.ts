@@ -174,6 +174,56 @@ export class OrdersManagementController {
     }
   }
 
+  @ApiOperation({ summary: 'Complete order' })
+  @ApiResponse({
+    status: 200,
+    description: 'Order completed',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Wrong id format',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'No access',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Order not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @ApiQuery({ name: 'id', required: true, description: 'ID of the order' })
+  @Patch('/complete-order/:id')
+  async completeOrder(
+    @Param('id', idValidationPipe) orderId: number,
+    @Req() req: Request,
+  ) {
+    try {
+      await this.ordersManagementService.completeOrder(
+        Number(req.user.id),
+        Number(orderId),
+      );
+      return {
+        user: req.user.id,
+        orderId,
+        message: 'Order status updated',
+        newStatus: OrderStatus.COMPLETED,
+      };
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to complete order. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
   // --- Private ---
 
   @ApiOperation({ summary: 'Update order status by ID' })
