@@ -118,6 +118,34 @@ export class OrdersManagementService {
     }
   }
 
+  // --- Archive ---
+
+  async archiveOrder(userId: number, orderId: number): Promise<void> {
+    try {
+      const order = await this.ordersService.findOneOrder(userId, orderId);
+      if (order.isArchived) {
+        throw new BadRequestException('This order is already archived');
+      }
+      order.isArchived = true;
+      await this.ordersManagementRepository.saveOrder(order);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async unArchieveOrder(userId: number, orderId: number): Promise<void> {
+    try {
+      const order = await this.ordersService.findOneOrder(userId, orderId);
+      if (!order.isArchived) {
+        throw new BadRequestException('This order is not archived');
+      }
+      order.isArchived = false;
+      await this.ordersManagementRepository.saveOrder(order);
+    } catch (e) {
+      throw e;
+    }
+  }
+
   async checkOrderStatus() {}
 
   // --- Methods ---

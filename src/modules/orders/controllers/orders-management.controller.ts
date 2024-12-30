@@ -224,6 +224,106 @@ export class OrdersManagementController {
     }
   }
 
+  // --- Archive ---
+
+  @ApiOperation({ summary: 'Archive order' })
+  @ApiResponse({
+    status: 200,
+    description: 'Order archived',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Wrong id format',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'No access',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Order not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @ApiQuery({ name: 'id', required: true, description: 'ID of the order' })
+  @Patch('/archive-order/:id')
+  async archiveOrder(
+    @Param('id', idValidationPipe) orderId: number,
+    @Req() req: Request,
+  ) {
+    try {
+      await this.ordersManagementService.archiveOrder(
+        Number(req.user.id),
+        orderId,
+      );
+      return {
+        user: req.user.id,
+        orderId,
+        message: 'Order archived',
+      };
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to archive order. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  @ApiOperation({ summary: 'Unarchive order' })
+  @ApiResponse({
+    status: 200,
+    description: 'Order unarchived',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Wrong id format',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'No access',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Order not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @ApiQuery({ name: 'id', required: true, description: 'ID of the order' })
+  @Patch('/unarchive-order/:id')
+  async unArchieveOrder(
+    @Param('id', idValidationPipe) orderId: number,
+    @Req() req: Request,
+  ) {
+    try {
+      await this.ordersManagementService.unArchieveOrder(
+        Number(req.user.id),
+        orderId,
+      );
+      return {
+        user: req.user.id,
+        orderId,
+        message: 'Order unarchived',
+      };
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to unarchive order. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
   // --- Private ---
 
   @ApiOperation({ summary: 'Update order status by ID' })
