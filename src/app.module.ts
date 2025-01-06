@@ -34,6 +34,7 @@ import { UsersManagementService } from './modules/users/services/users-managemen
 import { ProductsModule } from './modules/products/products.module';
 import { FoldersModule } from './modules/folders/folders.module';
 import { OrdersModule } from './modules/orders/orders.module';
+import { AwsModule } from './modules/aws/aws.module';
 
 @Module({
   controllers: [],
@@ -91,6 +92,7 @@ import { OrdersModule } from './modules/orders/orders.module';
     ProductsModule,
     FoldersModule,
     OrdersModule,
+    AwsModule,
   ],
   exports: [],
 })

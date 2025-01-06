@@ -23,6 +23,7 @@
     "migration:run": "docker exec -it bc-server npx ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run --dataSource src/data-source.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.722.0",
     "@nestjs-modules/mailer": "^1.6.1",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.2.2",
@@ -57,8 +58,10 @@
     "@nestjs/testing": "^10.4.4",
     "@types/express": "^4.17.17",
     "@types/jest": "^29.5.13",
+    "@types/multer": "^1.4.12",
     "@types/node": "^20.16.5",
     "@types/supertest": "^6.0.0",
+    "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "eslint": "^8.42.0",
