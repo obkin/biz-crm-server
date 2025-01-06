@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   S3Client,
@@ -10,6 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class S3Service {
+  private readonly logger = new Logger(S3Service.name);
   private s3Client: S3Client;
   private bucketName = this.configService.get('S3_REGION');
 
@@ -46,6 +47,8 @@ export class S3Service {
       });
 
       await this.s3Client.send(command);
+
+      this.logger.log(`File uploaded (key: ${key})`);
 
       return {
         url: isPublic
