@@ -1,28 +1,28 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import {
+  S3Client,
+  PutObjectCommand,
+  GetObjectCommand,
+} from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class S3Service {
-  private client: S3Client;
+  private s3Client: S3Client;
   private bucketName = this.configService.get('S3_REGION');
 
   constructor(private readonly configService: ConfigService) {
-    const s3Config = this.getS3Config();
-    this.validateS3Config(s3Config);
-
-    this.client = new S3Client({
+    this.s3Client = new S3Client({
       credentials: {
-        accessKeyId: s3Config.S3_ACCESS_KEY,
-        secretAccessKey: s3Config.S3_SECRET_ACCESS_KEY,
+        accessKeyId: this.configService.getOrThrow('S3_ACCESS_KEY'),
+        secretAccessKey: this.configService.getOrThrow('S3_SECRET_ACCESS_KEY'),
       },
-      region: s3Config.S3_REGION,
+      region: this.configService.getOrThrow('S3_REGION'),
       forcePathStyle: true,
     });
   }
-
-  // --- Main Logic ---
 
   async uploadSingleFile({
     file,
@@ -45,43 +45,42 @@ export class S3Service {
         },
       });
 
-      await this.client.send(command);
+      await this.s3Client.send(command);
 
       return {
         url: isPublic
           ? (await this.getFileUrl(key)).url
-          : (await this.getFileUrl(key)).url,
+          : (await this.getPresignedSignedUrl(key)).url,
         key,
         isPublic,
       };
-    } catch (error) {
-      throw new InternalServerErrorException(error);
+    } catch (e) {
+      throw e;
     }
   }
 
   async getFileUrl(key: string) {
-    return { url: `https://${this.bucketName}.s3.amazonaws.com/${key}` };
+    try {
+      return { url: `https://${this.bucketName}.s3.amazonaws.com/${key}` };
+    } catch (e) {
+      throw e;
+    }
   }
 
-  // --- Methods ---
+  async getPresignedSignedUrl(key: string) {
+    try {
+      const command = new GetObjectCommand({
+        Bucket: this.bucketName,
+        Key: key,
+      });
 
-  private getS3Config() {
-    return {
-      S3_ACCESS_KEY: this.configService.get('S3_ACCESS_KEY'),
-      S3_SECRET_ACCESS_KEY: this.configService.get('S3_SECRET_ACCESS_KEY'),
-      S3_REGION: this.configService.get('S3_REGION'),
-      S3_BUCKET_NAME: this.configService.get('S3_BUCKET_NAME'),
-      S3_ACL: this.configService.get('S3_ACL'),
-    };
-  }
+      const url = await getSignedUrl(this.s3Client, command, {
+        expiresIn: 60 * 60 * 24, // 24 hours
+      });
 
-  private validateS3Config(config: Record<string, string>) {
-    const missingKeys = Object.keys(config).filter((key) => !config[key]);
-
-    if (missingKeys.length > 0) {
-      throw new InternalServerErrorException(
-        `Missing configuration values for: ${missingKeys.join(', ')}`,
-      );
+      return { url };
+    } catch (e) {
+      throw e;
     }
   }
 }
