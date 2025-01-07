@@ -13,13 +13,15 @@ import {
 import { S3Service } from '../services/s3.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { MAX_FILE_SIZE } from '../aws.constants';
+import { ApiTags } from '@nestjs/swagger';
 
-@Controller('s3')
+@ApiTags('s3')
+@Controller('/aws/s3')
 export class S3Controller {
   constructor(private readonly s3Service: S3Service) {}
 
-  @Post('/upload')
   @UseInterceptors(FileInterceptor('file'))
+  @Post('/upload')
   async uploadFile(
     @UploadedFile(
       new ParseFilePipe({
@@ -34,7 +36,7 @@ export class S3Controller {
       }),
     )
     file: Express.Multer.File,
-    @Body('isPublic') isPublic: boolean,
+    @Body('isPublic') isPublic?: boolean,
   ) {
     try {
       return this.s3Service.uploadSingleFile({ file, isPublic });

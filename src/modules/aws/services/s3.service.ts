@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { ForbiddenException, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   S3Client,
@@ -12,15 +12,15 @@ import { v4 as uuidv4 } from 'uuid';
 export class S3Service {
   private readonly logger = new Logger(S3Service.name);
   private s3Client: S3Client;
-  private bucketName = this.configService.get('S3_REGION');
+  private bucketName = this.configService.get('AWS_BUCKET_NAME');
 
   constructor(private readonly configService: ConfigService) {
     this.s3Client = new S3Client({
       credentials: {
-        accessKeyId: this.configService.getOrThrow('S3_ACCESS_KEY'),
-        secretAccessKey: this.configService.getOrThrow('S3_SECRET_ACCESS_KEY'),
+        accessKeyId: this.configService.getOrThrow('AWS_ACCESS_KEY'),
+        secretAccessKey: this.configService.getOrThrow('AWS_SECRET_ACCESS_KEY'),
       },
-      region: this.configService.getOrThrow('S3_REGION'),
+      region: this.configService.getOrThrow('AWS_REGION'),
       forcePathStyle: true,
     });
   }
@@ -39,7 +39,7 @@ export class S3Service {
         Key: key,
         Body: file.buffer,
         ContentType: file.mimetype,
-        ACL: isPublic ? 'public-read' : 'private',
+        // ACL: isPublic ? 'public-read' : 'private',
 
         Metadata: {
           originalName: file.originalname,
@@ -58,6 +58,11 @@ export class S3Service {
         isPublic,
       };
     } catch (e) {
+      if (e.$metadata?.httpStatusCode === 403) {
+        throw new ForbiddenException(
+          'Access Denied: You do not have permission to upload files to this bucket.',
+        );
+      }
       throw e;
     }
   }
@@ -83,6 +88,7 @@ export class S3Service {
 
       return { url };
     } catch (e) {
+      console.error(`Error generating presigned URL for key ${key}:`, e);
       throw e;
     }
   }

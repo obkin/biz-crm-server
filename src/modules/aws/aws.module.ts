@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
 import { S3Service } from './services/s3.service';
+import { S3Controller } from './controllers/s3.controller';
 
 @Module({
-  controllers: [],
+  controllers: [S3Controller],
   providers: [S3Service],
   exports: [S3Service],
 })
