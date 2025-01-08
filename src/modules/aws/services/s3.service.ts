@@ -1,18 +1,25 @@
-import { ForbiddenException, Injectable, Logger } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   S3Client,
   PutObjectCommand,
-  GetObjectCommand,
+  DeleteObjectCommand,
+  HeadObjectCommand,
 } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class S3Service {
   private readonly logger = new Logger(S3Service.name);
   private s3Client: S3Client;
-  private bucketName = this.configService.get('AWS_BUCKET_NAME');
+
+  private BUCKET_NAME = this.configService.getOrThrow('AWS_BUCKET_NAME');
+  private AWS_REGION = this.configService.getOrThrow('AWS_REGION');
 
   constructor(private readonly configService: ConfigService) {
     this.s3Client = new S3Client({
@@ -20,42 +27,31 @@ export class S3Service {
         accessKeyId: this.configService.getOrThrow('AWS_ACCESS_KEY'),
         secretAccessKey: this.configService.getOrThrow('AWS_SECRET_ACCESS_KEY'),
       },
-      region: this.configService.getOrThrow('AWS_REGION'),
-      forcePathStyle: true,
+      region: this.AWS_REGION,
     });
   }
 
-  async uploadSingleFile({
-    file,
-    isPublic = true,
-  }: {
-    file: Express.Multer.File;
-    isPublic: boolean;
-  }) {
+  async uploadSingleFile(file: Express.Multer.File): Promise<any> {
+    const key = `${uuidv4()}`;
+    const command = new PutObjectCommand({
+      Bucket: this.BUCKET_NAME,
+      Key: key,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+      Metadata: {
+        originalName: file.originalname,
+      },
+    });
+
     try {
-      const key = `${uuidv4()}`;
-      const command = new PutObjectCommand({
-        Bucket: this.bucketName,
-        Key: key,
-        Body: file.buffer,
-        ContentType: file.mimetype,
-        // ACL: isPublic ? 'public-read' : 'private',
-
-        Metadata: {
-          originalName: file.originalname,
-        },
-      });
-
       await this.s3Client.send(command);
 
-      this.logger.log(`File uploaded (key: ${key})`);
+      const fileUrl = `https://${this.BUCKET_NAME}.s3.amazonaws.com/${key}`;
+      this.logger.log(`File uploaded (url: ${fileUrl})`);
 
       return {
-        url: isPublic
-          ? (await this.getFileUrl(key)).url
-          : (await this.getPresignedSignedUrl(key)).url,
+        url: fileUrl,
         key,
-        isPublic,
       };
     } catch (e) {
       if (e.$metadata?.httpStatusCode === 403) {
@@ -67,28 +63,47 @@ export class S3Service {
     }
   }
 
-  async getFileUrl(key: string) {
+  async deleteFile(key: string): Promise<any> {
+    const command = new DeleteObjectCommand({
+      Bucket: this.BUCKET_NAME,
+      Key: key,
+    });
+
     try {
-      return { url: `https://${this.bucketName}.s3.amazonaws.com/${key}` };
+      await this.checkFileExisting(key);
+      return await this.s3Client.send(command);
     } catch (e) {
       throw e;
     }
   }
 
-  async getPresignedSignedUrl(key: string) {
+  // --- Methods ---
+
+  public async checkFileExisting(key: string) {
+    const command = new HeadObjectCommand({
+      Bucket: this.BUCKET_NAME,
+      Key: key,
+    });
+
     try {
-      const command = new GetObjectCommand({
-        Bucket: this.bucketName,
-        Key: key,
-      });
-
-      const url = await getSignedUrl(this.s3Client, command, {
-        expiresIn: 60 * 60 * 24, // 24 hours
-      });
-
-      return { url };
+      await this.s3Client.send(command);
     } catch (e) {
-      console.error(`Error generating presigned URL for key ${key}:`, e);
+      if (e.$metadata?.httpStatusCode === 404) {
+        throw new NotFoundException('File not found');
+      }
+      throw e;
+    }
+  }
+
+  public async getFileUrl(key: string) {
+    try {
+      return { url: `https://${this.BUCKET_NAME}.s3.amazonaws.com/${key}` };
+    } catch (e) {
+      if (e.$metadata?.httpStatusCode === 403) {
+        throw new ForbiddenException(
+          'Access Denied: You do not have permission to upload files to this bucket.',
+        );
+      }
       throw e;
     }
   }
