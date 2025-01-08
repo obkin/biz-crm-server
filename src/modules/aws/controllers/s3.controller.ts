@@ -6,7 +6,6 @@ import {
   HttpException,
   HttpStatus,
   MaxFileSizeValidator,
-  Param,
   ParseFilePipe,
   Post,
   Query,
@@ -54,9 +53,24 @@ export class S3Controller {
     }
   }
 
+  @Get('/file')
+  async getFileUrl(@Query('key') key: string) {
+    try {
+      return this.s3Service.getFileUrl(key);
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new HttpException(
+          `Failed to get the file. ${e}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
   @Delete('/file')
   async deleteFile(@Query('key') key: string) {
-    console.log(key); // debug
     try {
       await this.s3Service.deleteFile(key);
       return {
@@ -69,23 +83,6 @@ export class S3Controller {
       } else {
         throw new HttpException(
           `Failed to delete the file. ${e}`,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-    }
-  }
-
-  @Get('/file/:key')
-  async getFileUrl(@Param('key') key: string) {
-    console.log(key); // debug
-    try {
-      return this.s3Service.getFileUrl('9196d5ff-3841-4f65-a384-99f797df378b');
-    } catch (e) {
-      if (e instanceof HttpException) {
-        throw e;
-      } else {
-        throw new HttpException(
-          `Failed to get the file. ${e}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }

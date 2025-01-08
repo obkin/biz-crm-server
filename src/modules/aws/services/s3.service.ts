@@ -63,6 +63,20 @@ export class S3Service {
     }
   }
 
+  async getFileUrl(key: string) {
+    try {
+      await this.checkFileExisting(key);
+      return { url: `https://${this.BUCKET_NAME}.s3.amazonaws.com/${key}` };
+    } catch (e) {
+      if (e.$metadata?.httpStatusCode === 403) {
+        throw new ForbiddenException(
+          'Access Denied: You do not have permission to upload files to this bucket.',
+        );
+      }
+      throw e;
+    }
+  }
+
   async deleteFile(key: string): Promise<any> {
     const command = new DeleteObjectCommand({
       Bucket: this.BUCKET_NAME,
@@ -90,19 +104,6 @@ export class S3Service {
     } catch (e) {
       if (e.$metadata?.httpStatusCode === 404) {
         throw new NotFoundException('File not found');
-      }
-      throw e;
-    }
-  }
-
-  public async getFileUrl(key: string) {
-    try {
-      return { url: `https://${this.BUCKET_NAME}.s3.amazonaws.com/${key}` };
-    } catch (e) {
-      if (e.$metadata?.httpStatusCode === 403) {
-        throw new ForbiddenException(
-          'Access Denied: You do not have permission to upload files to this bucket.',
-        );
       }
       throw e;
     }
